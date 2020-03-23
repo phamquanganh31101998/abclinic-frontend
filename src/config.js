@@ -1,3 +1,5 @@
 export default{
-    apiUrl: process.env.VUE_APP_API_URL
+    apiUrl: process.env.VUE_APP_API_URL,
+    miscUrl: process.env.VUE_APP_API_URL + '/misc',
+    authUrl: process.env.VUE_APP_API_URL + '/auth'
 }
