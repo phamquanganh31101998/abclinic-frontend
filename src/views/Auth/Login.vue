@@ -20,8 +20,8 @@
         methods: {
             miscMethod(){
                 let param = {
-                    Authorization: 'd8161da9-722c-49cb-9cc7-74b8dde1d514'
-                }
+                    Authorization: '8eec535a-10f2-4d0d-bd07-b67784fd2fd4'
+                }                                                                                                                                                                                
                 let url = `${config.miscUrl}/accounts`
                 apiService.getApi(url, param).then(result => {
                     this.responseText = result

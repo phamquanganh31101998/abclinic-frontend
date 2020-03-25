@@ -2,7 +2,7 @@ import axios from 'axios'
 import qs from 'qs'
 
 export default {
-    getApi
+    getApi, postApi
 }
 
 async function getApi(url, param){
@@ -10,6 +10,10 @@ async function getApi(url, param){
         let config = {
             method: 'get',
             url: url,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
         }
         if (param != null && param != undefined){
             let _qs = qs.stringify(param)
@@ -20,5 +24,20 @@ async function getApi(url, param){
     }
     catch (error) {
         alert(error)
+    }
+}
+
+async function postApi(url, data){
+    let config = {
+        method: 'post',
+        url: url,
+        data: data
+    }
+    try {
+        const result = await axios(config)
+        return result
+    }
+    catch (error) {
+        return alert(error)
     }
 }

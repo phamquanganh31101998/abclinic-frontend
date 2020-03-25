@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Auth/Login.vue'
+import Info from '../views/UserInfo.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -23,6 +24,11 @@ const routes = [
     name: 'Login',
     component: Login
   },
+  {
+    path: '/info',
+    name: 'Info',
+    component: Info
+  }
 ]
 
 const router = new VueRouter({
