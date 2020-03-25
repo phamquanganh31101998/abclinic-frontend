@@ -2,7 +2,13 @@
   <div class="home">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
-    <v-btn @click="logout()">Click here</v-btn>
+    <v-container>
+      <v-row>
+        <v-col>
+          <h1>Home page</h1>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -22,7 +28,7 @@ export default {
   },
   methods: {
     logout(){
-      this.$router.push('/login')
+      this.$router.replace('/login')
     }
   }
 }
