@@ -12,7 +12,7 @@ async function getApi(url, param){
             url: url,
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
+                'Accept': 'application/json', 
             },
         }
         if (param != null && param != undefined){
