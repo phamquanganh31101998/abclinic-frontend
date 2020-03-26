@@ -1,11 +1,15 @@
 <template>
   <v-app>
     <v-app-bar
+      dense
       app
       color="primary"
       dark
-    >
-      <div class="d-flex align-center">
+      >
+      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+  
+      <v-toolbar-title>ABCLINIC</v-toolbar-title>
+      <!-- <div class="d-flex align-center">
         <v-btn text :large="true" @click="goToHomePage()">
           <v-img
             alt="Vuetify Logo"
@@ -16,9 +20,9 @@
             width="40"
           />
 
-          <h1>ABCLINIC</h1>
+          <h2>ABCLINIC</h2>
         </v-btn>
-      </div>
+      </div> -->
 
       <v-spacer></v-spacer>
       <v-btn text @click="goToInfoPage()">
@@ -37,6 +41,36 @@
     <v-content>
       <router-view></router-view>
     </v-content>
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary
+      >
+      <v-list
+        nav
+        dense
+      >
+        <v-list-item-group
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Account</v-list-item-title>
+          </v-list-item>
+
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
   </v-app>
 </template>
 
@@ -51,6 +85,7 @@ export default {
 
   data: () => ({
     //
+    drawer: false,
   }),
   methods: {
     goToHomePage(){
