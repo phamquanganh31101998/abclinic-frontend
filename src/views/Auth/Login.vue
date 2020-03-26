@@ -22,7 +22,8 @@
                 let param = {
                     Authorization: '8eec535a-10f2-4d0d-bd07-b67784fd2fd4'
                 }                                                                                                                                                                                
-                let url = `${config.miscUrl}/accounts`
+                // let url = `${config.miscUrl}/accounts`
+                let url = `${config.userUrl}`
                 apiService.getApi(url, param).then(result => {
                     this.responseText = result
                 }).catch(error => {

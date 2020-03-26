@@ -17,12 +17,18 @@
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     <v-text-field :rules="noEmptyRules" v-model="name" label="Tên người dùng"></v-text-field>
                                 </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                    <v-text-field v-model="email" :rules="emailRules" label="Tên người dùng"></v-text-field>
+                                    <v-text-field v-model="email" :rules="emailRules" label="Email"></v-text-field>
                                 </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     <v-text-field v-model="phoneNumber" :rules="phoneRules" label="Số điện thoại"></v-text-field>
                                 </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     Giới tính
                                     <v-radio-group v-model="gender" row>
@@ -31,6 +37,8 @@
                                         <v-radio label="Khác" value="2"></v-radio>
                                     </v-radio-group>
                                 </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     <v-menu
                                         ref="menu"
@@ -57,6 +65,12 @@
                                         </v-date-picker>
                                     </v-menu>
                                 </v-col>
+                            </v-row>
+                            <v-row>
+
+                            </v-row>
+                            <v-row>
+                                
                             </v-row>
                         </v-form>
                         <v-row>
