@@ -21,38 +21,11 @@
     </v-app-bar> -->
     <app-bar></app-bar>
     <v-content>
-        <router-view></router-view>
+        <transition name="slide" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </v-content>
     <nav-bar></nav-bar>
-    <!-- <v-navigation-drawer
-      app
-      color="primary"
-      dark
-      v-model="drawer"
-        >
-      <v-list
-        nav
-        dense
-        >
-        <v-list-item-group
-          >
-          <v-list-item @click="goToHomePage()">
-            <v-list-item-icon>
-              <v-icon>mdi-home</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Trang chủ</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item @click="goToInfoPage()">
-            <v-list-item-icon>
-              <v-icon>mdi-account</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Thông tin người dùng</v-list-item-title>
-          </v-list-item>
-
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer> -->
   </v-app>
 </template>
 
@@ -78,3 +51,35 @@ export default {
   }
 };
 </script>
+
+<style>
+    .slide-enter-active {
+        animation: slide-in 200ms ease-out forwards;
+    }
+
+    .slide-leave-active {
+        animation: slide-out 200ms ease-out forwards;
+    }
+
+    @keyframes slide-in {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-out {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+    }
+</style>
