@@ -17,7 +17,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -32,7 +32,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -47,7 +47,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -62,7 +62,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -77,7 +77,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -103,7 +103,7 @@ const routes = [
         next('/')
       }
       else {
-        alert('Bắt đầu đăng nhập')
+        // alert('Bắt đầu đăng nhập')
         next()
       }
     }
@@ -115,7 +115,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        alert('Vui lòng đăng nhập lại')
+        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {

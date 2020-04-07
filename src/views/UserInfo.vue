@@ -85,15 +85,17 @@
     </v-container>
 </template>
 <script>
+import apiService from '../services/api.service'
+import config from '../config'
 export default {
     data(){
         return{
             valid: false,
-            name: 'Quang Anh',
-            email: 'quanganhpham31110998@gmail.com',
-            dateOfBirth: "1998-10-31",
+            name: '',
+            email: '',
+            dateOfBirth: '',
             dateMenu: false,
-            phoneNumber: '01252665998',
+            phoneNumber: '',
             gender: "0",
             emailRules: [
                 v => !!v || 'Chưa nhập E-mail',
@@ -107,10 +109,27 @@ export default {
             ]
         }
     },
-    watch: {
-        dateOfBirth(){
-            console.log('dm')
+    methods: {
+        checkString(str){
+            return (str != null & str != undefined) ? str : '_'
+        },
+        getInfo(){
+            let url = `${config.userUrl}`
+            apiService.getApi(url).then(result=> {
+                let data = result.data;
+                this.name = data.name
+                this.email = data.email;
+                this.gender = data.gender.toString()
+                this.dateOfBirth = data.dateOfBirth.split("-").reverse().join("-");
+                this.phoneNumber = data.phoneNumber;
+
+            }).catch(error => {
+                alert(error)
+            })
         }
+    },
+    created(){
+        this.getInfo()
     }
 }
 </script>

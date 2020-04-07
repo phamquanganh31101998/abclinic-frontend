@@ -56,11 +56,13 @@ export default {
     computed:{
         ...mapGetters({
             drawer: 'navDrawer'
-        })
+        }),
+
     },
     methods: {
         goToPage(page){
             if(page){
+                // console.log(this.$store.state.ac_uid)
                 let url = `/${page}`
                 this.$router.push(url)
             }

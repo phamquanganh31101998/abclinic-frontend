@@ -1,24 +1,5 @@
 <template>
   <v-app>
-    <!-- <v-app-bar
-      dense
-      app
-      color="primary"
-      dark
-      >
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-btn text @click="goToHomePage()">
-        <v-toolbar-title>ABCLINIC</v-toolbar-title>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn
-        href="#"
-        text
-        >
-        <span class="mr-2" @click="logout()">Đăng xuất</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar> -->
     <app-bar></app-bar>
     <v-content>
         <transition name="slide" mode="out-in">
@@ -43,6 +24,11 @@ export default {
     //
     drawer: false,
   }),
+  computed: {
+    // isLogin(){
+    //   return window.location.href.includes("login")
+    // }
+  },
   methods: {
     goToHomePage(){
         this.$router.replace('/')

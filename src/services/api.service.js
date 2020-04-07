@@ -2,7 +2,7 @@ import axios from 'axios'
 // import qs from 'qs'
 
 export default {
-    getApi, postApi
+    getApi, postApi, login
 }
 
 async function getApi(url, param){
@@ -21,7 +21,7 @@ async function getApi(url, param){
         return result
     }
     catch (error) {
-        alert(error)
+        // alert(error)
         console.log(error.response)
     }
 }
@@ -37,6 +37,23 @@ async function postApi(url, data){
         return result
     }
     catch (error) {
-        return alert(error)
+        alert(error)
+    }
+}
+
+async function login(url, params){
+    let config = {
+        method: 'post',
+        url: url,
+        params: params
+    }
+    try {
+        const result = await axios(config)
+        return result
+    }
+    catch (error) {
+        // console.log(error.response)
+        alert(error.response.data.message)
+        // return error
     }
 }
