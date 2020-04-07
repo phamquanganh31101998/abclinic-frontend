@@ -5,7 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    navDrawer: false
+    navDrawer: false,
+    ac_uid: null
   },
   mutations: {
     toggleNavDrawer(state){
