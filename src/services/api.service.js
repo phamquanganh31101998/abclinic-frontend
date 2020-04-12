@@ -2,7 +2,7 @@ import axios from 'axios'
 // import qs from 'qs'
 
 export default {
-    getApi, postApi, login
+    getApi, postApi, login, postApiParams, deleteApi
 }
 
 async function getApi(url, param){
@@ -31,6 +31,46 @@ async function postApi(url, data){
         method: 'post',
         url: url,
         data: data
+    }
+    try {
+        const result = await axios(config)
+        return result
+    }
+    catch (error) {
+        alert(error)
+    }
+}
+
+async function postApiParams(url, params){
+    let config = {
+        method: 'post',
+        url: url,
+        params: params,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('ac_uid'),
+        },
+    }
+    try {
+        const result = await axios(config)
+        return result
+    }
+    catch (error) {
+        alert(error)
+    }
+}
+
+async function deleteApi(url, params){
+    let config = {
+        method: 'delete',
+        url: url,
+        params: params,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('ac_uid'),
+        },
     }
     try {
         const result = await axios(config)

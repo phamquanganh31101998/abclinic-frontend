@@ -9,11 +9,11 @@
             nav
             dense
             >
-            <v-list-item @click="goToPage()">
+            <v-list-item @click="goToPage('about')">
                 <v-list-item-icon>
                 <v-icon>mdi-home</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Trang chủ</v-list-item-title>
+                <v-list-item-title>Giới thiệu</v-list-item-title>
             </v-list-item>
 
             <v-list-item @click="goToPage('info')">
