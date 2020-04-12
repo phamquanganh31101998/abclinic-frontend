@@ -22,8 +22,8 @@
 <script>
 export default {
     methods: {
-        goToHomePage(){
-            this.$router.replace('/')
+        goToAboutPage(){
+            this.$router.replace('/about')
         },
         toggleNavDrawer(){
             this.$store.dispatch('toggleNavDrawer')

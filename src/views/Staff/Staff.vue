@@ -7,16 +7,62 @@
         </v-row>
         <v-row wrap row>
             <v-col xs="12" md="12" sm="12" lg="12" xl="12">
-                <h3>Danh sách nhân viên</h3>
-                <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-1">
+                <h2>Danh sách nhân viên</h2>
+                <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-4">
                     <template v-slot:item.more="{ item }">
                         <a @click="openDoctorDetailDialog(item.number)">{{item.more}}</a>
                     </template>
-                    <!-- <template v-slot:item.gender="{ item }">
-                        {{checkGender(item.gender)}}
-                    </template> -->
                 </v-data-table>
                 <v-dialog v-model="doctorDetailDialog" width="70%">
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">Thông tin chi tiết</span>
+                        </v-card-title>
+                        <v-card-text>
+                        <v-container>
+                            <v-row>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-text-field readonly label="Tên" v-model="doctorDetail.name"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-text-field readonly label="Ngày sinh" v-model="doctorDetail.dateOfBirth" ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-text-field
+                                    readonly 
+                                    label="Giới tính"
+                                    v-model="doctorDetail.gender"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field readonly label="Email" v-model="doctorDetail.email"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field readonly label="Ghi chú" v-model="doctorDetail.description"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12">
+                                <v-text-field readonly label="Chuyên môn" v-model="doctorDetail.specialty"></v-text-field>
+                            </v-col>
+                            </v-row>
+                        </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="red" text @click="doctorDetailDialog = false">Close</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-col>
+        </v-row>
+        <v-row wrap row>
+            <v-col xs="12" md="12" sm="12" lg="12" xl="12">
+                <h2>Danh sách bệnh nhân</h2>
+                <v-data-table :headers="patientHeaders" :items="allPatients" class="elevation-4">
+                    <template v-slot:item.more="{ item }">
+                        <a @click="goToPatientPage(item.id)">Xem chi tiết</a>
+                    </template>
+                </v-data-table>
+                <v-dialog width="70%">
                     <v-card>
                         <v-card-title>
                             <span class="headline">Thông tin chi tiết</span>
@@ -161,10 +207,19 @@ export default {
                 { text: 'EMAIL', value: 'email', align: 'start' },
                 { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
                 { text: 'XEM CHI TIẾT', value: 'more', align: 'start' },
-                // { text: 'NGÀY SINH', value: 'dateOfBirth', align: 'start', sortable: false },
-                // { text: 'GHI CHÚ', value: 'description', align: 'start', sortable: false },
-                // { text: 'CHUYÊN MÔN', value: 'specialty', align: 'start', sortable: false },
-            ]
+            ],
+            allPatients: [
+                {
+                    "id": 5,
+                    "name": "B?nh nhân 01",
+                    "avatar": null
+                },
+            ],
+            patientHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN', value: 'name', align: 'start' },
+                { text: 'XEM CHI TIẾT', value: 'more', align: 'start' },
+            ],
         }
     },
     methods: {
@@ -216,13 +271,33 @@ export default {
             }
         },
         openDoctorDetailDialog(number){
-            // console.log(number)
             this.doctorDetail = this.allDoctors[number]
             this.doctorDetailDialog = true
+        },
+        getAllPatients(page, size){
+            let params = {
+                page: page,
+                size: size,
+            }
+            let url = `${config.apiUrl}/patients`
+            apiService.getApi(url, params).then(result => {
+                console.log(result)
+                this.updatePatients(result.data)
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+        updatePatients(patArray){
+            this.allPatients = patArray;
+        },
+        goToPatientPage(id){
+            let url = `/patient/${id}`
+            this.$router.push(url)
         }
     },
     created(){
-        this.getAllDoctorFromServer(1, 10)
+        // this.getAllDoctorFromServer(1, 10)
+        this.getAllPatients(1, 10)
     }
 
 }

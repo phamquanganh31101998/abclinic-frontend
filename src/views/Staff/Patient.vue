@@ -2,7 +2,7 @@
     <v-container>
         <v-row>
             <v-col>
-                <h1>Thông tin người dùng</h1>
+                <h1>Patient detail here {{idPatient}}</h1>
             </v-col>
         </v-row>
         <v-row>
@@ -13,7 +13,8 @@
                     </v-card-title>
                     <v-card-text>
                         <v-form v-model="valid">
-                            <v-row wrap>
+                            
+                            <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     <v-text-field :rules="noEmptyRules" v-model="name" label="Tên người dùng"></v-text-field>
                                 </v-col>
@@ -71,12 +72,6 @@
                                     </v-menu>
                                 </v-col>
                             </v-row>
-                            <v-row>
-
-                            </v-row>
-                            <v-row>
-                                
-                            </v-row>
                         </v-form>
                         <v-row>
                             <v-col>
@@ -90,11 +85,17 @@
     </v-container>
 </template>
 <script>
-import apiService from '../services/api.service'
-import config from '../config'
+import apiService from '../../services/api.service'
+import config from '../../config'
 export default {
-    data(){
-        return{
+    props: {
+        idPatient: {
+            type: String,
+            default: null,
+        },
+    },
+    data() {
+        return {
             valid: false,
             name: '',
             role: '',
@@ -116,12 +117,10 @@ export default {
         }
     },
     methods: {
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
-        },
-        getInfo(){
-            let url = `${config.userUrl}`
-            apiService.getApi(url).then(result=> {
+        getPatient(id){
+            let url = `${config.apiUrl}/patients/${id}`
+            apiService.getApi(url).then(result => {
+                console.log(result)
                 let data = result.data;
                 this.name = data.name
                 this.email = data.email;
@@ -130,12 +129,12 @@ export default {
                 this.phoneNumber = data.phoneNumber;
                 this.role = data.role
             }).catch(error => {
-                alert(error)
+                console.log(error)
             })
         }
     },
     created(){
-        this.getInfo()
+        this.getPatient(this.idPatient)
     }
 }
 </script>
