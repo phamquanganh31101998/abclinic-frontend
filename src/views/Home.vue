@@ -27,13 +27,19 @@ import NavBar from '../components/NavBar'
 export default {
   data(){
     return {
-
+      
+    }
+  },
+  methods: {
+    goToPage(link){
+      this.$router.push(link)
     }
   },
   components: {
     AppBar, NavBar
   },
-  methods: {
+  created() {
+    this.goToPage('/about')
   }
 }
 </script>
