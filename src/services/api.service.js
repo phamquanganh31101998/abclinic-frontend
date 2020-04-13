@@ -21,8 +21,7 @@ async function getApi(url, param){
         return result
     }
     catch (error) {
-        // alert(error)
-        console.log(error.response)
+        return error.response;
     }
 }
 

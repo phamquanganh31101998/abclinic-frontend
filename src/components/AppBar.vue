@@ -6,7 +6,7 @@
         dark
         >
         <v-app-bar-nav-icon @click="toggleNavDrawer()"></v-app-bar-nav-icon>
-        <v-btn text @click="goToHomePage()">
+        <v-btn text @click="goToPage('/about')">
             <v-toolbar-title>ABCLINIC</v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
@@ -22,8 +22,8 @@
 <script>
 export default {
     methods: {
-        goToAboutPage(){
-            this.$router.replace('/about')
+        goToPage(link){
+            this.$router.replace(link)
         },
         toggleNavDrawer(){
             this.$store.dispatch('toggleNavDrawer')
