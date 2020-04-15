@@ -24,6 +24,8 @@
 // import HelloWorld from '@/components/HelloWorld.vue'
 import AppBar from '../components/AppBar'
 import NavBar from '../components/NavBar'
+import apiService from '../services/api.service'
+import config from '../config'
 export default {
   data(){
     return {
@@ -33,13 +35,30 @@ export default {
   methods: {
     goToPage(link){
       this.$router.push(link)
+    },
+    checkUID(){
+        // let uid = localStorage.getItem('ac_uid')
+        let url = `${config.userUrl}`
+        apiService.getApi(url).then(result => {
+            console.log(result)
+            if(result.status === 200){
+                this.$store.dispatch('setAuthData', result.data)
+            }
+            else if (result.status === 401){
+                this.$store.dispatch('clearAuthData')
+            }
+        }).catch(error => {
+            console.log(error)
+        })
     }
   },
   components: {
     AppBar, NavBar
   },
   created() {
-    this.goToPage('/about')
+    console.log('Home created!!')
+    this.checkUID()
+    // this.goToPage('/about')
   }
 }
 </script>

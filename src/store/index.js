@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
+import router from '../router/index'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -24,6 +24,16 @@ export default new Vuex.Store({
     },
     turnOffAlert(state){
       state.alertSnackbar = false;
+    },
+    setAuthData(state, payload){
+      state.ac_uid = localStorage.getItem('ac_uid')
+      state.user = payload
+    },
+    clearAuthData(state){
+      state.ac_uid = null;
+      state.user = null;
+      localStorage.removeItem('ac_uid')
+      router.replace('/login')
     }
   },
   actions: {
@@ -35,6 +45,12 @@ export default new Vuex.Store({
     },
     turnOffAlert({commit}){
       commit('turnOffAlert')
+    },
+    setAuthData({commit}, data){
+      commit('setAuthData', data)
+    },
+    clearAuthData({commit}){
+      commit('clearAuthData')
     }
   },
   modules: {

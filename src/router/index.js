@@ -16,6 +16,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    redirect: '/about',
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
@@ -191,6 +192,10 @@ const routes = [
       }
     }
   },
+  {
+    path: '*',
+    redirect: '/'
+  }
   
 ]
 

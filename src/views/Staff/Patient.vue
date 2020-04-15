@@ -7,13 +7,10 @@
         </v-row>
         <v-row>
             <v-col xl="12">
-                <v-card>
-                    <v-card-title>
-                        Thông tin cơ bản
-                    </v-card-title>
+                <h1>Thông tin cơ bản</h1>
+                <v-card class="elevation-4" v-if="0">
                     <v-card-text>
                         <v-form v-model="valid">
-                            
                             <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     <v-text-field :rules="noEmptyRules" v-model="name" label="Tên người dùng"></v-text-field>
@@ -37,7 +34,7 @@
                             <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                     Giới tính
-                                    <v-radio-group v-model="gender" row>
+                                    <v-radio-group v-model="gender" row readonly>
                                         <v-radio label="Nam" value="0"></v-radio>
                                         <v-radio label="Nữ" value="1"></v-radio>
                                         <v-radio label="Khác" value="2"></v-radio>
@@ -55,13 +52,12 @@
                                         offset-y
                                         min-width="290px"
                                         >
-                                        <template v-slot:activator="{ on }">
+                                        <template v-slot:activator="{ }">
                                             <v-text-field
                                                 v-model="dateOfBirth"
                                                 label="Ngày sinh"
                                                 prepend-icon="event"
                                                 readonly
-                                                v-on="on"
                                             ></v-text-field>
                                         </template>
                                         <v-date-picker v-model="dateOfBirth" no-title scrollable>
@@ -80,6 +76,11 @@
                         </v-row>
                     </v-card-text>
                 </v-card>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+                <h1>Các yêu cầu xin tư vấn</h1>
             </v-col>
         </v-row>
     </v-container>
@@ -129,7 +130,7 @@ export default {
                 this.phoneNumber = data.phoneNumber;
                 this.role = data.role
             }).catch(error => {
-                console.log(error)
+                this.$store.dispatch('turnOnAlert', {color: 'error', message: error.toString()})
             })
         }
     },

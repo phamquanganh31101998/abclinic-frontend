@@ -20,12 +20,12 @@
                             </v-row>
                             <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                    <v-text-field readonly v-model="role" label="Vị trí"></v-text-field>
+                                    <v-text-field v-model="email" :rules="emailRules" label="Email"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                    <v-text-field v-model="email" :rules="emailRules" label="Email"></v-text-field>
+                                    <v-text-field readonly :value="returnRole(role)" label="Vị trí"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -71,16 +71,10 @@
                                     </v-menu>
                                 </v-col>
                             </v-row>
-                            <v-row>
-
-                            </v-row>
-                            <v-row>
-                                
-                            </v-row>
                         </v-form>
                         <v-row>
                             <v-col>
-                                <v-btn :disabled="!valid" rounded color="primary">Cập nhật thông tin</v-btn>
+                                <v-btn @click="updateInfo(email, phoneNumber, description, address)" :disabled="!valid" rounded color="primary">Cập nhật thông tin</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -99,6 +93,8 @@ export default {
             name: '',
             role: '',
             email: '',
+            description: '',
+            address: '',
             dateOfBirth: '',
             dateMenu: false,
             phoneNumber: '',
@@ -122,6 +118,7 @@ export default {
         getInfo(){
             let url = `${config.userUrl}`
             apiService.getApi(url).then(result=> {
+                // console.log(result)
                 let data = result.data;
                 this.name = data.name
                 this.email = data.email;
@@ -131,6 +128,49 @@ export default {
                 this.role = data.role
             }).catch(error => {
                 alert(error)
+            })
+        },
+        returnRole(role){
+            let result = '';
+            switch(role){
+                case 'PATIENT':
+                    result = 'Bệnh nhân';
+                    break;
+                case 'PRACTITIONER':
+                    result = 'Bác sĩ đa khoa';
+                    break;
+                case 'SPECIALIST':
+                    result = 'Bác sĩ chuyên khoa';
+                    break;
+                case 'DIETITIAN':
+                    result = 'Bác sĩ dinh dưỡng';
+                    break;
+                case 'COORDINATOR':
+                    result = 'ĐIỀU PHỐI VIÊN';
+                    break;
+                default:
+                    result = '';
+                    break;
+            }
+            return result
+        },
+        updateInfo(email, phone, description, address){
+            let params = {
+                email: email,
+                phone: phone
+            }
+            if(description){
+                params.description = description
+            }
+            if (address){
+                params.address = address
+            }
+            let url = `${config.userUrl}`
+            apiService.putApi(url, params).then(result => {
+                console.log(result)
+                this.getInfo()
+            }).catch(error => {
+                console.log(error)
             })
         }
     },

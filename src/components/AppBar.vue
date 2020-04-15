@@ -29,8 +29,8 @@ export default {
             this.$store.dispatch('toggleNavDrawer')
         },
         logout(){
-            localStorage.removeItem('ac_uid')
-            this.$router.replace('/login')
+            this.$router.dispatch('clearAuthData')
+            // this.$router.replace('/login')
         }
     }
 }
