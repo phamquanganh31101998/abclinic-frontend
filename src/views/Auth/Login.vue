@@ -105,7 +105,7 @@
                     apiService.login(url, params).then(result => {
                         this.responseText = result
                         localStorage.setItem('ac_uid', result.data)
-                        this.$router.push('/info')
+                        this.$router.push('/about')
                     }).catch(error => {
                         console.log(error)
                     })
