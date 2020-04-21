@@ -43,7 +43,7 @@ async function putApi(url, params){
         return result
     }
     catch (error) {
-        alert(error)
+        return error.response;
     }
 }
 
@@ -51,14 +51,19 @@ async function postApi(url, data){
     let config = {
         method: 'post',
         url: url,
-        data: data
+        data: data,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('ac_uid'),
+        },
     }
     try {
         const result = await axios(config)
         return result
     }
     catch (error) {
-        alert(error)
+        return error.response;
     }
 }
 
@@ -78,7 +83,7 @@ async function postApiParams(url, params){
         return result
     }
     catch (error) {
-        alert(error)
+        return error.response;
     }
 }
 
@@ -98,7 +103,7 @@ async function deleteApi(url, params){
         return result
     }
     catch (error) {
-        alert(error)
+        return error.response;
     }
 }
 
@@ -106,15 +111,18 @@ async function login(url, params){
     let config = {
         method: 'post',
         url: url,
-        params: params
+        params: params,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('ac_uid'),
+        },
     }
     try {
         const result = await axios(config)
         return result
     }
     catch (error) {
-        // console.log(error.response)
-        alert(error.response.data.message)
-        // return error
+        return error.response;
     }
 }
