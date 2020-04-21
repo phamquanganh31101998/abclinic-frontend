@@ -54,7 +54,7 @@
                 </v-dialog>
             </v-col>
         </v-row>
-        <v-row wrap row>
+        <!-- <v-row wrap row>
             <v-col xs="12" md="12" sm="12" lg="12" xl="12">
                 <h2>Danh sách bệnh nhân</h2>
                 <v-data-table :headers="patientHeaders" :items="allPatients" class="elevation-4">
@@ -102,7 +102,7 @@
                     </v-card>
                 </v-dialog>
             </v-col>
-        </v-row>
+        </v-row> -->
     </v-container>
 </template>
 <script>
@@ -296,7 +296,7 @@ export default {
         }
     },
     created(){
-        // this.getAllDoctorFromServer(1, 10)
+        this.getAllDoctorFromServer(1, 10)
         this.getAllPatients(1, 10)
     }
 
