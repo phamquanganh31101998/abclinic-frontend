@@ -20,6 +20,8 @@
     </v-app-bar>
 </template>
 <script>
+import config from '../config'
+import apiService from '../services/api.service'
 export default {
     methods: {
         goToPage(link){
@@ -29,6 +31,15 @@ export default {
             this.$store.dispatch('toggleNavDrawer')
         },
         logout(){
+            let url = `${config.apiUrl}/auth/sign_out`
+            apiService.postApiParams(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('clearAuthData')
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            })
             this.$router.dispatch('clearAuthData')
             // this.$router.replace('/login')
         }

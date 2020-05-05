@@ -18,31 +18,31 @@
 
             <v-list-item @click="goToPage('info')">
                 <v-list-item-icon>
-                <v-icon>mdi-account</v-icon>
+                <v-icon>info</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Thông tin người dùng</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('practitioner')">
                 <v-list-item-icon>
-                    <v-icon>add</v-icon>
+                    <v-icon>people</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Bác sĩ đa khoa</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('specialist')">
                 <v-list-item-icon>
-                    <v-icon>add</v-icon>
+                    <v-icon>record_voice_over</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Bác sĩ chuyên khoa</v-list-item-title>
+                <v-list-item-title>Bác sĩ chuyên khoa/Dinh dưỡng</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('coordinator')">
                 <v-list-item-icon>
-                    <v-icon>add</v-icon>
+                    <v-icon>directions_run</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Điều phối viên</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('staff')">
                 <v-list-item-icon>
-                    <v-icon>add</v-icon>
+                    <v-icon>local_hospital</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Chức năng chung</v-list-item-title>
             </v-list-item>
