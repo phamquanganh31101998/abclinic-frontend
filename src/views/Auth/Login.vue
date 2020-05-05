@@ -75,44 +75,87 @@
             //         console.log(error)
             //     })
             // }
+            checkUID(){
+                // let uid = localStorage.getItem('ac_uid')
+                let url = `${config.userUrl}`
+                apiService.getApi(url).then(result => {
+                    console.log(result)
+                    if(result.status === 200){
+                        if(result.data.role == 'PATIENT'){
+                            this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám, không dành cho bệnh nhân đăng nhập'})
+                        }
+                        else {
+                            this.$store.dispatch('setAuthData', result.data)
+                            this.$router.push('/info')
+                        }
+                        // this.$store.dispatch('setAuthData', result.data)
+                    }
+                    else if (result.status === 401){
+                        // this.$store.dispatch('clearAuthData')
+                    }
+                }).catch(error => {
+                    console.log(error)
+                })
+            },
             login(){
                 let info = this.info
                 let password = this.password
+                let url = `${config.apiUrl}/auth/login/email`
+                let params = {
+                    account: info,
+                    password: password
+                }
+                apiService.login(url, params).then(result => {
+                    console.log(result)
+                    if(result.status.toString()[0] === "2"){
+                        // console.log(result)
+                        localStorage.setItem('ac_uid', result.data)
+                        this.checkUID()
+                    }
+                    else {
+                        this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    }
+                    // localStorage.setItem('ac_uid', result.data)
+                    // this.$router.push('/info')
+                }).catch(error => {
+                    console.log(error)
+                })
                 // console.log(info)
                 // console.log(password)
-                let emailPattern = /.+@.+/;
-                let phonePattern = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\\./0-9]*$/g;
-                if (emailPattern.test(info)){
-                    let url = `${config.authUrl}/login/email`
-                    let params = {
-                        email: info,
-                        password: password
-                    }
-                    apiService.login(url, params).then(result => {
-                        this.responseText = result
-                        localStorage.setItem('ac_uid', result.data)
-                        this.$router.push('/info')
-                    }).catch(error => {
-                        console.log(error)
-                    })
-                }
-                else if (phonePattern.test(info)){
-                    let url = `${config.authUrl}/login/phone`
-                    let params = {
-                        phone: info,
-                        password: password
-                    }
-                    apiService.login(url, params).then(result => {
-                        this.responseText = result
-                        localStorage.setItem('ac_uid', result.data)
-                        this.$router.push('/about')
-                    }).catch(error => {
-                        console.log(error)
-                    })
-                }
-                else {
-                    alert('Phải nhập đúng định dạng email hoặc số điện thoại')
-                }
+                // let emailPattern = /.+@.+/;
+                // let phonePattern = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\\./0-9]*$/g;
+                // if (emailPattern.test(info)){
+                //     let url = `${config.authUrl}/login/email`
+                //     let params = {
+                //         email: info,
+                //         password: password
+                //     }
+                //     apiService.login(url, params).then(result => {
+                //         this.responseText = result
+
+                //         // localStorage.setItem('ac_uid', result.data)
+                //         // this.$router.push('/info')
+                //     }).catch(error => {
+                //         console.log(error)
+                //     })
+                // }
+                // else if (phonePattern.test(info)){
+                //     let url = `${config.authUrl}/login/phone`
+                //     let params = {
+                //         phone: info,
+                //         password: password
+                //     }
+                //     apiService.login(url, params).then(result => {
+                //         this.responseText = result
+                //         // localStorage.setItem('ac_uid', result.data)
+                //         // this.$router.push('/about')
+                //     }).catch(error => {
+                //         console.log(error)
+                //     })
+                // }
+                // else {
+                //     alert('Phải nhập đúng định dạng email hoặc số điện thoại')
+                // }
             }
         },
         created(){
