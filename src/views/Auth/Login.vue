@@ -79,7 +79,6 @@
                 // let uid = localStorage.getItem('ac_uid')
                 let url = `${config.userUrl}`
                 apiService.getApi(url).then(result => {
-                    console.log(result)
                     if(result.status === 200){
                         if(result.data.role == 'PATIENT'){
                             this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám, không dành cho bệnh nhân đăng nhập'})
@@ -91,7 +90,7 @@
                         // this.$store.dispatch('setAuthData', result.data)
                     }
                     else if (result.status === 401){
-                        // this.$store.dispatch('clearAuthData')
+                        this.$store.dispatch('clearAuthData')
                     }
                 }).catch(error => {
                     console.log(error)
@@ -100,13 +99,12 @@
             login(){
                 let info = this.info
                 let password = this.password
-                let url = `${config.apiUrl}/auth/login/email`
+                let url = `${config.apiUrl}/auth/login`
                 let params = {
                     account: info,
                     password: password
                 }
                 apiService.login(url, params).then(result => {
-                    console.log(result)
                     if(result.status.toString()[0] === "2"){
                         // console.log(result)
                         localStorage.setItem('ac_uid', result.data)

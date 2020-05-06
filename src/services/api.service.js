@@ -115,7 +115,6 @@ async function login(url, params){
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': localStorage.getItem('ac_uid'),
         },
     }
     try {
