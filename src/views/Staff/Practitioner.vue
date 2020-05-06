@@ -13,26 +13,26 @@
                     <v-icon v-show="showPatient == false" @click="showPatient = true">keyboard_arrow_down</v-icon>
                     <v-icon v-show="showPatient == true" @click="showPatient = false">keyboard_arrow_up</v-icon>
                 </h2> -->
-                <v-data-table v-show="showPatient" :headers="patientHeaders" :items="allPatients" class="elevation-4" hide-default-footer>
+                <v-data-table v-show="showPatient" :headers="patientHeaders" :detailInquirys="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
                             <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
                             <v-spacer></v-spacer>
                         </v-toolbar>
                     </template>
-                    <template v-slot:item.name="{item}">
-                        <a @click="getPatientDetail(item.id, true)">{{item.name}}</a>
+                    <template v-slot:detailInquiry.name="{detailInquiry}">
+                        <a @click="getPatientDetail(detailInquiry.id, true)">{{detailInquiry.name}}</a>
                     </template>
-                    <template v-slot:item.more="{item}">
+                    <template v-slot:detailInquiry.more="{detailInquiry}">
                         <v-menu offset-y>
                             <template v-slot:activator="{ on }">
                                 <v-icon v-on="on">more_vert</v-icon>
                             </template>
                             <v-list>
-                                <v-list-item @click="getPatientDetail(item.id, true)">
-                                    <v-list-item-title>Xem chi tiết</v-list-item-title>
-                                </v-list-item>
-                                <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                <v-list-detailInquiry @click="getPatientDetail(detailInquiry.id, true)">
+                                    <v-list-detailInquiry-title>Xem chi tiết</v-list-detailInquiry-title>
+                                </v-list-detailInquiry>
+                                <v-list-detailInquiry @click="getPatientDetail(detailInquiry.id, false)"><v-list-detailInquiry-title>Gán bệnh nhân</v-list-detailInquiry-title></v-list-detailInquiry>
                             </v-list>
                         </v-menu>
                     </template>
@@ -79,7 +79,7 @@
                                         <v-data-table
                                             hide-default-footer
                                             :headers="inquiryHeaders"
-                                            :items="patientDetail.inquiries"
+                                            :detailInquirys="patientDetail.inquiries"
                                             single-expand
                                             show-expand
                                             class="elevation-4"
@@ -90,14 +90,14 @@
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
-                                            <template v-slot:item.patient="{ item }">
-                                                {{ item.patient.name }}
+                                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
+                                                {{ detailInquiry.patient.name }}
                                             </template>
-                                            <template v-slot:item.type="{ item }">
-                                                {{ returnInquiryType(item.type) }}
+                                            <template v-slot:detailInquiry.type="{ detailInquiry }">
+                                                {{ returnInquiryType(detailInquiry.type) }}
                                             </template>
-                                            <template v-slot:expanded-item="{ item }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
+                                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ detailInquiry.content }}</b> </td>
                                             </template>
                                         </v-data-table>
                                     </v-col>
@@ -127,7 +127,7 @@
                                             hide-default-footer
                                             v-model="selectedInquiry"
                                             :headers="inquiryHeaders"
-                                            :items="patientDetail.inquiries"
+                                            :detailInquirys="patientDetail.inquiries"
                                             single-expand
                                             show-expand
                                             single-select
@@ -140,14 +140,14 @@
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
-                                            <template v-slot:item.type="{ item }">
-                                                {{ returnInquiryType(item.type) }}
+                                            <template v-slot:detailInquiry.type="{ detailInquiry }">
+                                                {{ returnInquiryType(detailInquiry.type) }}
                                             </template>
-                                            <template v-slot:item.patient="{ item }">
-                                                {{ item.patient.name }}
+                                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
+                                                {{ detailInquiry.patient.name }}
                                             </template>
-                                            <template v-slot:expanded-item="{ item }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
+                                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ detailInquiry.content }}</b> </td>
                                             </template>
                                         </v-data-table>
                                     </v-col>
@@ -156,7 +156,7 @@
                                             hide-default-footer
                                             v-model="selectedDoctor"
                                             :headers="doctorHeaders"
-                                            :items="selectableDoctor"
+                                            :detailInquirys="selectableDoctor"
                                             show-select
                                             class="elevation-4"
                                             >
@@ -231,108 +231,138 @@
                         Yêu cầu tư vấn
                     </v-card-title>
                     <v-card-text>
-                        <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
-                            <template v-slot:item.patient="{ item }">
-                                {{item.patient.name}}
+                        <v-data-table show-expand hide-default-footer class="elevation-4" :detailInquirys="patientDetail.inquiries" :headers="inquiryHeaders">
+                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
+                                {{detailInquiry.patient.name}}
                             </template>
-                            <template v-slot:item.type="{ item }">
-                                {{ returnInquiryType(item.type) }}
+                            <template v-slot:detailInquiry.type="{ detailInquiry }">
+                                {{ returnInquiryType(detailInquiry.type) }}
                             </template>
-                            <template v-slot:expanded-item="{ item }">
+                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
                                 <td :colspan="inquiryHeaders.length">
                                     <br>
-                                    <h2>Nội dung yêu cầu tư vấn: {{ item.content }}</h2> 
+                                    <h2>Nội dung yêu cầu tư vấn: {{ detailInquiry.content }}</h2> 
                                     <br>
-                                    <v-card>
-                                        <v-card-title>Phiếu trả lời tư vấn của bác sĩ</v-card-title>
-                                        <v-card-text v-if="item.record != null">
-                                            Bác sĩ: {{item.record.name}}
-                                            <br>
-                                            Chuyên môn: {{item.record.role}}
-                                            <br>
-                                            Chẩn đoán: {{item.record.diagnose}}
-                                            <br>
-                                            Kê đơn thuốc: {{item.record.prescription}}
-                                            <br>
-                                            Ghi chú: {{item.record.note}}
-                                            <br>
-                                        </v-card-text>
-                                        <v-card-text v-else>
-                                            Tư vấn này chưa đc trả lời. Liên hệ với bác sĩ cấp dưới ngay
-                                        </v-card-text>
-                                        <v-card-actions v-if="item.record != null">
-                                            <v-spacer></v-spacer>
-                                            <v-btn color="primary" rounded @click="openRecordEditDialog(item.id)">Chỉnh sửa tư vấn</v-btn>
-                                            <v-dialog max-width="700px" v-model="editRecord.dialog" persistent>
-                                                <v-card>
-                                                    <v-card-title
-                                                        class="headline grey lighten-2"
-                                                        primary-title
-                                                        >
-                                                        Chi tiết bệnh nhân
-                                                    </v-card-title>
-                                                    <v-card-text>
-                                                        <v-container>
-                                                            <v-row>
-                                                                <v-col cols="12">
-                                                                    <v-textarea rows="2" v-model="editRecord.obj.diagnose" label="Chẩn đoán"></v-textarea>
-                                                                </v-col>
-                                                            </v-row>
-                                                            <v-row>
-                                                                <v-col cols="12">
-                                                                    <v-textarea rows="2" v-model="editRecord.obj.prescription" label="Đơn thuốc"></v-textarea>
-                                                                </v-col>
-                                                            </v-row>
-                                                            <v-row>
-                                                                <v-col cols="12">
-                                                                    <v-textarea rows="2" v-model="editRecord.obj.note" label="Ghi chú"></v-textarea>
-                                                                </v-col>
-                                                            </v-row>
-                                                        </v-container>
-                                                    </v-card-text>
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn color="blue" :disabled="editRecord.obj.diagnose == '' || editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(item.id, editRecord.obj.diagnose, editRecord.obj.prescription, editRecord.obj.note), editRecord.dialog = false">Sửa</v-btn>
-                                                        <v-btn color="red" text @click="editRecord.dialog = false">Đóng</v-btn>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
-                                            
-                                        </v-card-actions>
-                                    </v-card>
-                                    <br>
-                                    <v-card>
-                                        <v-card-title>
-                                            Bình luận
-                                        </v-card-title>
-                                        <v-card-text>
-                                            <div :key="reply.id" v-for="reply in item.replies" style="margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
-                                                <h4>{{reply.user.name}} ({{reply.user.role}}) </h4>
-                                                <p>{{reply.content}}</p> 
-                                            </div>
-                                        </v-card-text>
-                                        <v-card-actions>
-                                            <v-container>
-                                                <v-row>
-                                                    <v-col cols="12">
-                                                        <v-textarea v-model="replyText" background-color="#CFD8DC" label="Thêm bình luận tại đây..." outlined rows="4"></v-textarea>
-                                                    </v-col>
-                                                </v-row>
-                                                <v-row>
-                                                    <v-col cols="12">
-                                                        <v-btn :disabled="replyText == ''" color="success" @click="addReply(item.id, replyText)" >Bình luận</v-btn>
-                                                    </v-col>
-                                                </v-row>
-                                            </v-container>
-                                            <br>
-                                            <br>
-                                        </v-card-actions>
-                                    </v-card>
-                                    <br>
+                                    <a @click.stop="getDetailInquiry(detailInquiry.id)"></a>
                                 </td>
                             </template>
                         </v-data-table>
                     </v-card-text>  
+                </v-card>
+            </v-col>
+        </v-row>
+        <v-row wrap row>
+            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                <v-card>
+                    <v-card-title>Chi tiết yêu cầu tư vấn</v-card-title>
+                    <v-card-text v-if="detailInquiry != null">
+                        <v-card v-for="(record, index) in detailInquiry.inquiry.medicalRecords" :key="record.id">
+                            <v-card-title>Phiếu trả lời tư vấn của bác sĩ chuyên khoa</v-card-title>
+                            <v-card-text>
+                                Bác sĩ: {{record.specialist.name}}
+                                <br>
+                                Chức vụ: {{record.specialist.role}}
+                                <br>
+                                Chuyên môn: {{record.specialist.specialty.name}}
+                                <br>
+                                Chẩn đoán: {{record.diagnose}}
+                                <br>
+                                Kê đơn thuốc: {{record.prescription}}
+                                <br>
+                                Ghi chú: {{record.note}}
+                                <br>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Chỉnh sửa tư vấn</v-btn>
+                                
+                            </v-card-actions>
+                        </v-card>
+                        <br>
+                        <v-card v-for="(record, index) in detailInquiry.inquiry.dietRecords" :key="record.id">
+                            <v-card-title>Phiếu trả lời tư vấn của bác sĩ dinh dưỡng</v-card-title>
+                            <v-card-text>
+                                Bác sĩ: {{record.dietitian.name}}
+                                <br>
+                                Chức vụ: {{record.dietitian.role}}
+                                <br>
+                                Chuyên môn: {{record.dietitian.specialty.name}}
+                                <br>
+                                Chẩn đoán: {{record.diagnose}}
+                                <br>
+                                Kê đơn thuốc: {{record.prescription}}
+                                <br>
+                                Ghi chú: {{record.note}}
+                                <br>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Chỉnh sửa tư vấn</v-btn>
+                                
+                            </v-card-actions>
+                        </v-card>
+                        <br>
+                        <v-card>
+                            <v-card-title>
+                                Bình luận
+                            </v-card-title>
+                            <v-card-text>
+                                <div :key="reply.id" v-for="reply in detailInquiry.inquiry.replies" style="margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
+                                    <h4>{{reply.user.name}} ({{reply.user.role}}) </h4>
+                                    <p>{{reply.content}}</p> 
+                                </div>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="replyText" background-color="#CFD8DC" label="Thêm bình luận tại đây..." outlined rows="4"></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-btn :disabled="replyText == ''" color="success" @click="addReply(detailInquiry.id, replyText)" >Bình luận</v-btn>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                                <br>
+                            </v-card-actions>
+                        </v-card>
+                    </v-card-text>
+                    <v-dialog max-width="700px" v-model="editRecord.dialog" persistent>
+                        <v-card v-if="editRecord.obj != null">
+                            <v-card-title
+                                class="headline grey lighten-2"
+                                primary-title
+                                >
+                                Chỉnh sửa tư vấn 
+                            </v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea rows="2" v-model="editRecord.obj.diagnose" label="Chẩn đoán"></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea rows="2" v-model="editRecord.obj.prescription" label="Đơn thuốc"></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea rows="2" v-model="editRecord.obj.note" label="Ghi chú"></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue" :disabled="editRecord.obj.diagnose == '' || editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(editRecord.inquiryId, editRecord.inquiryIndex, editRecord.isMedical, editRecord.obj.diagnose, editRecord.obj.prescription, editRecord.obj.note), editRecord.dialog = false, editRecord.obj = null">Sửa</v-btn>
+                                <v-btn color="red" text @click="editRecord.dialog = false, editRecord.obj = null">Đóng</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
                 </v-card>
             </v-col>
         </v-row>
@@ -369,131 +399,254 @@ export default {
                 email: '',
                 gender: '',
                 id: 0,
-                inquiries: [
-                    // {
-                    //     "id": 3,
-                    //     "patient": 
-                    //         {
-                    //             "id": 16,
-                    //             "role": "PATIENT",
-                    //             "name": "Trần Tuấn Thành",
-                    //             "age": 22
-                    //         },
-                    //     "content": "Batman bị chán ăn",
-                    //     "type": 1
-                    // },
-                    // {
-                    //     "id": 4,
-                    //     "patient": 
-                    //         {
-                    //             "id": 16,
-                    //             "role": "PATIENT",
-                    //             "name": "Trần Tuấn Thành",
-                    //             "age": 22
-                    //         },
-                    //     "content": "Batman gay",
-                    //     "type": 0
-                    // },
-                ],
+                inquiries: [],
                 name: '',
                 phoneNumber: '',
-                practitioner: 
-                    {
-                        // id: 1,
-                        // name: 'Nguyễn Huy Tùng'
-                    },
-                specialist: [
-                    // {
-                    //     id: 2,
-                    //     name: 'Lê Quang Thế Anh'
-                    // },
-                ],
-                dietitian: [
-                    // {
-                    //     id: 3,
-                    //     name: 'Trần Đình Hiếu'
-                    // },
-                ],
+                practitioner: {},
+                specialist: [],
+                dietitian: [],
             },
             assignToPracDialog: false,
-            // patientDetail.inquiries: [
-            //     // {
-            //     //     id: 1,
-            //     //     type: 0,
-            //     //     patient: {
-            //     //         id: 1,
-            //     //         name: 'Trần Tuấn Thành'
-            //     //     },
-            //     //     content: 'Đau bụng quá huhu',
-            //     //     replies: [
-            //     //         {
-            //     //             id: 3,
-            //     //             name: 'NGUYỄN HUY TÙNG',
-            //     //             role: 'PRACTITIONER',
-            //     //             reply: 'Câm mồm'
-            //     //         },
-            //     //         {
-            //     //             id: 1,
-            //     //             name: 'Trần Tuấn Thành',
-            //     //             role: 'PATIENT',
-            //     //             reply: 'Cút'
-            //     //         },
-            //     //     ],
-            //     //     record: {
-            //     //         id: 1,
-            //     //         doctor_id: 5,
-            //     //         name: 'LÊ QUANG THẾ ANH',
-            //     //         role: 'SPECIALIST',
-            //     //         diagnose: 'Viêm ngón tay',
-            //     //         note: 'Mỗi ngày uống 10 viên Berberin',
-            //     //         prescription: 'Berberin 10mg, 2 lọ. Mỗi lọ uống trong vòng 1 tuần'
-            //     //     }
-            //     // },
-            //     // {
-            //     //     id: 2,
-            //     //     type: 1,
-            //     //     patient: {
-            //     //         id: 2,
-            //     //         name: 'Batman'
-            //     //     },
-            //     //     content: 'Cơ bắp yếu quá',
-            //     //     replies: [
-            //     //         {
-            //     //             id: 3,
-            //     //             name: 'NGUYỄN HUY TÙNG',
-            //     //             role: 'PRACTITIONER',
-            //     //             reply: 'Em phải tập tạ nhiều vào nha'
-            //     //         },
-            //     //         {
-            //     //             id: 4,
-            //     //             name: 'TRẦN ĐÌNH HIẾU',
-            //     //             role: 'DIETITIAN',
-            //     //             reply: 'Ăn nhiều thịt bò nhé em'
-            //     //         },
-            //     //         {
-            //     //             id: 2,
-            //     //             name: 'Batman',
-            //     //             role: 'PATIENT',
-            //     //             reply: 'Dạ em cảm ơn ạ'
-            //     //         },
-            //     //     ],
-            //     //     // record: {
-            //     //     //     id: 2,
-            //     //     //     doctor_id: 4,
-            //     //     //     name: 'TRẦN ĐÌNH HIẾU',
-            //     //     //     role: 'DIETITIAN',
-            //     //     //     diagnose: 'Béo phì',
-            //     //     //     note: 'Ăn uống kết hợp sử dụng thực phẩm bổ sung',
-            //     //     //     prescription: 'Essential Protein lọ 500mg'
-            //     //     // }
-            //     // }
-            // ],
             inquiryHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
                 { text: '', value: 'data-table-expand' },
             ],
+            detailInquiry: {
+                "id": 0,
+                "inquiry": {
+                    "album": [
+                    "string"
+                    ],
+                    "albumId": "string",
+                    "content": "string",
+                    "createdAt": "2020-05-06T03:05:01.832Z",
+                    "dietRecords": [
+                        {
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "dietitian": {
+                            "age": 0,
+                            "avatar": "string",
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "dateOfBirth": "string",
+                            "description": "string",
+                            "email": "string",
+                            "gender": 0,
+                            "id": 0,
+                            "name": "string",
+                            "password": "string",
+                            "patients": [
+                                null
+                            ],
+                            "phoneNumber": "string",
+                            "role": "PRACTITIONER",
+                            "specialty": {
+                                "detail": "string",
+                                "id": 0,
+                                "name": "string"
+                            },
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z"
+                            },
+                            "id": 1,
+                            "note": "string",
+                            "prescription": "string",
+                            "recordType": 0,
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z"
+                        }
+                    ],
+                    "id": 0,
+                    "medicalRecords": [
+                        {
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "diagnose": "string",
+                            "disease": {
+                                "description": "string",
+                                "id": 0,
+                                "name": "string"
+                            },
+                            "id": 2,
+                            "note": "string",
+                            "prescription": "string",
+                            "recordType": 0,
+                            "specialist": {
+                            "age": 0,
+                            "avatar": "string",
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "dateOfBirth": "string",
+                            "description": "string",
+                            "email": "string",
+                            "gender": 0,
+                            "id": 2,
+                            "name": "string",
+                            "password": "string",
+                            "patients": [
+                                null
+                            ],
+                            "phoneNumber": "string",
+                            "role": "PRACTITIONER",
+                            "specialty": {
+                                "detail": "string",
+                                "id": 0,
+                                "name": "string"
+                            },
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z"
+                            },
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z"
+                        }
+                    ],
+                    "patient": {
+                    "address": "string",
+                    "age": 0,
+                    "avatar": "string",
+                    "createdAt": "2020-05-06T03:05:01.832Z",
+                    "dateOfBirth": "string",
+                    "dietitians": [
+                        {
+                        "age": 0,
+                        "avatar": "string",
+                        "createdAt": "2020-05-06T03:05:01.832Z",
+                        "dateOfBirth": "string",
+                        "description": "string",
+                        "email": "string",
+                        "gender": 0,
+                        "id": 0,
+                        "name": "string",
+                        "password": "string",
+                        "patients": [
+                            null
+                        ],
+                        "phoneNumber": "string",
+                        "role": "PRACTITIONER",
+                        "specialty": {
+                            "detail": "string",
+                            "id": 0,
+                            "name": "string"
+                        },
+                        "status": 0,
+                        "updatedAt": "2020-05-06T03:05:01.832Z"
+                        }
+                    ],
+                    "email": "string",
+                    "gender": 0,
+                    "id": 0,
+                    "inquiries": [
+                        null
+                    ],
+                    "name": "string",
+                    "password": "string",
+                    "phoneNumber": "string",
+                    "practitioner": {
+                        "age": 0,
+                        "avatar": "string",
+                        "createdAt": "2020-05-06T03:05:01.832Z",
+                        "dateOfBirth": "string",
+                        "description": "string",
+                        "email": "string",
+                        "gender": 0,
+                        "id": 0,
+                        "name": "string",
+                        "password": "string",
+                        "patients": [
+                        null
+                        ],
+                        "phoneNumber": "string",
+                        "role": "PRACTITIONER",
+                        "specialties": [
+                        {
+                            "detail": "string",
+                            "id": 0,
+                            "name": "string"
+                        }
+                        ],
+                        "status": 0,
+                        "updatedAt": "2020-05-06T03:05:01.832Z"
+                    },
+                    "role": "PRACTITIONER",
+                    "specialists": [
+                        {
+                        "age": 0,
+                        "avatar": "string",
+                        "createdAt": "2020-05-06T03:05:01.832Z",
+                        "dateOfBirth": "string",
+                        "description": "string",
+                        "email": "string",
+                        "gender": 0,
+                        "id": 0,
+                        "name": "string",
+                        "password": "string",
+                        "patients": [
+                            null
+                        ],
+                        "phoneNumber": "string",
+                        "role": "PRACTITIONER",
+                        "specialty": {
+                            "detail": "string",
+                            "id": 0,
+                            "name": "string"
+                        },
+                        "status": 0,
+                        "updatedAt": "2020-05-06T03:05:01.832Z"
+                        }
+                    ],
+                    "status": 0,
+                    "subDoctors": [
+                        {
+                        "age": 0,
+                        "avatar": "string",
+                        "createdAt": "2020-05-06T03:05:01.832Z",
+                        "dateOfBirth": "string",
+                        "email": "string",
+                        "gender": 0,
+                        "id": 0,
+                        "name": "string",
+                        "password": "string",
+                        "phoneNumber": "string",
+                        "role": "PRACTITIONER",
+                        "status": 0,
+                        "updatedAt": "2020-05-06T03:05:01.832Z"
+                        }
+                    ],
+                    "updatedAt": "2020-05-06T03:05:01.832Z"
+                    },
+                    "replies": [
+                        {
+                            "content": "string",
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "id": 0,
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z",
+                            "user": {
+                            "age": 0,
+                            "avatar": "string",
+                            "createdAt": "2020-05-06T03:05:01.832Z",
+                            "dateOfBirth": "string",
+                            "email": "string",
+                            "gender": 0,
+                            "id": 0,
+                            "name": "string",
+                            "password": "string",
+                            "phoneNumber": "string",
+                            "role": "PRACTITIONER",
+                            "status": 0,
+                            "updatedAt": "2020-05-06T03:05:01.832Z"
+                            }
+                        }
+                    ],
+                    "status": 0,
+                    "type": 0,
+                    "updatedAt": "2020-05-06T03:05:01.832Z"
+                },
+                "note": "string",
+                "prescription": "string",
+                "recordType": 0,
+                "status": 0,
+                "updatedAt": "2020-05-06T03:05:01.832Z"
+            },
             replyText: '',
             doctorHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -502,48 +655,20 @@ export default {
                 { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
                 { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
             ],
-            allSpecialist: [
-                // {
-                //     id: 5,
-                //     name: 'LÊ QUANG THẾ ANH',
-                //     role: 'SPECIALIST',
-                // },
-                // {
-                //     id: 6,
-                //     name: 'LÊ HẢI ANH',
-                //     role: 'SPECIALIST',
-                // },
-            ],
-            allDietitian: [
-                // {
-                //     id: 4,
-                //     name: 'TRẦN ĐÌNH HIẾU',
-                //     role: 'DIETITIAN',
-                // },
-                // {
-                //     id: 5,
-                //     name: 'NGUYỄN TRUNG HIẾU',
-                //     role: 'DIETITIAN',
-                // },
-            ],
-            // selectedSpecialist: [],
-            // selectedDietitian: [],
+            allSpecialist: [],
+            allDietitian: [],
             selectedInquiry: [],
             selectableDoctor: [],
             selectDoctorTitle: 'Chọn Bác sĩ để gán',
             selectedDoctor: [],
             editRecord: {
-                obj: {
-                    id: 0,
-                    doctor_id: 0,
-                    name: '',
-                    role: '',
-                    diagnose: '',
-                    note: '',
-                    prescription: ''
-                },
+                obj: null,
+                inquiryId: 0,
+                inquiryIndex: -1,
+                isMedical: null,
                 dialog: false
-            }
+            },
+            
         }
     },
     watch: {
@@ -646,30 +771,9 @@ export default {
             this.patientDetail.name = data.name
             this.patientDetail.phoneNumber = data.phoneNumber
             this.patientDetail.inquiries = data.inquiries
-            for(let i = 0; i < this.patientDetail.inquiries.length; i++){
-                this.getRepliesForInquiry(i, this.patientDetail.inquiries[i].id, 1, 100)
-                // this.getDetailInquiry(i, this.patientDetail.inquiries[i].id)
-                // this.patientDetail.inquiries[i].replies = [
-                //     {
-                //         "id": 2,
-                //         "user": {
-                //             "id": 9,
-                //             "role": "PRACTITIONER",
-                //             "name": "Nguyễn Huy Tùng",
-                //             "age": 22
-                //         },
-                //         "content": "thắc mắc lên phường",
-                //         "createdAt": [
-                //             2020,
-                //             5,
-                //             5,
-                //             13,
-                //             40,
-                //             28
-                //         ]
-                //     }
-                // ]
-            }
+            // for(let i = 0; i < this.patientDetail.inquiries.length; i++){
+            //     this.getRepliesForInquiry(i, this.patientDetail.inquiries[i].id, 1, 100)
+            // }
 
             if(data.practitioner){
                 this.patientDetail.practitioner = data.practitioner
@@ -719,12 +823,11 @@ export default {
                 console.log(error)
             })
         },
-        getDetailInquiry(index, id){
+        getDetailInquiry(id){
             let url = `${config.apiUrl}/inquiries/${id}`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    console.log(result.data)
-                    this.patientDetail.inquiries[index] = result.data
+                    this.detailInquiry = result.data
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
@@ -794,7 +897,6 @@ export default {
                 console.log(error)
             })
         },
-        //not done
         addReply(inquiryId, reply){
             let params = {
                 "inquiry-id": inquiryId,
@@ -804,8 +906,9 @@ export default {
             let url = `${config.apiUrl}/replies`
             apiService.postApiParams(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    let inquiryIndex = this.findObjIndexById(this.patientDetail.inquiries, inquiryId);
-                    this.patientDetail.inquiries[inquiryIndex].replies.unshift(result.data)
+                    // let inquiryIndex = this.findObjIndexById(this.patientDetail.inquiries, inquiryId);
+                    // this.patientDetail.inquiries[inquiryIndex].replies.unshift(result.data)
+                    this.detailInquiry.replies.unshift(result.data)
                     this.replyText = ''
                 }
                 else {
@@ -814,7 +917,6 @@ export default {
             }).catch(error => {
                 console.log(error)
             })
-            //sending to the Server
         },
         findObjIndexById(arr, id){
             let result = -1;
@@ -825,18 +927,34 @@ export default {
             }
             return result
         },
-        openRecordEditDialog(inquiryId){
-            let inquiryIndex = this.findObjIndexById(this.patientDetail.inquiries, inquiryId);
-            this.editRecord.obj = Object.assign({}, this.patientDetail.inquiries[inquiryIndex].record)
+        openEditRecordDialog(inquiryId, index, isMedical){
+            // if(isMedical){
+            //     let inquiryIndex = this.findObjIndexById(this.detailInquiry.inquiry.medicalRecords, inquiryId);
+            //     this.editRecord.obj = Object.assign({}, this.detailInquiry.inquiry.medicalRecords[inquiryIndex])
+            // }
+            // else {
+            //     let inquiryIndex = this.findObjIndexById(this.detailInquiry.inquiry.dietRecords, inquiryId);
+            //     this.editRecord.obj = Object.assign({}, this.detailInquiry.inquiry.dietRecords[inquiryIndex])
+            // }
+            this.editRecord.obj = (isMedical == true) ? (Object.assign({}, this.detailInquiry.inquiry.medicalRecords[index])) : (Object.assign({}, this.detailInquiry.inquiry.dietRecords[index]));
+            this.editRecord.inquiryId = inquiryId
+            this.editRecord.inquiryIndex = index
+            this.editRecord.isMedical = isMedical
             this.editRecord.dialog = true;
         },
         //not done
-        updateRecord(inquiryId, diag, pres, note){
-            let inquiryIndex = this.findObjIndexById(this.patientDetail.inquiries, inquiryId);
-            this.patientDetail.inquiries[inquiryIndex].record.diagnose = diag
-            this.patientDetail.inquiries[inquiryIndex].record.prescription = pres
-            this.patientDetail.inquiries[inquiryIndex].record.note = note
-            //sending to Server
+        updateRecord(inquiryId, index, isMedical, diag, pres, note){
+            //sending to Server...
+            if(isMedical == true){
+                this.detailInquiry.inquiry.medicalRecords[index].diagnose = diag
+                this.detailInquiry.inquiry.medicalRecords[index].prescription = pres
+                this.detailInquiry.inquiry.medicalRecords[index].note = note
+            }
+            else {
+                this.detailInquiry.inquiry.dietRecords[index].diagnose = diag
+                this.detailInquiry.inquiry.dietRecords[index].prescription = pres
+                this.detailInquiry.inquiry.dietRecords[index].note = note
+            }
         },
         logging(){
             console.log(this.patientDetail)
