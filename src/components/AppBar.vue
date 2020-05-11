@@ -1,5 +1,6 @@
 <template>
     <v-app-bar
+        clipped-left
         dense
         app
         color="primary"

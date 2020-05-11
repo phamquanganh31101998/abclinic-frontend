@@ -3,7 +3,6 @@
         <v-row>
             <v-col>
                 <h1>Practitioner here</h1>
-                <v-btn @click="logging()">Click</v-btn>
             </v-col>
         </v-row>
         <v-row wrap row>
@@ -13,26 +12,26 @@
                     <v-icon v-show="showPatient == false" @click="showPatient = true">keyboard_arrow_down</v-icon>
                     <v-icon v-show="showPatient == true" @click="showPatient = false">keyboard_arrow_up</v-icon>
                 </h2> -->
-                <v-data-table v-show="showPatient" :headers="patientHeaders" :detailInquirys="allPatients" class="elevation-4" hide-default-footer>
+                <v-data-table v-show="showPatient" :headers="patientHeaders" :items="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
                             <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
                             <v-spacer></v-spacer>
                         </v-toolbar>
                     </template>
-                    <template v-slot:detailInquiry.name="{detailInquiry}">
-                        <a @click="getPatientDetail(detailInquiry.id, true)">{{detailInquiry.name}}</a>
+                    <template v-slot:item.name="{item}">
+                        <a @click="getPatientDetail(item.id, true)">{{item.name}}</a>
                     </template>
-                    <template v-slot:detailInquiry.more="{detailInquiry}">
+                    <template v-slot:item.more="{item}">
                         <v-menu offset-y>
                             <template v-slot:activator="{ on }">
                                 <v-icon v-on="on">more_vert</v-icon>
                             </template>
                             <v-list>
-                                <v-list-detailInquiry @click="getPatientDetail(detailInquiry.id, true)">
-                                    <v-list-detailInquiry-title>Xem chi tiết</v-list-detailInquiry-title>
-                                </v-list-detailInquiry>
-                                <v-list-detailInquiry @click="getPatientDetail(detailInquiry.id, false)"><v-list-detailInquiry-title>Gán bệnh nhân</v-list-detailInquiry-title></v-list-detailInquiry>
+                                <v-list-item @click="getPatientDetail(item.id, true)">
+                                    <v-list-item-title>Xem chi tiết</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -79,7 +78,7 @@
                                         <v-data-table
                                             hide-default-footer
                                             :headers="inquiryHeaders"
-                                            :detailInquirys="patientDetail.inquiries"
+                                            :items="patientDetail.inquiries"
                                             single-expand
                                             show-expand
                                             class="elevation-4"
@@ -90,14 +89,14 @@
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
-                                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
-                                                {{ detailInquiry.patient.name }}
+                                            <template v-slot:item.patient="{ item }">
+                                                {{ item.patient.name }}
                                             </template>
-                                            <template v-slot:detailInquiry.type="{ detailInquiry }">
-                                                {{ returnInquiryType(detailInquiry.type) }}
+                                            <template v-slot:item.type="{ item }">
+                                                {{ returnInquiryType(item.type) }}
                                             </template>
-                                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ detailInquiry.content }}</b> </td>
+                                            <template v-slot:expanded-item="{ item }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
                                             </template>
                                         </v-data-table>
                                     </v-col>
@@ -127,7 +126,7 @@
                                             hide-default-footer
                                             v-model="selectedInquiry"
                                             :headers="inquiryHeaders"
-                                            :detailInquirys="patientDetail.inquiries"
+                                            :items="patientDetail.inquiries"
                                             single-expand
                                             show-expand
                                             single-select
@@ -140,14 +139,14 @@
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
-                                            <template v-slot:detailInquiry.type="{ detailInquiry }">
-                                                {{ returnInquiryType(detailInquiry.type) }}
+                                            <template v-slot:item.type="{ item }">
+                                                {{ returnInquiryType(item.type) }}
                                             </template>
-                                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
-                                                {{ detailInquiry.patient.name }}
+                                            <template v-slot:item.patient="{ item }">
+                                                {{ item.patient.name }}
                                             </template>
-                                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ detailInquiry.content }}</b> </td>
+                                            <template v-slot:expanded-item="{ item }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
                                             </template>
                                         </v-data-table>
                                     </v-col>
@@ -156,7 +155,7 @@
                                             hide-default-footer
                                             v-model="selectedDoctor"
                                             :headers="doctorHeaders"
-                                            :detailInquirys="selectableDoctor"
+                                            :items="selectableDoctor"
                                             show-select
                                             class="elevation-4"
                                             >
@@ -180,11 +179,11 @@
                 </v-dialog>
             </v-col>
         </v-row>
-        <v-row wrap row>
-            <v-col cols="12" md="12" sm="12" lg="12" xl="12">
+        <v-row wrap row class="fill-height">
+            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
                 <v-card class="elevation-4">
                     <v-card-title>
-                        Thông tin chi tiết bệnh nhân
+                        <h3>Thông tin chi tiết bệnh nhân</h3>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
@@ -223,27 +222,25 @@
                     </v-card-text>
                 </v-card>
             </v-col>
-        </v-row>
-        <v-row wrap row>
-            <v-col cols="12" md="12" sm="12" lg="12" xl="12">
-                <v-card class="elevation-4">
+            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
+                <v-card class="elevation-4" style="height: 100%">
                     <v-card-title>
-                        Yêu cầu tư vấn
+                        <h3>Yêu cầu tư vấn</h3>
                     </v-card-title>
                     <v-card-text>
-                        <v-data-table show-expand hide-default-footer class="elevation-4" :detailInquirys="patientDetail.inquiries" :headers="inquiryHeaders">
-                            <template v-slot:detailInquiry.patient="{ detailInquiry }">
-                                {{detailInquiry.patient.name}}
+                        <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
+                            <template v-slot:item.patient="{ item }">
+                                {{item.patient.name}}
                             </template>
-                            <template v-slot:detailInquiry.type="{ detailInquiry }">
-                                {{ returnInquiryType(detailInquiry.type) }}
+                            <template v-slot:item.type="{ item }">
+                                {{ returnInquiryType(item.type) }}
                             </template>
-                            <template v-slot:expanded-detailInquiry="{ detailInquiry }">
+                            <template v-slot:expanded-item="{ item }">
                                 <td :colspan="inquiryHeaders.length">
                                     <br>
-                                    <h2>Nội dung yêu cầu tư vấn: {{ detailInquiry.content }}</h2> 
+                                    <h2>Nội dung yêu cầu tư vấn: {{ item.content }}</h2> 
                                     <br>
-                                    <a @click.stop="getDetailInquiry(detailInquiry.id)"></a>
+                                    <a @click.stop="getDetailInquiry(item.id)"></a>
                                 </td>
                             </template>
                         </v-data-table>
@@ -252,57 +249,61 @@
             </v-col>
         </v-row>
         <v-row wrap row>
-            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
-                <v-card>
-                    <v-card-title>Chi tiết yêu cầu tư vấn</v-card-title>
+            <v-col cols="12">
+                <v-card class="elevation-4">
+                    <v-card-title><h3>Chi tiết yêu cầu tư vấn</h3></v-card-title>
                     <v-card-text v-if="detailInquiry != null">
-                        <v-card v-for="(record, index) in detailInquiry.inquiry.medicalRecords" :key="record.id">
-                            <v-card-title>Phiếu trả lời tư vấn của bác sĩ chuyên khoa</v-card-title>
-                            <v-card-text>
-                                Bác sĩ: {{record.specialist.name}}
-                                <br>
-                                Chức vụ: {{record.specialist.role}}
-                                <br>
-                                Chuyên môn: {{record.specialist.specialty.name}}
-                                <br>
-                                Chẩn đoán: {{record.diagnose}}
-                                <br>
-                                Kê đơn thuốc: {{record.prescription}}
-                                <br>
-                                Ghi chú: {{record.note}}
-                                <br>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Chỉnh sửa tư vấn</v-btn>
-                                
-                            </v-card-actions>
-                        </v-card>
+                            <v-row>
+                                <v-col v-for="(record, index) in detailInquiry.inquiry.medicalRecords" :key="record.id" cols="12" sm="12" md="6" lg="6" xl="6">
+                                    <v-card class="elevation-4">
+                                        <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                        <v-card-text>
+                                            Bác sĩ: {{record.specialist.name}}
+                                            <br>
+                                            Chức vụ: {{record.specialist.role}}
+                                            <br>
+                                            Chuyên môn: {{record.specialist.specialty.name}}
+                                            <br>
+                                            Chẩn đoán: {{record.diagnose}}
+                                            <br>
+                                            Kê đơn thuốc: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Chỉnh sửa tư vấn</v-btn>
+                                            
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-col>
+                                <v-col v-for="(record, index) in detailInquiry.inquiry.dietRecords" :key="record.id" cols="12" sm="12" md="6" lg="6" xl="6">
+                                    <v-card class="elevation-4">
+                                        <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                        <v-card-text>
+                                            Bác sĩ: {{record.dietitian.name}}
+                                            <br>
+                                            Chức vụ: {{record.dietitian.role}}
+                                            <br>
+                                            Chuyên môn: {{record.dietitian.specialty.name}}
+                                            <br>
+                                            Chẩn đoán: {{record.diagnose}}
+                                            <br>
+                                            Kê đơn thuốc: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Chỉnh sửa tư vấn</v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
                         <br>
-                        <v-card v-for="(record, index) in detailInquiry.inquiry.dietRecords" :key="record.id">
-                            <v-card-title>Phiếu trả lời tư vấn của bác sĩ dinh dưỡng</v-card-title>
-                            <v-card-text>
-                                Bác sĩ: {{record.dietitian.name}}
-                                <br>
-                                Chức vụ: {{record.dietitian.role}}
-                                <br>
-                                Chuyên môn: {{record.dietitian.specialty.name}}
-                                <br>
-                                Chẩn đoán: {{record.diagnose}}
-                                <br>
-                                Kê đơn thuốc: {{record.prescription}}
-                                <br>
-                                Ghi chú: {{record.note}}
-                                <br>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Chỉnh sửa tư vấn</v-btn>
-                                
-                            </v-card-actions>
-                        </v-card>
-                        <br>
-                        <v-card>
+                        <v-card class="elevation-4">
                             <v-card-title>
                                 Bình luận
                             </v-card-title>
@@ -330,7 +331,7 @@
                         </v-card>
                     </v-card-text>
                     <v-dialog max-width="700px" v-model="editRecord.dialog" persistent>
-                        <v-card v-if="editRecord.obj != null">
+                        <v-card class="elevation-4" v-if="editRecord.obj != null">
                             <v-card-title
                                 class="headline grey lighten-2"
                                 primary-title
@@ -731,7 +732,11 @@ export default {
                 }
                 
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                message: error,
+                type: 'error',
+                // all other options may go here
+                })
             })
         },
         updatePatients(patArray){
@@ -742,9 +747,6 @@ export default {
             this.$router.push(url)
         },
         getPatientDetail(id, isDetail){
-            // console.log(id)
-            // console.log(isDetail)
-            // this.assignToPracDialog = true
             let url = `${config.apiUrl}/patients/${id}`
             let params = {
                 id: id
@@ -753,13 +755,16 @@ export default {
                 console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.processPatientDetailFromServer(result.data, isDetail)
-                    
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         processPatientDetailFromServer(data, isDetail){
@@ -820,7 +825,11 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         getDetailInquiry(id){
@@ -833,7 +842,11 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+    message: error,
+    type: 'error',
+    // all other options may go here
+})
             })
         },
         assignToPrac(patientId, inquiryArr, doctorArr){
@@ -858,7 +871,11 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         getAllSpec(){
@@ -876,7 +893,11 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         getAllDiet(){
@@ -894,10 +915,15 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         addReply(inquiryId, reply){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang thêm bình luận')
             let params = {
                 "inquiry-id": inquiryId,
                 reply: reply
@@ -915,7 +941,13 @@ export default {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                console.log(error)
+                this.$toast.open({
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
         },
         findObjIndexById(arr, id){
