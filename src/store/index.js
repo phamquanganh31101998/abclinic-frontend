@@ -9,8 +9,10 @@ export default new Vuex.Store({
     ac_uid: null,
     user: null,
     alertSnackbar: false,
-    alertMessage: 'asdfasdasdasdasdasdasdasdasdasdas',
-    alertColor: 'error'
+    alertMessage: '',
+    alertColor: 'error',
+    loadingDialog: false,
+    loadingMsg: ''
   },
   mutations: {
     toggleNavDrawer(state){
@@ -24,6 +26,7 @@ export default new Vuex.Store({
     },
     turnOffAlert(state){
       state.alertSnackbar = false;
+      state.alertMessage = '';
     },
     setAuthData(state, payload){
       state.ac_uid = localStorage.getItem('ac_uid')
@@ -34,6 +37,15 @@ export default new Vuex.Store({
       state.user = null;
       localStorage.removeItem('ac_uid')
       router.replace('/login')
+    },
+    turnOnLoadingDialog(state, payload){
+      console.log(payload)
+      state.loadingMsg = payload;
+      state.loadingDialog = true;
+    },
+    turnOffLoadingDialog(state){
+      state.loadingDialog = false;
+      state.loadingMsg = ''
     }
   },
   actions: {
@@ -51,6 +63,12 @@ export default new Vuex.Store({
     },
     clearAuthData({commit}){
       commit('clearAuthData')
+    },
+    turnOnLoadingDialog({commit}, data){
+      commit('turnOnLoadingDialog', data)
+    },
+    turnOffLoadingDialog({commit}){
+      commit('turnOffLoadingDialog')
     }
   },
   modules: {
@@ -67,6 +85,12 @@ export default new Vuex.Store({
     },
     alertColor: state => {
       return state.alertColor
+    },
+    loadingDialog: state => {
+      return state.loadingDialog
+    },
+    loadingMsg: state => {
+      return state.loadingMsg
     }
   }
 })

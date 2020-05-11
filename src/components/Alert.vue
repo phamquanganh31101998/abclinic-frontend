@@ -5,12 +5,6 @@
       :timeout="0"
         >
       {{ text }}
-      <!-- <v-btn
-        text
-        @click="turnOffAlert()"
-        >
-        Close
-      </v-btn> -->
     </v-snackbar>
 </template>
 <script>

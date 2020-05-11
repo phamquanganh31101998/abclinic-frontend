@@ -1,9 +1,8 @@
 <template>
-  <v-container>
-        <v-row>
-            <v-col>
-                <h1>Giới thiệu bệnh viện ở đaya</h1>
-                <v-btn @click="checkLocalStorage()">Click here</v-btn>
+  <v-container class="full-height">
+        <v-row class="fill-height">
+            <v-col cols="12" sm="12" lg="12" md="12" xl="12">
+                <iframe src="https://vnexpress.net/suc-khoe/tin-tuc" style="height: 800px; width: 100%;"></iframe>
             </v-col>
         </v-row>
     </v-container>

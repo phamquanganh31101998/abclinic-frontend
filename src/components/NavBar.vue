@@ -1,9 +1,10 @@
 <template>
     <v-navigation-drawer
         app
-        color="primary"
         dark
         :value="drawer"
+        clipped
+        style="color: #747780"
             >
         <v-list
             nav

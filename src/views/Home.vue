@@ -1,13 +1,4 @@
 <template>
-  <!-- <div class="home">
-    <v-container>
-      <v-row>
-        <v-col>
-          <h1>Home page</h1>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div> -->
   <v-app>
     <app-bar></app-bar>
     <v-content>

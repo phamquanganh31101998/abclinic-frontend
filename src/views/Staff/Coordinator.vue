@@ -199,7 +199,7 @@
                         </v-toolbar>
                     </template>
                     <template v-slot:item.more="{ item }">
-                        <a @click="openSpecDetailDialog(item.number)">{{item.more}} <v-icon>create</v-icon>   </a>
+                        <a @click="openSpecDetailDialog(item.id)">{{item.more}} <v-icon>create</v-icon>   </a>
                     </template>
                 </v-data-table>
                 <v-dialog offset-y persistent v-model="specDetailDialog" width="60%">
@@ -552,22 +552,8 @@ export default {
                 { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
                 { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
             ],
-            specialties: [
-                {
-                    number: 0,
-                    id: 100,
-                    name: 'Răng hàm mặt',
-                    detail: 'Tottri, tốt cho người bị bệnh trĩ',
-                    more: 'Sửa'
-                }
-            ],
-            specDetail: {
-                number: 0,
-                id: 0,
-                name: 'abc',
-                detail: 'xyz',
-                more: 'bla bla'
-            },
+            specialties: [],
+            specDetail: {},
             specDetailDialog: false,
             specHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -582,14 +568,7 @@ export default {
             },
             showSpec: true,
             deleteDoctorDialog: false,
-            allPatients: [
-                {
-                    "id": 16,
-                    "role": "PATIENT",
-                    "name": "Trần Tuấn Thành",
-                    "age": 22
-                },
-            ],
+            allPatients: [],
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
@@ -801,8 +780,9 @@ export default {
                 alert(error)
             })
         },
-        openSpecDetailDialog(number){
-            this.specDetail = Object.assign({}, this.specialties[number])
+        openSpecDetailDialog(id){
+            let index = this.findObjIndexById(this.specialties, id);
+            this.specDetail = Object.assign({}, this.specialties[index])
             this.specDetailDialog = true;
         },
         updateSpec(name, detail, id){
@@ -813,7 +793,6 @@ export default {
                 id: id
             }
             apiService.putApi(url, params).then(result => {
-                console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Sửa chuyên môn thành công'})
                     this.getSpecialties()
@@ -958,7 +937,16 @@ export default {
             }).catch(error => {
                 console.log(error)
             })
-        }
+        },
+        findObjIndexById(arr, id){
+            let result = -1;
+            for(let i = 0; i < arr.length; i++){
+                if(arr[i].id == id){
+                    result = i
+                }
+            }
+            return result
+        },
     },
     created(){
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
