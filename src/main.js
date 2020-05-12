@@ -15,7 +15,7 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 Vue.use(VueToast, {
-  duration: 3000,
-  dismissible: true,
+  duration: 5000,
+  dismissible: false,
   position: 'bottom-right',
 })

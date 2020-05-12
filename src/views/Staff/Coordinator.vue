@@ -2,7 +2,7 @@
     <v-container>
         <v-row>
             <v-col>
-                <h1>Coordinator here</h1>
+                <h1>Chức năng dành cho Điều phối viên</h1>
             </v-col>
         </v-row>
         <v-row wrap row>
@@ -16,22 +16,57 @@
                 
             </v-col>
             <v-col cols="12" v-show="showDoctor" xs="12" sm="12" md="12" lg="12" xl="12">
-                <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-4" hide-default-footer>
+                <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-4" hide-default-footer loading-text="Đang lấy dữ liệu..." no-data-text="Không có kết quả phù hợp" :loading="loadingDoctor">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title>Danh sách nhân viên</v-toolbar-title>
+                            <v-toolbar-title><h3>Danh sách nhân viên</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
                                 vertical
                             ></v-divider>
                             <v-spacer></v-spacer>
-                            <v-select
+                            <v-menu
+                                v-model="doctorSearchMenu"
+                                :close-on-content-click="false"
+                                :nudge-width="200"
+                                offset-x
+                                >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn
+                                    color="primary"
+                                    dark
+                                    v-on="on"
+                                    >
+                                    <v-icon>search</v-icon>
+                                    Tìm kiếm
+                                    </v-btn>
+                                </template>
+
+                                <v-card>
+                                    <v-card-title>
+                                        <h4>Tìm kiếm nhân viên</h4>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-text-field clearable v-model="doctorSearch.name" label="Tên"></v-text-field>
+                                        <v-select clearable v-model="doctorSearch.role" :items="doctorRoles" label="Chức vụ"></v-select>
+                                        <v-select clearable v-model="doctorSearch.specialty" :items="[]" label="Chuyên môn"></v-select>
+                                        <v-text-field clearable v-model="doctorSearch.experience" label="Kinh nghiệm (năm)" type="number"></v-text-field>
+                                        <v-select v-model="doctorSearch.status" :items="doctorStatus" label="Trạng thái"></v-select>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text color="red" @click="doctorSearchMenu = false">Đóng</v-btn>
+                                        <v-btn color="primary" text @click="doctorSearchMenu =  false, doctorPage = 1, getAllDoctorFromServer(doctorPage, doctorPageSize, doctorSearch)">Tìm kiếm</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-menu>
+                            <!-- <v-select
                                 class="mt-2"
                                 v-show="showDoctor"
-                                :items="doctorTypes"
+                                :items="doctorRoles"
                                 v-model="doctorType"
-                            ></v-select>
+                            ></v-select> -->
                         </v-toolbar>
                     </template>
                     <template v-slot:item.more="{ item }">
@@ -41,13 +76,14 @@
                             </template>
                             <v-list>
                                 <v-list-item
-                                    @click="openDoctorDetailDialog(item.number)"
+                                    @click="getDoctorDetail(item.id)"
                                     >
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
                                 <v-dialog
+                                    persistent
                                     v-model="deleteDoctorDialog"
-                                    width="500"
+                                    width="400"
                                     >
                                     <template v-slot:activator="{ on }">
                                         <v-list-item v-on="on"><v-list-item-title>Xóa nhân viên</v-list-item-title></v-list-item>
@@ -59,12 +95,12 @@
                                             primary-title
                                             dark
                                             >
-                                            Xác nhận xóa
+                                            <span style="color: white">Xác nhận xóa nhân viên</span>
                                         </v-card-title>
                                         <v-divider></v-divider>
                                         <v-card-text>
-                                            <v-divider></v-divider>
-                                            Bạn có chắc chắn muốn xóa
+                                            <br>
+                                            Bạn có chắc chắn muốn xóa? 
                                         </v-card-text>
 
                                         <v-divider></v-divider>
@@ -101,47 +137,51 @@
                     <v-pagination
                         v-model="doctorPage"
                         :length="doctorPages"
+                        @input="getAllDoctorFromServer(doctorPage, doctorPageSize, doctorSearch)"
                     ></v-pagination>
                 </div>
-                <v-dialog v-model="doctorDetailDialog" width="70%">
+                <v-dialog v-model="doctorDetailDialog" max-width="700px">
                     <v-card>
                         <v-card-title
-                            class="headline grey lighten-2"
+                            class="headline primary"
                             primary-title
                             >
-                            Chi tiết nhân viên
+                            <span style="color: white">Chi tiết nhân viên</span>
                         </v-card-title>
                         <v-card-text>
                         <v-container>
                             <v-row>
-                            <v-col cols="12" sm="6" md="4">
-                                <v-text-field readonly label="Tên" v-model="doctorDetail.name"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="4">
-                                <v-text-field readonly label="Ngày sinh" v-model="doctorDetail.dateOfBirth" ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="4">
-                                <v-text-field
-                                    readonly 
-                                    label="Giới tính"
-                                    v-model="doctorDetail.gender"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field readonly label="Email" v-model="doctorDetail.email"></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field readonly label="Ghi chú" v-model="doctorDetail.description"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="12">
-                                <v-text-field readonly label="Chuyên môn" v-model="doctorDetail.specialty"></v-text-field>
-                            </v-col>
+                                <v-col cols="12" sm="6" md="4">
+                                    <v-text-field readonly label="Tên" :value="doctorDetail.name"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="4">
+                                    <v-text-field readonly label="Ngày sinh" :value="doctorDetail.dateOfBirth" ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="4">
+                                    <v-text-field
+                                        readonly 
+                                        label="Giới tính"
+                                        :value="checkGender(doctorDetail.gender)"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                    <v-text-field readonly label="Email" :value="doctorDetail.email"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                    <v-text-field readonly label="Email" :value="doctorDetail.phoneNumber"></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-text-field readonly label="Ghi chú" :value="doctorDetail.description"></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-text-field readonly label="Chuyên môn" :value="doctorDetail.specialty"></v-text-field>
+                                </v-col>
                             </v-row>
                         </v-container>
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="red" text @click="doctorDetailDialog = false">Close</v-btn>
+                            <v-btn color="red" text @click="doctorDetailDialog = false">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -156,26 +196,26 @@
                 </h2>
                  -->
                 <br>
-                <v-data-table v-show="showSpec" class="elevation-4" :headers="specHeaders" :items="specialties" hide-default-footer>
+                <v-data-table v-show="showSpec" class="elevation-4" :headers="specHeaders" :items="specialties" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingSpec">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title>Danh sách chuyên môn</v-toolbar-title>
+                            <v-toolbar-title><h3>Danh sách chuyên môn</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
                                 vertical
                             ></v-divider>
                             <v-spacer></v-spacer>
-                            <v-dialog v-model="createSpec.dialog" persistent max-width="70%">
+                            <v-dialog v-model="createSpec.dialog" persistent width="400" max-width="70%">
                                 <template v-slot:activator="{ on }">
                                     <v-btn v-show="showSpec" color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo chuyên môn</v-btn>
                                 </template>
                                 <v-card>
                                     <v-card-title
-                                        class="headline grey lighten-2"
+                                        class="headline primary"
                                         primary-title
                                         >
-                                        Tạo chuyên môn mới
+                                        <span style="color: white">Tạo chuyên môn mới</span>
                                     </v-card-title>
                                     <v-card-text>
                                     <v-container>
@@ -184,7 +224,7 @@
                                                 <v-text-field v-model="createSpec.name" label="Tên chuyên môn"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="createSpec.detail" label="Mô tả chuyên môn"></v-text-field>
+                                                <v-textarea rows="3" v-model="createSpec.detail" label="Mô tả chuyên môn"></v-textarea>
                                             </v-col>
                                         </v-row>
                                     </v-container>
@@ -202,13 +242,13 @@
                         <a @click="openSpecDetailDialog(item.id)">{{item.more}} <v-icon>create</v-icon>   </a>
                     </template>
                 </v-data-table>
-                <v-dialog offset-y persistent v-model="specDetailDialog" width="60%">
+                <v-dialog offset-y persistent v-model="specDetailDialog" width="400" max-width="70%">
                     <v-card>
                         <v-card-title
-                            class="headline grey lighten-2"
+                            class="headline primary"
                             primary-title
                             >
-                            Chỉnh sửa chuyên môn
+                            <span style="color: white">Chỉnh sửa chuyên môn</span>
                         </v-card-title>
                         <v-card-text>
                             <v-row>
@@ -216,7 +256,7 @@
                                     <v-text-field v-model="specDetail.name" label="Tên chuyên môn"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12">
-                                    <v-text-field v-model="specDetail.detail" label="Mô tả chuyên môn"></v-text-field>
+                                    <v-textarea rows="3" v-model="specDetail.detail" label="Mô tả chuyên môn"></v-textarea>
                                 </v-col>
                             </v-row>
                         </v-card-text>
@@ -236,11 +276,52 @@
                     <v-icon v-show="showPatient == false" @click="showPatient = true">keyboard_arrow_down</v-icon>
                     <v-icon v-show="showPatient == true" @click="showPatient = false">keyboard_arrow_up</v-icon>
                 </h2> -->
-                <v-data-table v-show="showPatient" :headers="patientHeaders" :items="allPatients" class="elevation-4" hide-default-footer>
+                <v-data-table v-show="showPatient" :headers="patientHeaders" 
+                no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient"
+                :items="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title>Danh sách bệnh nhân</v-toolbar-title>
+                            <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
+                            <v-divider
+                                class="mx-4"
+                                inset
+                                vertical
+                            ></v-divider>
                             <v-spacer></v-spacer>
+                            <v-menu
+                                v-model="patientSearchMenu"
+                                :close-on-content-click="false"
+                                :nudge-width="200"
+                                offset-x
+                                >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn
+                                    color="primary"
+                                    dark
+                                    v-on="on"
+                                    >
+                                    <v-icon>search</v-icon>
+                                    Tìm kiếm
+                                    </v-btn>
+                                </template>
+
+                                <v-card>
+                                    <v-card-title>
+                                        <h4>Tìm kiếm bệnh nhân</h4>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-text-field clearable v-model="patientSearch.name" label="Tên"></v-text-field>
+                                        <v-select v-model="patientSearch.status" :items="patientStatus" label="Trạng thái"></v-select>
+                                        <v-select v-model="patientSearch.gender" :items="genderArr" label="Giới tính"></v-select>
+                                        <v-text-field clearable type="number" v-model="patientSearch.age" label="Tuổi"></v-text-field>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="primary" text @click="patientSearchMenu = false, patientPage = 1, getAllPatients(patientPage, patientPageSize, patientSearch)">Tìm kiếm</v-btn>
+                                        <v-btn text color="red" @click="patientSearchMenu = false">Đóng</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-menu>
                         </v-toolbar>
                     </template>
                     <template v-slot:item.more="{item}">
@@ -262,35 +343,34 @@
                     <v-pagination
                         v-model="patientPage"
                         :length="patientPages"
+                        @input="this.getAllPatients(this.patientPage, this.patientPageSize)"
                     ></v-pagination>
                 </div>
                 <v-dialog scrollable v-model="patientDetailDialog" max-width="700px" persistent>
                     <v-card>
                         <v-card-title
-                            class="headline grey lighten-2"
+                            class="headline primary"
                             primary-title
                             >
-                            Chi tiết bệnh nhân
+                            <span style="color: white">Chi tiết bệnh nhân</span>
                         </v-card-title>
                         <v-card-text>
                             <v-container>
                                 <v-row>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
-                                        <v-text-field readonly label="ID" v-model="patientDetail.id"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
+                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
                                         <v-text-field readonly label="Tên" v-model="patientDetail.name"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
+                                    
+                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
                                         <v-text-field readonly label="Ngày sinh" v-model="patientDetail.dateOfBirth"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
+                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
                                         <v-text-field readonly label="Giới tính" v-model="patientDetail.gender"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="6">
                                         <v-text-field readonly label="Email" v-model="patientDetail.email"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="6">
                                         <v-text-field readonly label="Số điện thoại" v-model="patientDetail.phoneNumber"></v-text-field>
                                     </v-col>
                                 </v-row>
@@ -328,17 +408,17 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="red" text @click="patientDetailDialog = false">Close</v-btn>
+                            <v-btn color="red" text @click="patientDetailDialog = false">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
                 <v-dialog scrollable v-model="assignToPracDialog" max-width="700px" persistent>
                     <v-card>
                         <v-card-title
-                            class="headline grey lighten-2"
+                            class="headline primary"
                             primary-title
                             >
-                            Gán quyền quản lý bệnh nhân cho Bác sĩ đa khoa
+                            <span style="color: white">Gán quyền quản lý bệnh nhân cho Bác sĩ đa khoa</span>
                         </v-card-title>
                         <v-card-text>
                             <v-container>
@@ -499,6 +579,7 @@
     </v-container>
 </template>
 <script>
+// const { encode } = require('url-encode-decode')
 import apiService from '../../services/api.service'
 import config from '../../config'
 export default {
@@ -507,11 +588,7 @@ export default {
             doctorPages: 0,
             doctorPage: 1,
             doctorPageSize: 10,
-            doctorTypes: [
-                {
-                    text: 'Tất cả',
-                    value: null
-                },
+            doctorRoles: [
                 {
                     text: 'Đa khoa',
                     value: 0
@@ -529,7 +606,24 @@ export default {
                     value: 3
                 },
             ],
-            doctorType: null,
+            doctorSearch: {
+                name: undefined,
+                role: undefined,
+                specialty: undefined,
+                experience: undefined,
+                status: 1,
+            },
+            doctorStatus: [
+                {
+                    text: 'Hoạt động',
+                    value: 1
+                },
+                {
+                    text: 'Ngừng hoạt động',
+                    value: 1024
+                },
+            ],
+            doctorSearchMenu: false,
             responseText: 'Try something',
             showDoctor: true,
             doctorDetailDialog: false,
@@ -542,7 +636,8 @@ export default {
                 more: 'Xem chi tiết',
                 dateOfBirth: '',
                 description: '',
-                specialty: ''
+                specialty: '',
+                phoneNumber: 0
             },
             allDoctors: [],
             doctorHeaders: [
@@ -550,8 +645,9 @@ export default {
                 { text: 'TÊN', value: 'name', align: 'start' },
                 { text: 'EMAIL', value: 'email', align: 'start' },
                 { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
-                { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
+                { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'right' },
             ],
+            loadingDoctor: false,
             specialties: [],
             specDetail: {},
             specDetailDialog: false,
@@ -559,7 +655,7 @@ export default {
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
                 { text: 'MÔ TẢ', value: 'detail', align: 'start' },
-                { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
+                { text: 'CHỈNH SỬA', value: 'more', align: 'right' },
             ],
             createSpec: {
                 dialog: false,
@@ -568,6 +664,7 @@ export default {
             },
             showSpec: true,
             deleteDoctorDialog: false,
+            loadingSpec: false,
             allPatients: [],
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -610,6 +707,24 @@ export default {
                 { text: '', value: 'data-table-expand' },
             ],
             assignToPracDialog: false,
+            loadingPatient: false,
+            patientSearch: {
+                name: undefined,
+                status: undefined,
+                gender: undefined,
+                age: undefined
+            },
+            patientSearchMenu: false,
+            patientStatus: [
+                {
+                    text: 'Tất cả bệnh nhân',
+                    value: -1
+                },
+                {
+                    text: 'Bệnh nhân chưa có bác sĩ quản lý',
+                    value: 1
+                }
+            ],
             registerObj: {
                 dateOfBirth: '',
                 dateMenu: false,
@@ -656,19 +771,33 @@ export default {
             ],
             allPractitioner: [],
             selectedInquiry: [],
-            selectedDoctor: []
+            selectedDoctor: [],
+            genderArr: [
+                {
+                    text: 'Nam',
+                    value: 0
+                },
+                {
+                    text: 'Nữ',
+                    value: 1
+                },
+                {
+                    text: 'Khác',
+                    value: 2
+                },
+            ]
         }
     },
     watch: {
-        doctorType(){
-            this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorType)
-        },
-        doctorPage(){
-            this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorType)
-        },
-        patientPage(){
-            this.getAllPatients(this.patientPage, this.patientPageSize)
-        }
+        // doctorType(){
+        //     this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorType)
+        // },
+        // doctorPage(){
+        //     this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorType)
+        // },
+        // patientPage(){
+        //     this.getAllPatients(this.patientPage, this.patientPageSize)
+        // }
     },
     methods: {
         returnInquiryType(type){
@@ -687,31 +816,41 @@ export default {
         checkString(str){
             return (str != null & str != undefined) ? str : '_'
         },
-        getAllDoctorFromServer(page, size, type){
+        getAllDoctorFromServer(page, size, searchObj){
+            this.loadingDoctor = true;
+            this.allDoctors = []
             let params = {
                 page: page,
                 size: size,
             }
-            if(type != null && type != undefined){
-                params.type = type
+            let searchString = '';
+            //Loop through all property of DoctorSearch Obj
+            for (const property in searchObj) {
+                if(searchObj[property] != undefined && searchObj[property] != null && searchObj[property] != ''){
+                    searchString += `${property}=${searchObj[property]},`
+                }
+                if(searchObj[property] == 0){
+                    searchString += `${property}=${searchObj[property]},`
+                }
             }
+            params.search = searchString
             let url = `${config.apiUrl}/doctors`
             apiService.getApi(url, params).then(result => {
-                // console.log(result)
                 if(result.status.toString()[0] === "2"){
-                    console.log(result.data)
                     this.doctorPages = result.data.totalPages
                     this.updateDoctorsArrayFromServer(result.data.content)
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    
                 }
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.loadingDoctor = false;
             })
         },
         updateDoctorsArrayFromServer(doctorArray){
-            this.allDoctors = []
             for(let i = 0; i < doctorArray.length; i++){
                 let obj = {
                     number: i,
@@ -728,10 +867,23 @@ export default {
                 this.allDoctors.push(obj)
             }
         },
-        openDoctorDetailDialog(number){
-            // console.log(number)
-            this.doctorDetail = Object.assign({}, this.allDoctors[number])
-            this.doctorDetailDialog = true
+        getDoctorDetail(id){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết nhân viên...')
+            let url = `${config.apiUrl}/doctors/${id}`
+            apiService.getApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.doctorDetail = Object.assign({}, result.data)
+                    this.doctorDetailDialog = true
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+            
         },
         deleteDoctor(id){
             let url = `${config.apiUrl}/doctors`
@@ -742,11 +894,12 @@ export default {
                 console.log(result)
                 this.getAllDoctorFromServer(1, 10)
             }).catch(error => {
-                alert(error)
+                console.log(error)
             })
             this.deleteDoctorDialog = false
         },
         getSpecialties(){
+            this.loadingSpec = true;
             let url = `${config.apiUrl}/specialties`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
@@ -757,12 +910,15 @@ export default {
                 }
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.loadingSpec = false;
             })
         },
         updateSpecialtiesFromServer(specArray){
             this.specialties = specArray;
         },
         createSpecialty(name, detail){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo chuyên môn mới...')
             let url = `${config.apiUrl}/specialties`
             let params = {
                 name: name,
@@ -771,13 +927,17 @@ export default {
             apiService.postApiParams(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo chuyên môn thành công'})
+                    this.createSpec.name = '';
+                    this.createSpec.detail = '';
                     this.getSpecialties()
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
-                alert(error)
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
         },
         openSpecDetailDialog(id){
@@ -786,6 +946,7 @@ export default {
             this.specDetailDialog = true;
         },
         updateSpec(name, detail, id){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin chuyên môn...')
             let url = `${config.apiUrl}/specialties`
             let params = {
                 name: name,
@@ -802,21 +963,32 @@ export default {
                 }
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
             // this.specDetailDialog = false;
         },
-        getAllPatients(page, size, type){
+        getAllPatients(page, size, searchObj){
+            this.loadingPatient = true;
+            this.allPatients = [];
             let params = {
                 page: page,
                 size: size,
-                search: 'status=1'
             }
-            if(type != null && type != undefined){
-                params.type = type
+            let searchString = '';
+            //Loop through all property of patientSearch Obj
+            for (const property in searchObj) {
+                if(searchObj[property] != undefined && searchObj[property] != null && searchObj[property] != ''){
+                    searchString += `${property}=${searchObj[property]},`
+                }
+                if(searchObj[property] == 0){
+                    searchString += `${property}=${searchObj[property]},`
+                }
             }
+            params.search = searchString
+            console.log(searchString)
             let url = `${config.apiUrl}/patients`
             apiService.getApi(url, params).then(result => {
-                console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.patientPages = result.data.totalPages
                     this.updatePatients(result.data.content)
@@ -827,6 +999,8 @@ export default {
                 
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.loadingPatient = false;
             })
         },
         updatePatients(patArray){
@@ -837,21 +1011,22 @@ export default {
             this.$router.push(url)
         },
         getPatientDetail(id, isDetail){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
             let url = `${config.apiUrl}/patients/${id}`
             let params = {
                 id: id
             }
             apiService.getApi(url, params).then(result => {
-                console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.processPatientDetailFromServer(result.data, isDetail)
-                    
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
         },
         processPatientDetailFromServer(data, isDetail){
@@ -949,10 +1124,11 @@ export default {
         },
     },
     created(){
+        // console.log(encode(decode('https://fathomless-savannah-38522.herokuapp.com/api/doctors?page=1&search=role%3D0%2Cstatus%3D1%2Cname%3DT%C3%B9ng&size=4')))
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
         this.getSpecialties()
-        this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorType)
-        this.getAllPatients(this.patientPage, this.patientPageSize)
+        this.getAllDoctorFromServer(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
         this.getAllPractitioner()
     }
 }

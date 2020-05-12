@@ -47,9 +47,7 @@ export default {
     AppBar, NavBar
   },
   created() {
-    console.log('Home created!!')
     this.checkUID()
-    // this.goToPage('/about')
   }
 }
 </script>
