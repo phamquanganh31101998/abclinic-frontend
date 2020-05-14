@@ -2,7 +2,7 @@
     <v-container>
         <v-row>
             <v-col>
-                <h1>Practitioner here</h1>
+                <h1>Chức năng dành cho Bác sĩ Đa khoa</h1>
             </v-col>
         </v-row>
         <v-row wrap row>
@@ -414,240 +414,7 @@ export default {
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
                 { text: '', value: 'data-table-expand' },
             ],
-            detailInquiry: {
-                "id": 0,
-                "inquiry": {
-                    "album": [
-                    "string"
-                    ],
-                    "albumId": "string",
-                    "content": "string",
-                    "createdAt": "2020-05-06T03:05:01.832Z",
-                    "dietRecords": [
-                        {
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "dietitian": {
-                            "age": 0,
-                            "avatar": "string",
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "dateOfBirth": "string",
-                            "description": "string",
-                            "email": "string",
-                            "gender": 0,
-                            "id": 0,
-                            "name": "string",
-                            "password": "string",
-                            "patients": [
-                                null
-                            ],
-                            "phoneNumber": "string",
-                            "role": "PRACTITIONER",
-                            "specialty": {
-                                "detail": "string",
-                                "id": 0,
-                                "name": "string"
-                            },
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z"
-                            },
-                            "id": 1,
-                            "note": "string",
-                            "prescription": "string",
-                            "recordType": 0,
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z"
-                        }
-                    ],
-                    "id": 0,
-                    "medicalRecords": [
-                        {
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "diagnose": "string",
-                            "disease": {
-                                "description": "string",
-                                "id": 0,
-                                "name": "string"
-                            },
-                            "id": 2,
-                            "note": "string",
-                            "prescription": "string",
-                            "recordType": 0,
-                            "specialist": {
-                            "age": 0,
-                            "avatar": "string",
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "dateOfBirth": "string",
-                            "description": "string",
-                            "email": "string",
-                            "gender": 0,
-                            "id": 2,
-                            "name": "string",
-                            "password": "string",
-                            "patients": [
-                                null
-                            ],
-                            "phoneNumber": "string",
-                            "role": "PRACTITIONER",
-                            "specialty": {
-                                "detail": "string",
-                                "id": 0,
-                                "name": "string"
-                            },
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z"
-                            },
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z"
-                        }
-                    ],
-                    "patient": {
-                    "address": "string",
-                    "age": 0,
-                    "avatar": "string",
-                    "createdAt": "2020-05-06T03:05:01.832Z",
-                    "dateOfBirth": "string",
-                    "dietitians": [
-                        {
-                        "age": 0,
-                        "avatar": "string",
-                        "createdAt": "2020-05-06T03:05:01.832Z",
-                        "dateOfBirth": "string",
-                        "description": "string",
-                        "email": "string",
-                        "gender": 0,
-                        "id": 0,
-                        "name": "string",
-                        "password": "string",
-                        "patients": [
-                            null
-                        ],
-                        "phoneNumber": "string",
-                        "role": "PRACTITIONER",
-                        "specialty": {
-                            "detail": "string",
-                            "id": 0,
-                            "name": "string"
-                        },
-                        "status": 0,
-                        "updatedAt": "2020-05-06T03:05:01.832Z"
-                        }
-                    ],
-                    "email": "string",
-                    "gender": 0,
-                    "id": 0,
-                    "inquiries": [
-                        null
-                    ],
-                    "name": "string",
-                    "password": "string",
-                    "phoneNumber": "string",
-                    "practitioner": {
-                        "age": 0,
-                        "avatar": "string",
-                        "createdAt": "2020-05-06T03:05:01.832Z",
-                        "dateOfBirth": "string",
-                        "description": "string",
-                        "email": "string",
-                        "gender": 0,
-                        "id": 0,
-                        "name": "string",
-                        "password": "string",
-                        "patients": [
-                        null
-                        ],
-                        "phoneNumber": "string",
-                        "role": "PRACTITIONER",
-                        "specialties": [
-                        {
-                            "detail": "string",
-                            "id": 0,
-                            "name": "string"
-                        }
-                        ],
-                        "status": 0,
-                        "updatedAt": "2020-05-06T03:05:01.832Z"
-                    },
-                    "role": "PRACTITIONER",
-                    "specialists": [
-                        {
-                        "age": 0,
-                        "avatar": "string",
-                        "createdAt": "2020-05-06T03:05:01.832Z",
-                        "dateOfBirth": "string",
-                        "description": "string",
-                        "email": "string",
-                        "gender": 0,
-                        "id": 0,
-                        "name": "string",
-                        "password": "string",
-                        "patients": [
-                            null
-                        ],
-                        "phoneNumber": "string",
-                        "role": "PRACTITIONER",
-                        "specialty": {
-                            "detail": "string",
-                            "id": 0,
-                            "name": "string"
-                        },
-                        "status": 0,
-                        "updatedAt": "2020-05-06T03:05:01.832Z"
-                        }
-                    ],
-                    "status": 0,
-                    "subDoctors": [
-                        {
-                        "age": 0,
-                        "avatar": "string",
-                        "createdAt": "2020-05-06T03:05:01.832Z",
-                        "dateOfBirth": "string",
-                        "email": "string",
-                        "gender": 0,
-                        "id": 0,
-                        "name": "string",
-                        "password": "string",
-                        "phoneNumber": "string",
-                        "role": "PRACTITIONER",
-                        "status": 0,
-                        "updatedAt": "2020-05-06T03:05:01.832Z"
-                        }
-                    ],
-                    "updatedAt": "2020-05-06T03:05:01.832Z"
-                    },
-                    "replies": [
-                        {
-                            "content": "string",
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "id": 0,
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z",
-                            "user": {
-                            "age": 0,
-                            "avatar": "string",
-                            "createdAt": "2020-05-06T03:05:01.832Z",
-                            "dateOfBirth": "string",
-                            "email": "string",
-                            "gender": 0,
-                            "id": 0,
-                            "name": "string",
-                            "password": "string",
-                            "phoneNumber": "string",
-                            "role": "PRACTITIONER",
-                            "status": 0,
-                            "updatedAt": "2020-05-06T03:05:01.832Z"
-                            }
-                        }
-                    ],
-                    "status": 0,
-                    "type": 0,
-                    "updatedAt": "2020-05-06T03:05:01.832Z"
-                },
-                "note": "string",
-                "prescription": "string",
-                "recordType": 0,
-                "status": 0,
-                "updatedAt": "2020-05-06T03:05:01.832Z"
-            },
+            detailInquiry: null,
             replyText: '',
             doctorHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -843,10 +610,10 @@ export default {
                 }
             }).catch(error => {
                 this.$toast.open({
-    message: error,
-    type: 'error',
-    // all other options may go here
-})
+                    message: error,
+                    type: 'error',
+                    // all other options may go here
+                })
             })
         },
         assignToPrac(patientId, inquiryArr, doctorArr){
