@@ -39,7 +39,6 @@ export default new Vuex.Store({
       router.replace('/login')
     },
     turnOnLoadingDialog(state, payload){
-      console.log(payload)
       state.loadingMsg = payload;
       state.loadingDialog = true;
     },

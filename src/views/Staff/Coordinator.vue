@@ -6,16 +6,7 @@
             </v-col>
         </v-row>
         <v-row wrap row>
-            <v-col cols="12" xs="12" sm="12" md="8" lg="4" xl="4">
-                <!-- <h2>
-                    Danh sách nhân viên 
-                    <v-icon v-show="showDoctor == false" @click="showDoctor = true">keyboard_arrow_down</v-icon>
-                    <v-icon v-show="showDoctor == true" @click="showDoctor = false">keyboard_arrow_up</v-icon>
-                </h2>
-                 -->
-                
-            </v-col>
-            <v-col cols="12" v-show="showDoctor" xs="12" sm="12" md="12" lg="12" xl="12">
+            <v-col cols="12" v-show="showDoctor" sm="12" md="12" lg="12" xl="12">
                 <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-4" hide-default-footer loading-text="Đang lấy dữ liệu..." no-data-text="Không có kết quả phù hợp" :loading="loadingDoctor">
                     <template v-slot:top>
                         <v-toolbar flat>
@@ -61,12 +52,6 @@
                                     </v-card-actions>
                                 </v-card>
                             </v-menu>
-                            <!-- <v-select
-                                class="mt-2"
-                                v-show="showDoctor"
-                                :items="doctorRoles"
-                                v-model="doctorType"
-                            ></v-select> -->
                         </v-toolbar>
                     </template>
                     <template v-slot:item.more="{ item }">
@@ -189,11 +174,6 @@
         </v-row>
         <v-row wrap row>
             <v-col xs="12" md="12" sm="12" lg="12" xl="12">
-                <!-- <h2>
-                    Danh sách bệnh nhân chưa có bác sĩ quản lý
-                    <v-icon v-show="showPatient == false" @click="showPatient = true">keyboard_arrow_down</v-icon>
-                    <v-icon v-show="showPatient == true" @click="showPatient = false">keyboard_arrow_up</v-icon>
-                </h2> -->
                 <v-data-table v-show="showPatient" :headers="patientHeaders" 
                 no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient"
                 :items="allPatients" class="elevation-4" hide-default-footer>
@@ -230,7 +210,7 @@
                                     <v-card-text>
                                         <v-text-field clearable v-model="patientSearch.name" label="Tên"></v-text-field>
                                         <v-select v-model="patientSearch.status" :items="patientStatus" label="Trạng thái"></v-select>
-                                        <v-select v-model="patientSearch.gender" :items="genderArr" label="Giới tính"></v-select>
+                                        <v-select clearable v-model="patientSearch.gender" :items="genderArr" label="Giới tính"></v-select>
                                         <v-text-field clearable type="number" v-model="patientSearch.age" label="Tuổi"></v-text-field>
                                     </v-card-text>
                                     <v-card-actions>
@@ -261,7 +241,7 @@
                     <v-pagination
                         v-model="patientPage"
                         :length="patientPages"
-                        @input="this.getAllPatients(this.patientPage, this.patientPageSize)"
+                        @input="getAllPatients(patientPage, patientPageSize, patientSearch)"
                     ></v-pagination>
                 </div>
                 <v-dialog scrollable v-model="patientDetailDialog" max-width="700px" persistent>
@@ -403,6 +383,122 @@
         <v-row wrap row>
             <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                 <br>
+                <v-data-table class="elevation-4" :headers="diseaseHeaders" :items="allDisease" hide-default-footer no-data-text="Hiện tại chưa có bệnh nào" loading-text="Đang lấy dữ liệu..." :loading="loadingDisease">
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title><h3>Danh sách các căn bệnh</h3></v-toolbar-title>
+                            <v-divider
+                                class="mx-4"
+                                inset
+                                vertical
+                            ></v-divider>
+                            <v-dialog v-model="createDisease.dialog" persistent width="400" max-width="70%">
+                                <template v-slot:activator="{ on }">
+                                    <v-btn color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo căn bệnh mới</v-btn>
+                                </template>
+                                <v-card>
+                                    <v-card-title
+                                        class="headline primary"
+                                        primary-title
+                                        >
+                                        <span style="color: white">Tạo căn bệnh mới</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-text-field v-model="createDisease.name" label="Tên căn bệnh"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-textarea rows="3" v-model="createDisease.description" label="Mô tả căn bệnh"></v-textarea>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" :disabled="createDisease.name == '' || createDisease.description == ''" text @click="createNewDisease(createDisease.name, createDisease.description), createDisease.dialog = false">TẠO</v-btn>
+                                    <v-btn color="red" text @click="createDisease.dialog = false">ĐÓNG</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                            <v-spacer></v-spacer>
+                            <v-menu
+                                v-model="diseaseSearchMenu"
+                                :close-on-content-click="false"
+                                :nudge-width="200"
+                                offset-x
+                                >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn
+                                    color="primary"
+                                    dark
+                                    v-on="on"
+                                    >
+                                    <v-icon>search</v-icon>
+                                    Tìm kiếm
+                                    </v-btn>
+                                </template>
+
+                                <v-card>
+                                    <v-card-title>
+                                        <h4>Tìm kiếm căn bệnh</h4>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-text-field clearable v-model="diseaseSearch.name" label="Tên"></v-text-field>
+                                        <v-text-field clearable v-model="diseaseSearch.description" label="Mô tả"></v-text-field>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="primary" text @click="diseaseSearchMenu =  false, diseasePage = 1, getAllDisease(diseasePage, diseasePageSize, diseaseSearch)">Tìm kiếm</v-btn>
+                                        <v-btn text color="red" @click="diseaseSearchMenu = false">Đóng</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-menu>
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:item.more="{ item }">
+                        <a @click="openDiseaseDetailDialog(item.id)">{{item.more}} <v-icon>create</v-icon>   </a>
+                    </template>
+                </v-data-table>
+                <br>
+                <div class="text-center">
+                    <v-pagination
+                        v-model="diseasePage"
+                        :length="diseasePages"
+                        @input="getAllDisease(diseasePage, diseasePageSize)"
+                    ></v-pagination>
+                </div>
+                <v-dialog offset-y persistent v-model="diseaseDetailDialog" width="400" max-width="70%">
+                    <v-card>
+                        <v-card-title
+                            class="headline primary"
+                            primary-title
+                            >
+                            <span style="color: white">Chỉnh sửa căn bệnh</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-row>
+                                <v-col cols="12" sm="12" md="12">
+                                    <v-text-field v-model="diseaseDetail.name" label="Tên căn bệnh"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="12" md="12">
+                                    <v-textarea rows="3" v-model="diseaseDetail.description" label="Mô tả căn bệnh"></v-textarea>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" :disabled="diseaseDetail.name == '' || diseaseDetail.description == ''" text @click="diseaseDetailDialog = false, updateDisease(diseaseDetail.name, diseaseDetail.description, diseaseDetail.id)">SỬA</v-btn>
+                        <v-btn color="red" text @click="diseaseDetailDialog = false">ĐÓNG</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-col>
+        </v-row>
+        <v-row wrap row>
+            <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+                <br>
                 <v-data-table v-show="showSpec" class="elevation-4" :headers="specHeaders" :items="specialties" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingSpec">
                     <template v-slot:top>
                         <v-toolbar flat>
@@ -476,82 +572,7 @@
                 </v-dialog>
             </v-col>
         </v-row>
-        <v-row wrap row>
-            <v-col xs="12" sm="12" md="12" lg="12" xl="12">
-                <br>
-                <v-data-table class="elevation-4" :headers="diseaseHeaders" :items="allDisease" hide-default-footer no-data-text="Hiện tại chưa có bệnh nào" loading-text="Đang lấy dữ liệu..." :loading="loadingDisease">
-                    <template v-slot:top>
-                        <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách các căn bệnh</h3></v-toolbar-title>
-                            <v-divider
-                                class="mx-4"
-                                inset
-                                vertical
-                            ></v-divider>
-                            <v-spacer></v-spacer>
-                            <v-dialog v-model="createDisease.dialog" persistent width="400" max-width="70%">
-                                <template v-slot:activator="{ on }">
-                                    <v-btn color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo căn bệnh mới</v-btn>
-                                </template>
-                                <v-card>
-                                    <v-card-title
-                                        class="headline primary"
-                                        primary-title
-                                        >
-                                        <span style="color: white">Tạo căn bệnh mới</span>
-                                    </v-card-title>
-                                    <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="createDisease.name" label="Tên căn bệnh"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-textarea rows="3" v-model="createDisease.description" label="Mô tả căn bệnh"></v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                    </v-card-text>
-                                    <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" :disabled="createDisease.name == '' || createDisease.description == ''" text @click="createNewDisease(createDisease.name, createDisease.description), createDisease.dialog = false">TẠO</v-btn>
-                                    <v-btn color="red" text @click="createDisease.dialog = false">ĐÓNG</v-btn>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-dialog>
-                        </v-toolbar>
-                    </template>
-                    <template v-slot:item.more="{ item }">
-                        <a @click="openDiseaseDetailDialog(item.id)">{{item.more}} <v-icon>create</v-icon>   </a>
-                    </template>
-                </v-data-table>
-                <v-dialog offset-y persistent v-model="diseaseDetailDialog" width="400" max-width="70%">
-                    <v-card>
-                        <v-card-title
-                            class="headline primary"
-                            primary-title
-                            >
-                            <span style="color: white">Chỉnh sửa căn bệnh</span>
-                        </v-card-title>
-                        <v-card-text>
-                            <v-row>
-                                <v-col cols="12" sm="12" md="12">
-                                    <v-text-field v-model="diseaseDetail.name" label="Tên căn bệnh"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="12">
-                                    <v-textarea rows="3" v-model="diseaseDetail.description" label="Mô tả căn bệnh"></v-textarea>
-                                </v-col>
-                            </v-row>
-                        </v-card-text>
-                        <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue darken-1" :disabled="diseaseDetail.name == '' || diseaseDetail.description == ''" text @click="diseaseDetailDialog = false, updateDisease(diseaseDetail.name, diseaseDetail.description, diseaseDetail.id)">SỬA</v-btn>
-                        <v-btn color="red" text @click="diseaseDetailDialog = false">ĐÓNG</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-col>
-        </v-row>
+        
         <v-row>
             <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                 <v-dialog scrollable v-model="registerObj.dialog" max-width="700px" persistent>
@@ -747,6 +768,7 @@ export default {
             patientPages: 1,
             showPatient: true,
             patientDetailDialog: false,
+            loadingPatient: false,
             patientDetail: {
                 dateOfBirth: '',
                 createdDate: '',
@@ -777,10 +799,9 @@ export default {
                 { text: '', value: 'data-table-expand' },
             ],
             assignToPracDialog: false,
-            loadingPatient: false,
             patientSearch: {
                 name: undefined,
-                status: undefined,
+                status: 1,
                 gender: undefined,
                 age: undefined
             },
@@ -874,6 +895,11 @@ export default {
             diseasePage: 1,
             diseasePages: 0,
             diseasePageSize: 10,
+            diseaseSearchMenu: false,
+            diseaseSearch: {
+                name: undefined,
+                description: undefined
+            }
         }
     },
     watch: {
@@ -921,7 +947,9 @@ export default {
                     searchString += `${property}=${searchObj[property]},`
                 }
             }
-            params.search = searchString
+            if(searchString != ''){
+                params.search = searchString
+            }
             let url = `${config.apiUrl}/doctors`
             apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
@@ -974,17 +1002,27 @@ export default {
             
         },
         deleteDoctor(id){
-            let url = `${config.apiUrl}/doctors`
-            let params = {
+            this.deleteDoctorDialog = false
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa bác sĩ...')
+            let url = `${config.apiUrl}/user`
+            let body = {
                 id: id
             }
-            apiService.deleteApi(url, params).then(result => {
-                console.log(result)
-                this.getAllDoctor(1, 10)
+            apiService.deleteApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa bác sĩ thành công'})
+                    this.doctorPage = 1;
+                    this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+                
             }).catch(error => {
                 console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
-            this.deleteDoctorDialog = false
         },
         getSpecialties(){
             this.loadingSpec = true;
@@ -1008,11 +1046,11 @@ export default {
         createSpecialty(name, detail){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo chuyên môn mới...')
             let url = `${config.apiUrl}/specialties`
-            let params = {
+            let body = {
                 name: name,
                 detail: detail
             }
-            apiService.postApiParams(url, params).then(result => {
+            apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo chuyên môn thành công'})
                     this.createSpec.name = '';
@@ -1036,12 +1074,12 @@ export default {
         updateSpec(name, detail, id){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin chuyên môn...')
             let url = `${config.apiUrl}/specialties`
-            let params = {
+            let body = {
                 name: name,
                 detail: detail,
                 id: id
             }
-            apiService.putApi(url, params).then(result => {
+            apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Sửa chuyên môn thành công'})
                     this.getSpecialties()
@@ -1056,13 +1094,26 @@ export default {
             })
             // this.specDetailDialog = false;
         },
-        getAllDisease(page, size){
+        getAllDisease(page, size, searchObj){
             this.loadingDisease = true;
             let params = {
                 page: page,
                 size: size
             }
-            let url = `${config.apiUrl}/disease`
+            let searchString = '';
+            //Loop through all property of DiseaseSearch Obj
+            for (const property in searchObj) {
+                if(searchObj[property] != undefined && searchObj[property] != null && searchObj[property] != ''){
+                    searchString += `${property}=${searchObj[property]},`
+                }
+                if(searchObj[property] == 0){
+                    searchString += `${property}=${searchObj[property]},`
+                }
+            }
+            if(searchString != ''){
+                params.search = searchString
+            }
+            let url = `${config.apiUrl}/diseases`
             apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.diseasePages = result.data.totalPages
@@ -1082,12 +1133,12 @@ export default {
         },
         createNewDisease(name, description){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo căn bệnh mới...')
-            let url = `${config.apiUrl}/disease`
-            let params = {
+            let url = `${config.apiUrl}/diseases`
+            let body = {
                 name: name,
                 description: description
             }
-            apiService.postApiParams(url, params).then(result => {
+            apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo căn bệnh thành công'})
                     this.createDisease.name = '';
@@ -1110,13 +1161,13 @@ export default {
         },
         updateDisease(name, description, id){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật căn bệnh...')
-            let url = `${config.apiUrl}/disease/${id}`
-            let params = {
+            let url = `${config.apiUrl}/diseases`
+            let body = {
                 name: name,
                 description: description,
                 id: id
             }
-            apiService.putApi(url, params).then(result => {
+            apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Sửa căn bệnh thành công'})
                     this.getAllDisease(this.diseasePage, this.diseasePageSize)
@@ -1148,8 +1199,9 @@ export default {
                     searchString += `${property}=${searchObj[property]},`
                 }
             }
-            params.search = searchString
-            console.log(searchString)
+            if(searchString != ''){
+                params.search = searchString
+            }
             let url = `${config.apiUrl}/patients`
             apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
@@ -1180,7 +1232,6 @@ export default {
                 id: id
             }
             apiService.getApi(url, params).then(result => {
-                console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.processPatientDetailFromServer(result.data, isDetail)
                 }
@@ -1212,15 +1263,21 @@ export default {
         assignToPrac(patientId, inquiry, doctor){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang gán bệnh nhân cho bác sĩ...')
             let url = `${config.apiUrl}/patients/${patientId}/doctor`
-            let params = {
-                "doctor-id": doctor[0].id,
-                id: patientId,
-                "inquiry-id": inquiry[0].id
+            let body = {
+                "doctor_id": doctor[0].id,
+                "inquiry_id": inquiry[0].id
             }
-            apiService.postApiParams(url, params).then(result => {
+            apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Gán quyền quản lý bệnh nhân thành công!'})
-                    this.getAllPatients(1, 10)
+                    this.patientPage = 1;
+                    this.patientSearch = {
+                        name: undefined,
+                        status: 1,
+                        gender: undefined,
+                        age: undefined
+                    }
+                    this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
@@ -1233,7 +1290,7 @@ export default {
         },
         register(name, email, phone, dob, gender, role, password){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang đăng ký tài khoản mới...')
-            let params = {
+            let body = {
                 name: name,
                 email: email,
                 phone: phone,
@@ -1243,11 +1300,18 @@ export default {
                 password: password
             }
             let url = `${config.authUrl}/sign_up`
-            apiService.postApiParams(url, params).then(result => {
+            apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo tài khoản thành công'})
                     if(role == 4){
-                        this.getAllPatients(1, 10)
+                        this.patientPage = 1;
+                        this.patientSearch = {
+                            name: undefined,
+                            status: 1,
+                            gender: undefined,
+                            age: undefined
+                        }
+                        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                     }
                     else {
                         this.doctorPage = 1;
@@ -1274,7 +1338,7 @@ export default {
             let params = {
                 page: 1,
                 size: 1000,
-                search: 'role=0'
+                search: 'role=0,status=1'
             }
             let url = `${config.apiUrl}/doctors`
             apiService.getApi(url, params).then(result => {
@@ -1299,12 +1363,11 @@ export default {
         },
     },
     created(){
-        // console.log(encode(decode('https://fathomless-savannah-38522.herokuapp.com/api/doctors?page=1&search=role%3D0%2Cstatus%3D1%2Cname%3DT%C3%B9ng&size=4')))
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
-        // this.getSpecialties()
-        // this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
-        // this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
-        this.getAllDisease(this.diseasePage, this.diseasePageSize)
+        this.getSpecialties()
+        this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+        this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
         this.getAllPractitioner()
     }
 }

@@ -25,7 +25,7 @@ async function getApi(url, param){
     }
 }
 
-async function putApi(url, params){
+async function putApi(url, body){
     let config = {
         method: 'put',
         url: url,
@@ -35,8 +35,8 @@ async function putApi(url, params){
             'Authorization': localStorage.getItem('ac_uid'),
         },
     }
-    if (params != null && params != undefined){
-        config.params = params
+    if (body){
+        config.data = body
     }
     try {
         const result = await axios(config)
@@ -47,11 +47,11 @@ async function putApi(url, params){
     }
 }
 
-async function postApi(url, data){
+async function postApi(url, body){
     let config = {
         method: 'post',
         url: url,
-        data: data,
+        data: body,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -87,16 +87,18 @@ async function postApiParams(url, params){
     }
 }
 
-async function deleteApi(url, params){
+async function deleteApi(url, body){
     let config = {
         method: 'delete',
         url: url,
-        params: params,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': localStorage.getItem('ac_uid'),
         },
+    }
+    if(body){
+        config.data = body
     }
     try {
         const result = await axios(config)
