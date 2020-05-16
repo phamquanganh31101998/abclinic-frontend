@@ -65,56 +65,12 @@
                                     >
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
-                                <v-dialog
-                                    persistent
-                                    v-model="deleteDoctorDialog"
-                                    width="400"
-                                    >
-                                    <template v-slot:activator="{ on }">
-                                        <v-list-item v-on="on"><v-list-item-title>Xóa nhân viên</v-list-item-title></v-list-item>
-                                    </template>
-
-                                    <v-card>
-                                        <v-card-title
-                                            class="headline red"
-                                            primary-title
-                                            dark
-                                            >
-                                            <span style="color: white">Xác nhận xóa nhân viên</span>
-                                        </v-card-title>
-                                        <v-divider></v-divider>
-                                        <v-card-text>
-                                            <br>
-                                            Bạn có chắc chắn muốn xóa? 
-                                        </v-card-text>
-
-                                        <v-divider></v-divider>
-
-                                        <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn
-                                            color="red"
-                                            text
-                                            @click="deleteDoctor(item.id)"
-                                            >
-                                            XÓA
-                                        </v-btn>
-                                        <v-btn
-                                            color="primary"
-                                            text
-                                            @click="deleteDoctorDialog = false"
-                                            >
-                                            ĐÓNG
-                                        </v-btn>
-                                        </v-card-actions>
-                                    </v-card>
-                                </v-dialog>
-                                    
+                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = true, deleteUserDialog = true"><v-list-item-title>Xóa nhân viên</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
                     <!-- <template v-slot:item.gender="{ item }">
-                        {{checkGender(item.gender)}}
+                        {{returnGender(item.gender)}}
                     </template> -->
                 </v-data-table>
                 <br>
@@ -146,7 +102,7 @@
                                     <v-text-field
                                         readonly 
                                         label="Giới tính"
-                                        :value="checkGender(doctorDetail.gender)"
+                                        :value="returnGender(doctorDetail.gender)"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="6" lg="6" xl="6">
@@ -172,11 +128,111 @@
                 </v-dialog>
             </v-col>
         </v-row>
-        <v-row wrap row>
-            <v-col xs="12" md="12" sm="12" lg="12" xl="12">
+        <v-row wrap row class="fill-height">
+            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
+                <v-data-table :headers="inquiryHeadersMain" 
+                    no-data-text="Không có yêu cầu tư vấn nào mới" loading-text="Đang lấy dữ liệu" :loading="loadingInquiries"
+                    :items="inquiries" class="elevation-4" hide-default-footer>
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title><h3>Danh sách yêu cầu tư vấn mới</h3></v-toolbar-title>
+                            <v-divider
+                                class="mx-4"
+                                inset
+                                vertical
+                            ></v-divider>
+                            <v-spacer></v-spacer>
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:item.patient="{ item }">
+                        {{ item.patient.name }}
+                    </template>
+                    <template v-slot:item.type="{ item }">
+                        {{ returnInquiryType(item.type) }}
+                    </template>
+                    <template v-slot:item.more="{item}">
+                        <a @click.stop="openAssignToPracMainDialog(item)">Gán</a>
+                    </template>
+                </v-data-table>
+                <br>
+                <div class="text-center">
+                    <v-pagination
+                        v-model="inquiryPage"
+                        :length="inquiryPages"
+                        @input="getInquiries(inquiryPage, inquiryPageSize)"
+                    ></v-pagination>
+                </div>
+                <v-dialog scrollable v-model="assignToPracDialogMain" max-width="700px" persistent>
+                    <v-card>
+                        <v-card-title
+                            class="headline primary"
+                            primary-title
+                            >
+                            <span style="color: white">Gán quyền quản lý bệnh nhân cho Bác sĩ đa khoa</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+                                        <v-data-table
+                                            hide-default-footer
+                                            v-model="selectedInquiryMain"
+                                            :headers="inquiryHeaders"
+                                            :items="selectInquiryMain"
+                                            single-select
+                                            show-select
+                                            class="elevation-4"
+                                            >
+                                            <template v-slot:top>
+                                                <v-toolbar flat>
+                                                    <v-toolbar-title>Chọn yêu cầu tư vấn</v-toolbar-title>
+                                                    <v-spacer></v-spacer>
+                                                </v-toolbar>
+                                            </template>
+                                            <template v-slot:item.patient="{ item }">
+                                                {{ item.patient.name }}
+                                            </template>
+                                            <template v-slot:item.type="{ item }">
+                                                {{ returnInquiryType(item.type) }}
+                                            </template>
+                                            <!-- <template v-slot:expanded-item="{ item }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
+                                            </template> -->
+                                        </v-data-table>
+                                    </v-col>
+                                    <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+                                        <v-data-table
+                                            hide-default-footer
+                                            v-model="selectedDoctor"
+                                            :headers="doctorHeaders"
+                                            :items="allPractitioner"
+                                            single-select
+                                            show-select
+                                            class="elevation-4"
+                                            >
+                                            <template v-slot:top>
+                                                <v-toolbar flat>
+                                                    <v-toolbar-title>Chọn Bác sĩ phụ trách</v-toolbar-title>
+                                                    <v-spacer></v-spacer>
+                                                </v-toolbar>
+                                            </template>
+                                        </v-data-table>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue" text :disabled="selectedInquiryMain.length == 0 || selectedDoctor.length == 0" @click="assignToPrac(selectedInquiryMain[0].patient.id, selectedInquiryMain, selectedDoctor, true), assignToPracDialogMain = false">GÁN</v-btn>
+                            <v-btn color="red" text @click="assignToPracDialogMain = false, selectedDoctor = [], selectedInquiryMain = [], selectInquiryMain = []">ĐÓNG</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-col>
+            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
                 <v-data-table v-show="showPatient" :headers="patientHeaders" 
-                no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient"
-                :items="allPatients" class="elevation-4" hide-default-footer>
+                    no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient"
+                    :items="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
                             <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
@@ -232,6 +288,7 @@
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
                                 <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Xóa bệnh nhân</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -278,8 +335,6 @@
                                             hide-default-footer
                                             :headers="inquiryHeaders"
                                             :items="patientDetail.inquiries"
-                                            single-expand
-                                            show-expand
                                             class="elevation-4"
                                             >
                                             <template v-slot:top>
@@ -294,9 +349,9 @@
                                             <template v-slot:item.patient="{ item }">
                                                 {{ item.patient.name }}
                                             </template>
-                                            <template v-slot:expanded-item="{ item }">
+                                            <!-- <template v-slot:expanded-item="{ item }">
                                                 <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
-                                            </template>
+                                            </template> -->
                                         </v-data-table>
                                     </v-col>
                                     
@@ -327,8 +382,6 @@
                                             v-model="selectedInquiry"
                                             :headers="inquiryHeaders"
                                             :items="patientDetail.inquiries"
-                                            single-expand
-                                            show-expand
                                             single-select
                                             show-select
                                             class="elevation-4"
@@ -345,9 +398,9 @@
                                             <template v-slot:item.type="{ item }">
                                                 {{ returnInquiryType(item.type) }}
                                             </template>
-                                            <template v-slot:expanded-item="{ item }">
+                                            <!-- <template v-slot:expanded-item="{ item }">
                                                 <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
-                                            </template>
+                                            </template> -->
                                         </v-data-table>
                                     </v-col>
                                     <v-col xs="12" sm="12" md="12" lg="12" xl="12">
@@ -373,15 +426,15 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue" text :disabled="selectedInquiry.length == 0 || selectedDoctor.length == 0" @click="assignToPrac(patientDetail.id, selectedInquiry, selectedDoctor), assignToPracDialog = false">GÁN</v-btn>
-                            <v-btn color="red" text @click="assignToPracDialog = false">QUAY LẠI</v-btn>
+                            <v-btn color="blue" text :disabled="selectedInquiry.length == 0 || selectedDoctor.length == 0" @click="assignToPrac(patientDetail.id, selectedInquiry, selectedDoctor, false), assignToPracDialog = false">GÁN</v-btn>
+                            <v-btn color="red" text @click="assignToPracDialog = false, selectedDoctor = [], selectedInquiry = []">QUAY LẠI</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
             </v-col>
         </v-row>
         <v-row wrap row>
-            <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+            <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <br>
                 <v-data-table class="elevation-4" :headers="diseaseHeaders" :items="allDisease" hide-default-footer no-data-text="Hiện tại chưa có bệnh nào" loading-text="Đang lấy dữ liệu..." :loading="loadingDisease">
                     <template v-slot:top>
@@ -495,9 +548,7 @@
                     </v-card>
                 </v-dialog>
             </v-col>
-        </v-row>
-        <v-row wrap row>
-            <v-col xs="12" sm="12" md="12" lg="12" xl="12">
+            <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <br>
                 <v-data-table v-show="showSpec" class="elevation-4" :headers="specHeaders" :items="specialties" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingSpec">
                     <template v-slot:top>
@@ -572,7 +623,6 @@
                 </v-dialog>
             </v-col>
         </v-row>
-        
         <v-row>
             <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                 <v-dialog scrollable v-model="registerObj.dialog" max-width="700px" persistent>
@@ -667,6 +717,47 @@
                 </v-dialog>
             </v-col>
         </v-row>
+        <!-- dialog xóa tài khoản -->
+        <v-dialog
+            persistent
+            v-model="deleteUserDialog"
+            width="400"
+            >
+            <v-card>
+                <v-card-title
+                    class="headline red"
+                    primary-title
+                    dark
+                    >
+                    <span style="color: white">Xác nhận xóa</span>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                    <br>
+                    Bạn có chắc chắn muốn xóa tài khoản này? 
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="red"
+                    text
+                    @click="deleteUserDialog = false, deleteUser(deleteUserId, deleteUserTypeIsStaff)"
+                    >
+                    XÓA
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="deleteUserDialog = false, deleteUserId = 0, deleteUserTypeIsStaff = null"
+                    >
+                    ĐÓNG
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 <script>
@@ -754,7 +845,9 @@ export default {
                 detail: ''
             },
             showSpec: true,
-            deleteDoctorDialog: false,
+            deleteUserDialog: false,
+            deleteUserId: 0,
+            deleteUserTypeIsStaff: null,
             loadingSpec: false,
             allPatients: [],
             patientHeaders: [
@@ -796,7 +889,8 @@ export default {
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
-                { text: '', value: 'data-table-expand' },
+                // { text: '', value: 'data-table-expand' },
+                {text: 'NỘI DUNG', value: 'content', align: 'start'}
             ],
             assignToPracDialog: false,
             patientSearch: {
@@ -899,25 +993,43 @@ export default {
             diseaseSearch: {
                 name: undefined,
                 description: undefined
-            }
+            },
+            inquiries: [],
+            loadingInquiries: false,
+            inquiryPage: 1,
+            inquiryPageSize: 10,
+            inquiryPages: 0,
+            inquiryHeadersMain: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
+                // { text: '', value: 'data-table-expand' },
+                {text: 'NỘI DUNG', value: 'content', align: 'start'},
+                {text: 'GÁN', value: 'more', align: 'end'}
+            ],
+            selectInquiryMain: [],
+            selectedInquiryMain: [],
+            assignToPracDialogMain: false,
+            inquiryAssignValue: [
+                {
+                    text: 'Tất cả các yêu cầu',
+                    value: true
+                },
+                {
+                    text: 'Yêu cầu chưa được gán cho bác sĩ cấp dưới',
+                    value: false
+                },
+            ],
+            inquiryAssign: true
         }
     },
     watch: {
-        // doctorType(){
-        //     this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorType)
-        // },
-        // doctorPage(){
-        //     this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorType)
-        // },
-        // patientPage(){
-        //     this.getAllPatients(this.patientPage, this.patientPageSize)
-        // }
     },
     methods: {
         returnInquiryType(type){
             return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
         },
-        checkGender(number){
+        returnGender(number){
             switch(number){
                 case 0: 
                     return 'Nam'
@@ -973,7 +1085,7 @@ export default {
                     id: this.checkString(doctorArray[i].id.toString()),
                     name: this.checkString(doctorArray[i].name),
                     email: this.checkString(doctorArray[i].email),
-                    gender: this.checkGender(this.checkString(doctorArray[i].gender)),
+                    gender: this.returnGender(this.checkString(doctorArray[i].gender)),
                     more: 'Xem chi tiết',
                     dateOfBirth: this.checkString(doctorArray[i].dateOfBirth),
                     description: this.checkString(doctorArray[i].description),
@@ -1001,18 +1113,23 @@ export default {
             })
             
         },
-        deleteDoctor(id){
-            this.deleteDoctorDialog = false
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa bác sĩ...')
+        deleteUser(id, isStaff){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa tài khoản này...')
             let url = `${config.apiUrl}/user`
             let body = {
                 id: id
             }
             apiService.deleteApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa bác sĩ thành công'})
-                    this.doctorPage = 1;
-                    this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa tài khoản thành công'})
+                    if(isStaff){
+                        this.doctorPage = 1;
+                        this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                    }
+                    else {
+                        this.patientPage = 1;
+                        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                    }
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
@@ -1022,6 +1139,8 @@ export default {
                 console.log(error)
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
+                this.deleteUserId = 0;
+                this.deleteUserTypeIsStaff = null;
             })
         },
         getSpecialties(){
@@ -1248,7 +1367,7 @@ export default {
             this.patientDetail.dateOfBirth = data.dateOfBirth
             this.patientDetail.createdDate = data.createdDate
             this.patientDetail.email = data.email
-            this.patientDetail.gender = this.checkGender(data.gender)
+            this.patientDetail.gender = this.returnGender(data.gender)
             this.patientDetail.id = data.id
             this.patientDetail.inquiries = data.inquiries
             this.patientDetail.name = data.name
@@ -1260,16 +1379,33 @@ export default {
                 this.assignToPracDialog = true
             }
         },
-        assignToPrac(patientId, inquiry, doctor){
+        assignToPrac(patientId, inquiry, doctor, fromMainTable){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang gán bệnh nhân cho bác sĩ...')
             let url = `${config.apiUrl}/patients/${patientId}/doctor`
             let body = {
                 "doctor_id": doctor[0].id,
                 "inquiry_id": inquiry[0].id
             }
+            // console.log(url)
+            // console.log(body)
+            // console.log(fromMainTable)
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Gán quyền quản lý bệnh nhân thành công!'})
+                    if(fromMainTable){
+                        this.selectedDoctor = []
+                        this.selectedInquiryMain = []
+                        this.selectInquiryMain = []
+                        
+                    }
+                    else {
+                        this.selectedDoctor = []
+                        this.selectedInquiry = []
+                        
+                        
+                    }
+                    this.inquiryPage = 1;
+                    this.getInquiries(this.inquiryPage, this.inquiryPageSize)
                     this.patientPage = 1;
                     this.patientSearch = {
                         name: undefined,
@@ -1352,6 +1488,33 @@ export default {
                 console.log(error)
             })
         },
+        getInquiries(page, size){
+            this.inquiries = [];
+            this.loadingInquiries = true;
+            let url = `${config.apiUrl}/inquiries`
+            let params = {
+                page: page,
+                size: size
+            }
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.inquiries = result.data.content
+                    this.inquiryPages = result.data.totalPages
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingInquiries = false;
+            })
+        },
+        openAssignToPracMainDialog(item){
+            this.selectInquiryMain.push(item)
+            this.selectedInquiryMain.push(item)
+            this.assignToPracDialogMain = true
+        },
         findObjIndexById(arr, id){
             let result = -1;
             for(let i = 0; i < arr.length; i++){
@@ -1364,10 +1527,11 @@ export default {
     },
     created(){
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
-        this.getSpecialties()
-        this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+        // this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+        this.getInquiries(this.inquiryPage, this.inquiryPageSize)
         this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
-        this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
+        // this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
+        // this.getSpecialties()
         this.getAllPractitioner()
     }
 }
