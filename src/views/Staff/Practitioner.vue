@@ -6,11 +6,54 @@
             </v-col>
         </v-row>
         <v-row wrap row>
-            <v-col md="12" sm="12" lg="12" xl="12">
+            <v-col cols="12" sm="12" md="12" lg="6" xl="6">
+                <v-data-table no-data-text="Không có yêu cầu tư vấn nào" loading-text="Đang lấy dữ liệu" :loading="loadingInquiries" :headers="inquiryHeadersMain" :items="inquiries" class="elevation-4" hide-default-footer>
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title><h3>Danh sách yêu cầu tư vấn</h3></v-toolbar-title>
+                            <v-divider
+                                class="mx-4"
+                                inset
+                                vertical
+                            ></v-divider>
+                            <v-spacer></v-spacer>
+                            <v-select :items="inquiryAssignValue" v-model="inquiryAssign" @input="inquiryPage = 1, getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"></v-select>
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:item.patient="{ item }">
+                        {{ item.patient.name }}
+                    </template>
+                    <template v-slot:item.type="{ item }">
+                        {{ returnInquiryType(item.type) }}
+                    </template>
+                    <template v-slot:item.more="{item}">
+                        <v-menu offset-y>
+                            <template v-slot:activator="{ on }">
+                                <v-icon v-on="on">more_vert</v-icon>
+                            </template>
+                            <v-list>
+                                <v-list-item @click="getPatientDetail(item.patient.id), getDetailInquiry(item.id)">
+                                    <v-list-item-title>Xem chi tiết</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item><v-list-item-title>Gán yêu cầu này cho bác sĩ cấp dưới</v-list-item-title></v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </template>
+                </v-data-table>
+                <br>
+                <div class="text-center">
+                    <v-pagination
+                        v-model="inquiryPage"
+                        :length="inquiryPages"
+                        @input="getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"
+                    ></v-pagination>
+                </div>
+            </v-col>
+            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
                 <v-data-table no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient" v-show="showPatient" :headers="patientHeaders" :items="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Danh sách bệnh nhân quản lý</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -66,6 +109,7 @@
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
                                 <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                <v-list-item @click="removePatientObj.id = item.id, removePatientObj.dialog = true"><v-list-item-title>Xóa bệnh nhân khỏi quyền quản lý</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -213,6 +257,46 @@
                     </v-card>
                 </v-dialog>
             </v-col>
+            <v-dialog
+                persistent
+                v-model="removePatientObj.dialog"
+                width="400"
+                >
+                <v-card>
+                    <v-card-title
+                        class="headline red"
+                        primary-title
+                        dark
+                        >
+                        <span style="color: white">Xác nhận xóa</span>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <br>
+                        Bạn có chắc chắn muốn xóa bệnh nhân này khỏi quyền quản lý của mình?
+                    </v-card-text>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="red"
+                        text
+                        @click="removePatientObj.dialog = false, removePatient(removePatientObj.id)"
+                        >
+                        XÓA
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="removePatientObj.dialog = false, removePatientObj.id = 0"
+                        >
+                        ĐÓNG
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-row>
         <v-row wrap row class="fill-height">
             <v-col cols="12" md="12" sm="12" lg="6" xl="6">
@@ -487,6 +571,37 @@ export default {
                     value: 2
                 },
             ],
+            removePatientObj: {
+                dialog: false,
+                id: 0
+            },
+            inquiries: [],
+            loadingInquiries: false,
+            inquiryPage: 1,
+            inquiryPageSize: 10,
+            inquiryPages: 0,
+            inquiryHeadersMain: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
+                // { text: '', value: 'data-table-expand' },
+                {text: 'NỘI DUNG', value: 'content', align: 'start'},
+                {text: 'GÁN', value: 'more', align: 'end'}
+            ],
+            selectInquiryMain: [],
+            selectedInquiryMain: [],
+            assignToPracDialogMain: false,
+            inquiryAssignValue: [
+                {
+                    text: 'Tất cả các yêu cầu',
+                    value: true
+                },
+                {
+                    text: 'Yêu cầu chưa được gán cho bác sĩ cấp dưới',
+                    value: false
+                },
+            ],
+            inquiryAssign: true
         }
     },
     watch: {
@@ -568,13 +683,13 @@ export default {
             this.$router.push(url)
         },
         getPatientDetail(id, isDetail){
+            this.detailInquiry = null;
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
             let url = `${config.apiUrl}/patients/${id}`
             let params = {
                 id: id
             }
             apiService.getApi(url, params).then(result => {
-                console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.processPatientDetailFromServer(result.data, isDetail)
                 }
@@ -651,12 +766,12 @@ export default {
             })
         },
         getDetailInquiry(id){
+            this.detailInquiry = null;
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết yêu cầu tư vấn...')
             let url = `${config.apiUrl}/inquiries/${id}`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.detailInquiry = result.data
-                    console.log(this.detailInquiry)
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
@@ -675,7 +790,7 @@ export default {
             for(let i = 0; i < doctorArr.length; i++){
                 this.assignToDoctor(patientId, inquiryArr[0].id, doctorArr[i])
             }
-            this.getPatientDetail(patientId, true)
+            // this.getPatientDetail(patientId, true)
 
         },
         assignToDoctor(patientId, inquiryId, doctor){
@@ -687,11 +802,19 @@ export default {
             apiService.postApi(url, body).then(result => {
                 // console.log(result)
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: `Gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name} thành công!`})
-                    // this.getAllPatients(1, 10)
+                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: `Gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name} thành công!`})
+                    this.$toast.open({
+                        message: `Gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name} thành công!`,
+                        type: 'success',
+                        // all other options may go here
+                    })
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
                 }
             }).catch(error => {
                 this.$toast.open({
@@ -783,7 +906,6 @@ export default {
             this.editRecord.isMedical = isMedical
             this.editRecord.dialog = true;
         },
-        //not done
         updateRecord(inquiryId, index, isMedical, diag, pres, note){
             let url = `${config.apiUrl}/records`
             let body = {
@@ -815,14 +937,58 @@ export default {
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-            //sending to Server...
-            
+        },
+        removePatient(id){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa khỏi quyền quản lý...')
+            let url = `${config.apiUrl}/patients/${id}/doctor`
+            apiService.deleteApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa khỏi quyền quản lý thành công'})
+                    this.patientPage = 1;
+                    this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                    this.inquiryPage = 1;
+                    this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        getInquiries(page, size, assigned){
+            this.inquiries = [];
+            this.loadingInquiries = true;
+            let url = `${config.apiUrl}/inquiries`
+            let params = {
+                page: page,
+                size: size
+            }
+            if(assigned){
+                params.assigned = assigned
+            }
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.inquiries = result.data.content
+                    this.inquiryPages = result.data.totalPages
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingInquiries = false;
+            })
         },
         logging(){
             console.log(this.patientDetail)
         }
     },
     created(){
+        this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
         this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
         this.getAllSpec()
         this.getAllDiet()

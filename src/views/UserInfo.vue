@@ -75,20 +75,29 @@
                                                 <v-btn @click="updateInfo(userInfo.email, userInfo.phoneNumber, userInfo.description)" :disabled="!valid" rounded color="primary">Cập nhật thông tin cá nhân</v-btn>
                                             </v-col>
                                         </v-row>
-                                        <v-row v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
+                                        <v-row v-if="userInfo.role == 'PRACTITIONER'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8" v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
                                                 <v-autocomplete multiple label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialties"></v-autocomplete>
                                             </v-col>
                                         </v-row>
-                                        <v-row v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
+                                        <v-row v-if="userInfo.role == 'PRACTITIONER'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                                                 <v-btn @click="updateSpecialties(userInfo.specialties)" rounded color="primary">Cập nhật chuyên môn</v-btn>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
+                                            <v-col xs="12" sm="12" md="8" lg="8" xl="8" v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
+                                                <v-autocomplete multiple label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialty"></v-autocomplete>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
+                                            <v-col xs="12" sm="12" md="8" lg="8" xl="8">
+                                                <v-btn @click="updateSpecialties(userInfo.specialty)" rounded color="primary">Cập nhật chuyên môn</v-btn>
                                             </v-col>
                                         </v-row>
                                     </v-col>
                                 </v-row>
                             </v-container>
-                            
                         </v-form>
                     </v-card-text>
                 </v-card>
@@ -227,7 +236,7 @@ export default {
             })
         },
         updateSpecialties(specArray){
-            this.$store.dispatch('turnOnLoadingDialog', 'Cập nhật chuyên môn thành công...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Cập nhật chuyên môn...')
             let url = `${config.apiUrl}/user/specialties`
             let body = {
                 specialties: specArray
