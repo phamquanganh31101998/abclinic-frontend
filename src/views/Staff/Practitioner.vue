@@ -35,7 +35,7 @@
                                 <v-list-item @click="getPatientDetail(item.patient.id), getDetailInquiry(item.id)">
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item><v-list-item-title>Gán yêu cầu này cho bác sĩ cấp dưới</v-list-item-title></v-list-item>
+                                <v-list-item @click="openAssignToDoctorMainDialog(item)"><v-list-item-title>Gán yêu cầu này cho bác sĩ cấp dưới</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -48,6 +48,73 @@
                         @input="getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"
                     ></v-pagination>
                 </div>
+                <v-dialog scrollable v-model="assignToDoctorDialogMain" max-width="700px" persistent>
+                    <v-card>
+                        <v-card-title
+                            class="headline grey lighten-2"
+                            primary-title
+                            >
+                            Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng
+                        </v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col  sm="12" md="12" lg="12" xl="12">
+                                        <v-data-table
+                                            hide-default-footer
+                                            v-model="selectedInquiryMain"
+                                            :headers="inquiryHeaders"
+                                            :items="selectInquiryMain"
+                                            single-expand
+                                            show-expand
+                                            single-select
+                                            show-select
+                                            class="elevation-4"
+                                            >
+                                            <template v-slot:top>
+                                                <v-toolbar flat>
+                                                    <v-toolbar-title>Chọn yêu cầu tư vấn</v-toolbar-title>
+                                                    <v-spacer></v-spacer>
+                                                </v-toolbar>
+                                            </template>
+                                            <template v-slot:item.type="{ item }">
+                                                {{ returnInquiryType(item.type) }}
+                                            </template>
+                                            <template v-slot:item.patient="{ item }">
+                                                {{ item.patient.name }}
+                                            </template>
+                                            <template v-slot:expanded-item="{ item }">
+                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
+                                            </template>
+                                        </v-data-table>
+                                    </v-col>
+                                    <v-col sm="12" md="12" lg="12" xl="12">
+                                        <v-data-table
+                                            hide-default-footer
+                                            v-model="selectedDoctor"
+                                            :headers="doctorHeaders"
+                                            :items="selectableDoctor"
+                                            show-select
+                                            class="elevation-4"
+                                            >
+                                            <template v-slot:top>
+                                                <v-toolbar flat>
+                                                    <v-toolbar-title>{{selectDoctorTitle}}</v-toolbar-title>
+                                                    <v-spacer></v-spacer>
+                                                </v-toolbar>
+                                            </template>
+                                        </v-data-table>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue" text :disabled="selectedInquiryMain.length == 0 || selectedDoctor == 0" @click="assignToPrac(selectedInquiryMain[0].patient.id, selectedInquiryMain, selectedDoctor), assignToDoctorDialogMain = false, selectedInquiryMain = [], selectedDoctor = [], selectInquiryMain = []">GÁN</v-btn>
+                            <v-btn color="red" text @click="assignToDoctorDialogMain = false, selectedInquiryMain = [], selectedDoctor = [], selectInquiryMain = []">ĐÓNG</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-col>
             <v-col cols="12" md="12" sm="12" lg="6" xl="6">
                 <v-data-table no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient" v-show="showPatient" :headers="patientHeaders" :items="allPatients" class="elevation-4" hide-default-footer>
@@ -189,7 +256,7 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
-                <v-dialog scrollable v-model="assignToPracDialog" max-width="700px" persistent>
+                <v-dialog scrollable v-model="assignToDoctorDialog" max-width="700px" persistent>
                     <v-card>
                         <v-card-title
                             class="headline grey lighten-2"
@@ -251,8 +318,8 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue" text :disabled="selectedInquiry.length == 0 || selectedDoctor == 0" @click="assignToPrac(patientDetail.id, selectedInquiry, selectedDoctor), assignToPracDialog = false">GÁN</v-btn>
-                            <v-btn color="red" text @click="assignToPracDialog = false">QUAY LẠI</v-btn>
+                            <v-btn color="blue" text :disabled="selectedInquiry.length == 0 || selectedDoctor == 0" @click="assignToPrac(patientDetail.id, selectedInquiry, selectedDoctor), assignToDoctorDialog = false, selectedInquiry = [], selectedDoctor = []">GÁN</v-btn>
+                            <v-btn color="red" text @click="assignToDoctorDialog = false, selectedInquiry = [], selectedDoctor = []">ĐÓNG</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -299,81 +366,80 @@
             </v-dialog>
         </v-row>
         <v-row wrap row class="fill-height">
-            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
-                <v-card class="elevation-4">
+            <v-col cols="12" md="12" sm="12" lg="4" xl="4">
+                <v-card class="elevation-4" height="100%">
                     <v-card-title>
                         <h3>Thông tin chi tiết bệnh nhân</h3>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="12"  sm="12" md="6" lg="4" xl="4">
+                                <v-col cols="12">
                                     <v-text-field readonly label="ID" v-model="patientDetail.id"></v-text-field>
-                                </v-col>
-                                <v-col cols="12"  sm="12" md="6" lg="4" xl="4">
                                     <v-text-field readonly label="Tên" v-model="patientDetail.name"></v-text-field>
-                                </v-col>
-                                <v-col cols="12"  sm="12" md="6" lg="4" xl="4">
                                     <v-text-field readonly label="Ngày sinh" v-model="patientDetail.dateOfBirth"></v-text-field>
-                                </v-col>
-                                <v-col cols="12"  sm="12" md="6" lg="4" xl="4">
                                     <v-text-field readonly label="Giới tính" v-model="patientDetail.gender"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="6" lg="4" xl="4">
                                     <v-text-field readonly label="Email" v-model="patientDetail.email"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="6" lg="4" xl="4">
                                     <v-text-field readonly label="Số điện thoại" v-model="patientDetail.phoneNumber"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
                                     <h3>Bác sĩ đa khoa phụ trách: {{patientDetail.practitioner.name}}</h3>
                                 </v-col>
-                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                <v-col cols="12">
                                     <h3>Bác sĩ chuyên khoa phụ trách:</h3>
                                     <h3 :key="doctor.id" v-for="doctor in patientDetail.specialists"> - {{doctor.name}}</h3>
                                 </v-col>
-                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                <v-col cols="12">
                                     <h3>Bác sĩ dinh dưỡng phụ trách:</h3>
                                     <h3 :key="doctor.id" v-for="doctor in patientDetail.dietitians"> - {{doctor.name}}</h3>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
+                                        <template v-slot:top>
+                                            <v-toolbar flat>
+                                                <v-toolbar-title><h3>Danh sách yêu cầu tư vấn</h3></v-toolbar-title>
+                                                <v-divider
+                                                    class="mx-4"
+                                                    inset
+                                                    vertical
+                                                ></v-divider>
+                                            </v-toolbar>
+                                        </template>
+                                        <template v-slot:item.patient="{ item }">
+                                            {{item.patient.name}}
+                                        </template>
+                                        <template v-slot:item.type="{ item }">
+                                            {{ returnInquiryType(item.type) }}
+                                        </template>
+                                        <template v-slot:expanded-item="{ item }">
+                                            <td :colspan="inquiryHeaders.length">
+                                                <br>
+                                                <h4>Nội dung yêu cầu tư vấn: {{ item.content }}</h4>
+                                                <br>
+                                                <a @click.stop="getDetailInquiry(item.id)">Xem chi tiết >></a>
+                                                <br>
+                                            </td>
+                                        </template>
+                                    </v-data-table>
                                 </v-col>
                             </v-row>
                         </v-container>
                     </v-card-text>
                 </v-card>
             </v-col>
-            <v-col cols="12" md="12" sm="12" lg="6" xl="6">
-                <v-card class="elevation-4" style="height: 100%">
-                    <v-card-title>
-                        <h3>Yêu cầu tư vấn</h3>
-                    </v-card-title>
-                    <v-card-text>
-                        <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
-                            <template v-slot:item.patient="{ item }">
-                                {{item.patient.name}}
-                            </template>
-                            <template v-slot:item.type="{ item }">
-                                {{ returnInquiryType(item.type) }}
-                            </template>
-                            <template v-slot:expanded-item="{ item }">
-                                <td :colspan="inquiryHeaders.length">
-                                    <br>
-                                    <h4>Nội dung yêu cầu tư vấn: {{ item.content }}</h4> 
-                                    <a @click.stop="getDetailInquiry(item.id)">Xem chi tiết >></a>
-                                    <br>
-                                </td>
-                            </template>
-                        </v-data-table>
-                    </v-card-text>  
-                </v-card>
-            </v-col>
-        </v-row>
-        <v-row wrap row>
-            <v-col cols="12">
-                <v-card class="elevation-4">
+            <v-col cols="12" md="12" sm="12" lg="8" xl="8">
+                <v-card class="elevation-4" height="100%">
                     <v-card-title><h3>Chi tiết yêu cầu tư vấn</h3></v-card-title>
                     <v-card-text v-if="detailInquiry != null">
                         <v-row>
-                            <v-col v-for="(record, index) in detailInquiry.medicalRecords" :key="record.id" cols="12" sm="12" md="6" lg="6" xl="6">
+                            <v-col cols="12">
+                                <h3>Nội dung: {{detailInquiry.content}}</h3>
+                                <h3>Kiểu yêu cầu: {{returnInquiryType(detailInquiry.type)}}</h3>
+                                <h3>Ảnh: </h3>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col v-for="(record, index) in detailInquiry.medicalRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
                                     <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
                                     <v-card-text>
@@ -397,7 +463,7 @@
                                     </v-card-actions>
                                 </v-card>
                             </v-col>
-                            <v-col v-for="(record, index) in detailInquiry.dietRecords" :key="record.id" cols="12" sm="12" md="6" lg="6" xl="6">
+                            <v-col v-for="(record, index) in detailInquiry.dietRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
                                     <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
                                     <v-card-text>
@@ -489,6 +555,7 @@
     </v-container>
 </template>
 <script>
+// import $ from 'jquery'
 import apiService from '../../services/api.service'
 import config from '../../config'
 export default {
@@ -499,7 +566,7 @@ export default {
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
                 { text: 'TUỔI', value: 'age', align: 'start' },
-                { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'end' },
+                { text: 'HÀNH ĐỘNG', value: 'more', align: 'end' },
             ],
             patientPage: 1,
             patientPageSize: 10,
@@ -512,7 +579,7 @@ export default {
                 createdDate: '',
                 email: '',
                 gender: '',
-                id: 0,
+                id: '',
                 inquiries: [],
                 name: '',
                 phoneNumber: '',
@@ -520,7 +587,7 @@ export default {
                 specialists: [],
                 dietitians: [],
             },
-            assignToPracDialog: false,
+            assignToDoctorDialog: false,
             inquiryHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
@@ -586,11 +653,11 @@ export default {
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
                 // { text: '', value: 'data-table-expand' },
                 {text: 'NỘI DUNG', value: 'content', align: 'start'},
-                {text: 'GÁN', value: 'more', align: 'end'}
+                {text: 'HÀNH ĐỘNG', value: 'more', align: 'end'}
             ],
             selectInquiryMain: [],
             selectedInquiryMain: [],
-            assignToPracDialogMain: false,
+            assignToDoctorDialogMain: false,
             inquiryAssignValue: [
                 {
                     text: 'Tất cả các yêu cầu',
@@ -622,7 +689,25 @@ export default {
                     this.selectDoctorTitle = 'Chọn Bác sĩ dinh dưỡng'
                 }
             }
-        }
+        },
+        selectedInquiryMain(){
+            if(this.selectedInquiryMain.length == 0){
+                this.selectableDoctor = []
+                this.selectDoctorTitle = 'Chọn Bác sĩ'
+                this.selectedDoctor = []
+            }
+            else {
+                let type = this.selectedInquiryMain[0].type
+                if(type == 0){
+                    this.selectableDoctor = this.allSpecialist
+                    this.selectDoctorTitle = 'Chọn Bác sĩ chuyên khoa'
+                }
+                else {
+                    this.selectableDoctor = this.allDietitian
+                    this.selectDoctorTitle = 'Chọn Bác sĩ dinh dưỡng'
+                }
+            }
+        },
     },
     methods: {
         returnInquiryType(type){
@@ -737,7 +822,7 @@ export default {
                 this.patientDetail.dietitians = []
             }
             if(isDetail == false){
-                this.assignToPracDialog = true
+                this.assignToDoctorDialog = true
             }
             
             
@@ -811,7 +896,7 @@ export default {
                 }
                 else {
                     this.$toast.open({
-                        message: result.data.message,
+                        message: (result.data.message == 'Bad request: Bác sĩ này đã được gán cho bệnh nhân này') ? `Bác sĩ ${doctor.name} đã quản lý bệnh nhân này` : result.data.message,
                         type: 'error',
                         // all other options may go here
                     })
@@ -826,7 +911,7 @@ export default {
         },
         getAllSpec(){
             let params = {
-                search: 'role=1',
+                search: 'role=1,status=1',
                 page: 1,
                 size: 1000,
             }
@@ -848,7 +933,7 @@ export default {
         },
         getAllDiet(){
             let params = {
-                search: 'role=2',
+                search: 'role=2,status=1',
                 page: 1,
                 size: 1000,
             }
@@ -959,6 +1044,7 @@ export default {
             })
         },
         getInquiries(page, size, assigned){
+            this.detailInquiry = null;
             this.inquiries = [];
             this.loadingInquiries = true;
             let url = `${config.apiUrl}/inquiries`
@@ -982,6 +1068,11 @@ export default {
             }).finally(() => {
                 this.loadingInquiries = false;
             })
+        },
+        openAssignToDoctorMainDialog(item){
+            this.selectInquiryMain.push(item)
+            this.selectedInquiryMain.push(item)
+            this.assignToDoctorDialogMain = true
         },
         logging(){
             console.log(this.patientDetail)
