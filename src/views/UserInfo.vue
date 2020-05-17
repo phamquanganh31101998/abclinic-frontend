@@ -82,17 +82,17 @@
                                         </v-row>
                                         <v-row v-if="userInfo.role == 'PRACTITIONER'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                                <v-btn @click="updateSpecialties(userInfo.specialties)" rounded color="primary">Cập nhật chuyên môn</v-btn>
+                                                <v-btn @click="updateSpecialties(userInfo.specialties, true)" rounded color="primary">Cập nhật chuyên môn</v-btn>
                                             </v-col>
                                         </v-row>
                                         <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8" v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
-                                                <v-autocomplete multiple label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialty"></v-autocomplete>
+                                                <v-autocomplete label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialty.id"></v-autocomplete>
                                             </v-col>
                                         </v-row>
                                         <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                                <v-btn @click="updateSpecialties(userInfo.specialty)" rounded color="primary">Cập nhật chuyên môn</v-btn>
+                                                <v-btn @click="updateSpecialties(userInfo.specialty.id, false)" rounded color="primary">Cập nhật chuyên môn</v-btn>
                                             </v-col>
                                         </v-row>
                                     </v-col>
@@ -235,11 +235,20 @@ export default {
                 console.log(error)
             })
         },
-        updateSpecialties(specArray){
+        updateSpecialties(spec, isPrac){
+            console.log(spec)
             this.$store.dispatch('turnOnLoadingDialog', 'Cập nhật chuyên môn...')
             let url = `${config.apiUrl}/user/specialties`
             let body = {
-                specialties: specArray
+                specialties: []
+            }
+            //Mang cac ID
+            if(isPrac){
+                body.specialties = spec;
+            }
+            //Chi nhan 1 id
+            else {
+                body.specialties.push(spec)
             }
             apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
