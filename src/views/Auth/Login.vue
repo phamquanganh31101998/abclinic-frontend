@@ -8,7 +8,8 @@
             >
             <v-col
                 cols="12"
-                sm="8"
+                sm="10"
+                offset-sm="1"
                 md="4"
             >
                 <v-card class="elevation-12">
@@ -38,14 +39,9 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn color="primary" @click="login">Login</v-btn>
+                        <v-btn color="primary" @click="login()">Login</v-btn>
                     </v-card-actions>
                 </v-card>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col>
-                {{responseText}}
             </v-col>
         </v-row>
     </v-container>
@@ -58,23 +54,9 @@
             return {
                 info: '',
                 password: '',
-                responseText: 'Try something'
             }
         },
         methods: {
-            // miscMethod(){
-            //     // let param = {
-            //     //     Authorization: '8eec535a-10f2-4d0d-bd07-b67784fd2fd4'
-            //     // }                                                                                                                                                                                
-            //     let url = `${config.miscUrl}/accounts`
-            //     // let url = `${config.userUrl}`
-            //     apiService.getApi(url).then(result => {
-            //         console.log(result)
-            //         this.responseText = result
-            //     }).catch(error => {
-            //         console.log(error)
-            //     })
-            // }
             checkUID(){
                 // let uid = localStorage.getItem('ac_uid')
                 let url = `${config.userUrl}`
@@ -87,7 +69,6 @@
                             this.$store.dispatch('setAuthData', result.data)
                             this.$router.push('/info')
                         }
-                        // this.$store.dispatch('setAuthData', result.data)
                     }
                     else if (result.status === 401){
                         this.$store.dispatch('clearAuthData')
@@ -97,14 +78,15 @@
                 })
             },
             login(){
+                this.$store.dispatch('turnOnLoadingDialog', 'Đăng nhập...')
                 let info = this.info
                 let password = this.password
                 let url = `${config.apiUrl}/auth/login`
-                let params = {
+                let body = {
                     account: info,
                     password: password
                 }
-                apiService.login(url, params).then(result => {
+                apiService.postApi(url, body).then(result => {
                     if(result.status.toString()[0] === "2"){
                         // console.log(result)
                         localStorage.setItem('ac_uid', result.data)
@@ -117,43 +99,9 @@
                     // this.$router.push('/info')
                 }).catch(error => {
                     console.log(error)
+                }).finally(() => {
+                    this.$store.dispatch('turnOffLoadingDialog')
                 })
-                // console.log(info)
-                // console.log(password)
-                // let emailPattern = /.+@.+/;
-                // let phonePattern = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\\./0-9]*$/g;
-                // if (emailPattern.test(info)){
-                //     let url = `${config.authUrl}/login/email`
-                //     let params = {
-                //         email: info,
-                //         password: password
-                //     }
-                //     apiService.login(url, params).then(result => {
-                //         this.responseText = result
-
-                //         // localStorage.setItem('ac_uid', result.data)
-                //         // this.$router.push('/info')
-                //     }).catch(error => {
-                //         console.log(error)
-                //     })
-                // }
-                // else if (phonePattern.test(info)){
-                //     let url = `${config.authUrl}/login/phone`
-                //     let params = {
-                //         phone: info,
-                //         password: password
-                //     }
-                //     apiService.login(url, params).then(result => {
-                //         this.responseText = result
-                //         // localStorage.setItem('ac_uid', result.data)
-                //         // this.$router.push('/about')
-                //     }).catch(error => {
-                //         console.log(error)
-                //     })
-                // }
-                // else {
-                //     alert('Phải nhập đúng định dạng email hoặc số điện thoại')
-                // }
             }
         },
         created(){

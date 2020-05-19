@@ -87,12 +87,10 @@
                                         </v-row>
                                         <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
                                             <v-col xs="12" sm="12" md="8" lg="8" xl="8" v-if="userInfo.role != 'COORDINATOR' && userInfo.role != 'PATIENT'">
-                                                <v-autocomplete label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialty.id"></v-autocomplete>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row v-if="userInfo.role == 'SPECIALIST' || userInfo.role == 'DIETITIAN'">
-                                            <v-col xs="12" sm="12" md="8" lg="8" xl="8">
-                                                <v-btn @click="updateSpecialties(userInfo.specialty.id, false)" rounded color="primary">Cập nhật chuyên môn</v-btn>
+                                                <v-autocomplete v-if="userInfo.specialty != null" label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="userInfo.specialty.id"></v-autocomplete>
+                                                <v-btn v-if="userInfo.specialty != null" @click="updateSpecialties(userInfo.specialty.id, false)" rounded color="primary">Cập nhật chuyên môn</v-btn>
+                                                <v-autocomplete v-if="userInfo.specialty == null" label="Chuyên môn" :items="allSpecialties" item-text="name" item-value="id" v-model="specialtyId"></v-autocomplete>
+                                                <v-btn v-if="userInfo.specialty == null" @click="updateSpecialties(specialtyId, false)" rounded color="primary">Cập nhật chuyên môn</v-btn>
                                             </v-col>
                                         </v-row>
                                     </v-col>
@@ -126,6 +124,8 @@ export default {
                 v => /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\\./0-9]*$/g.test(v) || 'Không được để trống và chỉ được nhập số',
             ],
             allSpecialties: [],
+            //check when specialist/dietitian specialty is null
+            specialtyId: 0,
         }
     },
     methods: {
@@ -236,7 +236,7 @@ export default {
             })
         },
         updateSpecialties(spec, isPrac){
-            console.log(spec)
+            // console.log(spec)
             this.$store.dispatch('turnOnLoadingDialog', 'Cập nhật chuyên môn...')
             let url = `${config.apiUrl}/user/specialties`
             let body = {

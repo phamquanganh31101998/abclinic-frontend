@@ -29,7 +29,7 @@
                 </v-list-item-icon>
                 <v-list-item-title>Bác sĩ đa khoa</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="goToPage('specialist')">
+            <v-list-item @click="goToPage('doctor')">
                 <v-list-item-icon>
                     <v-icon>record_voice_over</v-icon>
                 </v-list-item-icon>

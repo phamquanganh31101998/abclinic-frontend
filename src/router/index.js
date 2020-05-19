@@ -7,7 +7,7 @@ import Info from '../views/UserInfo.vue'
 import Staff from '../views/Staff/Staff.vue'
 import Coordinator from '../views/Staff/Coordinator'
 import Practitioner from '../views/Staff/Practitioner'
-import Specialist from '../views/Staff/Specialist'
+import Doctor from '../views/Staff/Doctor'
 import Patient from '../views/Staff/Patient'
 Vue.use(VueRouter)
 
@@ -61,9 +61,9 @@ const routes = [
         component: Practitioner,
       },
       {
-        path: '/specialist',
-        name: 'Specialist',
-        component: Specialist,
+        path: '/doctor',
+        name: 'Doctor',
+        component: Doctor,
       },
       {
         path: '/info',
@@ -72,111 +72,6 @@ const routes = [
       }
     ]
   },
-  // {
-  //   path: '/staff',
-  //   name: 'Staff',
-  //   component: Staff,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   }
-  // },
-  // {
-  //   path: '/coordinator',
-  //   name: 'Coordinator',
-  //   component: Coordinator,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   }
-  // },
-  // {
-  //   path: '/patient/:idPatient',
-  //   name: 'Patient',
-  //   component: Patient,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   },
-  //   props(route) {
-  //     const props = {
-  //         ...route.params
-  //     }
-  //     props.idPatient
-  //     return props
-  //   },
-  // },
-  // {
-  //   path: '/practitioner',
-  //   name: 'Practitioner',
-  //   component: Practitioner,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   }
-  // },
-  // {
-  //   path: '/specialist',
-  //   name: 'Specialist',
-  //   component: Specialist,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   }
-  // },
-  // {
-  //   path: '/info',
-  //   name: 'Info',
-  //   component: Info,
-  //   beforeEnter: (to, from, next) => {
-  //     const isLogin = localStorage.getItem('ac_uid');
-  //     if(!isLogin){
-  //       // alert('Vui lòng đăng nhập lại')
-  //       next('/login')
-  //     }
-  //     else {
-  //       next()
-  //     }
-  //   }
-  // },
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  // },
   {
     path: '/login',
     name: 'Login',
