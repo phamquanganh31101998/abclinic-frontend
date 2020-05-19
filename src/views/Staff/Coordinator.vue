@@ -65,7 +65,7 @@
                                     >
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = true, deleteUserDialog = true"><v-list-item-title>Xóa nhân viên</v-list-item-title></v-list-item>
+                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = true, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -288,7 +288,7 @@
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
                                 <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
-                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Xóa bệnh nhân</v-list-item-title></v-list-item>
+                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -624,6 +624,106 @@
             </v-col>
         </v-row>
         <v-row>
+            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                <v-data-table class="elevation-4" :headers="healthIndexesHeaders" :items="healthIndexes" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title><h3>Danh sách chỉ số sức khỏe</h3></v-toolbar-title>
+                            <v-divider
+                                class="mx-4"
+                                inset
+                                vertical
+                            ></v-divider>
+                            <v-spacer></v-spacer>
+                            <v-dialog v-model="createHealthIndexesDialog" persistent width="400" max-width="70%">
+                                <template v-slot:activator="{ on }">
+                                    <v-btn color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo chỉ số sức khỏe</v-btn>
+                                </template>
+                                <v-card>
+                                    <v-card-title
+                                        class="headline primary"
+                                        primary-title
+                                        >
+                                        <span style="color: white">Tạo chỉ số sức khỏe mới</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-text-field v-model="createHealthIndexesObj.name" label="Tên chỉ số"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-textarea rows="3" v-model="createHealthIndexesObj.description" label="Mô tả"></v-textarea>
+                                            </v-col>
+                                            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                                <h4>Danh sách các trường</h4>
+                                                <div v-for="(field, index) in createHealthIndexesObj.fields" :key="field" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
+                                                    <span>{{field}} </span>
+                                                    <v-icon style="position: absolute; right: 0; color: red" @click="createHealthIndexesObj.fields.splice(index, 1)">clear</v-icon>
+                                                </div>
+                                                <br>
+                                                <v-text-field label="Nhập tên trường mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="createHealthIndexesObj.fields.push(healthIndexesNewField), healthIndexesNewField = ''"></v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text :disabled="createHealthIndexesObj.name == '' || createHealthIndexesObj.description == ''" @click="createHealthIndexes(createHealthIndexesObj.name, createHealthIndexesObj.description, createHealthIndexesObj.fields), createHealthIndexesDialog = false">TẠO MỚI</v-btn>
+                                    <v-btn color="red" text @click="createHealthIndexesDialog = false">ĐÓNG</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:item.more="{ item }">
+                        <a @click="detailHealthIndexes = Object.assign({}, item), detailHealthIndexesDialog = true">Chỉnh sửa <v-icon>create</v-icon></a>
+                    </template>
+                </v-data-table>
+                <br>
+                <div class="text-center">
+                    <v-pagination
+                        v-model="healthIndexesPage"
+                        :length="healthIndexesPages"
+                        @input="getHealthIndexes(healthIndexesPage, healthIndexesPageSize)"
+                    ></v-pagination>
+                </div>
+                <v-dialog offset-y persistent v-model="detailHealthIndexesDialog" width="400" max-width="70%">
+                    <v-card v-if="detailHealthIndexes != null">
+                        <v-card-title
+                            class="headline primary"
+                            primary-title
+                            >
+                            <span style="color: white">Chỉnh sửa chỉ số sức khỏe</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-row>
+                                <v-col cols="12" sm="12" md="12">
+                                    <v-text-field v-model="detailHealthIndexes.name" label="Tên chỉ số"></v-text-field>
+                                    <v-textarea rows="3" v-model="detailHealthIndexes.description" label="Mô tả"></v-textarea>
+                                    <v-btn color="primary" :disabled="detailHealthIndexes.name == '' || detailHealthIndexes.description == ''" @click="updateHealthIndexes(detailHealthIndexes.id, detailHealthIndexes.name, detailHealthIndexes.description)">Cập nhật thông tin cơ bản</v-btn>
+                                </v-col>
+                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                    <h4>Danh sách các trường</h4>
+                                    <div v-for="(field) in detailHealthIndexes.fields" :key="field.id" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
+                                        <span>{{field.name}} </span>
+                                        <v-icon style="position: absolute; right: 0; color: red" @click="deleteField(detailHealthIndexes.id, field.id)">clear</v-icon>
+                                    </div>
+                                    <br>
+                                    <v-text-field label="Nhập tên trường mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="addField(detailHealthIndexes.id, healthIndexesNewField)"></v-text-field>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <!-- <v-btn color="blue darken-1" text @click="detailHealthIndexesDialog = false">CHỈNH SỬA</v-btn> -->
+                        <v-btn color="red" text @click="getHealthIndexes(healthIndexesPage, healthIndexesPageSize), detailHealthIndexesDialog = false">ĐÓNG</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-col>
+        </v-row>
+        <v-row>
             <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                 <v-dialog scrollable v-model="registerObj.dialog" max-width="700px" persistent>
                     <template v-slot:activator="{ on }">
@@ -729,12 +829,12 @@
                     primary-title
                     dark
                     >
-                    <span style="color: white">Xác nhận xóa</span>
+                    <span style="color: white">Xác nhận hủy kích hoạt tài khoản</span>
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
                     <br>
-                    Bạn có chắc chắn muốn xóa tài khoản này? 
+                    Bạn có chắc chắn muốn hủy kích hoạt tài khoản này? 
                 </v-card-text>
 
                 <v-divider></v-divider>
@@ -746,7 +846,7 @@
                     text
                     @click="deleteUserDialog = false, deleteUser(deleteUserId, deleteUserTypeIsStaff)"
                     >
-                    XÓA
+                    XÁC NHẬN
                 </v-btn>
                 <v-btn
                     color="primary"
@@ -1020,7 +1120,28 @@ export default {
                     value: false
                 },
             ],
-            inquiryAssign: true
+            inquiryAssign: true,
+            healthIndexes: [],
+            healthIndexesHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN', value: 'name', align: 'start' },
+                { text: 'MÔ TẢ', value: 'description', align: 'start' },
+                { text: 'CHỈNH SỬA', value: 'more', align: 'right' },
+            ],
+            loadingHealthIndexes: false,
+            detailHealthIndexes: null,
+            detailHealthIndexesDialog: false,
+            createHealthIndexesObj: {
+                name: '',
+                description: '',
+                fields: []
+            },
+            healthIndexesNewField: '',
+            createHealthIndexesDialog: false,
+            healthIndexesPage: 1,
+            healthIndexesPages: 0,
+            healthIndexesPageSize: 10
+
         }
     },
     watch: {
@@ -1515,6 +1636,124 @@ export default {
             this.selectedInquiryMain.push(item)
             this.assignToPracDialogMain = true
         },
+        createHealthIndexes(name, description, fields){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo chỉ số sức khỏe...')
+            let body = {
+                name: name,
+                description: description,
+                fields: fields
+            }
+            let url = `${config.apiUrl}/health_indexes`
+            apiService.postApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo chỉ số sức khỏe mới thành công'})
+                    this.healthIndexesPages = 1
+                    this.getHealthIndexes(this.healthIndexesPage, this.healthIndexesPageSize)
+                    this.createHealthIndexesObj = {
+                        name: '',
+                        description: '',
+                        fields: []
+                    }
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        getHealthIndexes(page, size){
+            this.healthIndexes = []
+            this.loadingHealthIndexes = true
+            let params = {
+                page: page,
+                size: size
+            }
+            let url = `${config.apiUrl}/health_indexes`
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.healthIndexesPages = result.data.totalPages
+                    this.healthIndexes = result.data.content
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingHealthIndexes = false;
+            })
+        },
+        addField(indexId, field){
+            if(field.length > 0){
+                this.$store.dispatch('turnOnLoadingDialog', 'Đang thêm trường...')
+                let url = `${config.apiUrl}/health_indexes/${indexId}/field`
+                let body = {
+                    field: field
+                }
+                apiService.postApi(url, body).then(result => {
+                    if(result.status.toString()[0] === "2"){
+                        this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Thêm trường thành công'})
+                        this.detailHealthIndexes = result.data
+                        this.healthIndexesNewField = ''
+                    }
+                    else {
+                        this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    }
+                }).catch(error => {
+                    console.log(error)
+                }).finally(() => {
+                    this.$store.dispatch('turnOffLoadingDialog')
+                })
+            }
+            else {
+                return;
+            }
+        },
+        deleteField(indexId, fieldId){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa trường...')
+            let url = `${config.apiUrl}/health_indexes/${indexId}/field`
+            let body = {
+                id: fieldId
+            }
+            apiService.deleteApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa trường thành công'})
+                    this.detailHealthIndexes = result.data
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        updateHealthIndexes(id, name, description){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
+            let body = {
+                id: id,
+                name: name,
+                description: description
+            }
+            let url = `${config.apiUrl}/health_indexes`
+            apiService.putApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
+                    this.detailHealthIndexes = result.data
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
         findObjIndexById(arr, id){
             let result = -1;
             for(let i = 0; i < arr.length; i++){
@@ -1528,11 +1767,12 @@ export default {
     created(){
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
         // this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
-        this.getInquiries(this.inquiryPage, this.inquiryPageSize)
-        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+        // this.getInquiries(this.inquiryPage, this.inquiryPageSize)
+        // this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
         // this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
         // this.getSpecialties()
-        this.getAllPractitioner()
+        this.getHealthIndexes(this.healthIndexesPage, this.healthIndexesPageSize)
+        // this.getAllPractitioner()
     }
 }
 </script>
