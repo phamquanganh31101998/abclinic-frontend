@@ -1766,13 +1766,13 @@ export default {
     },
     created(){
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
-        // this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
-        // this.getInquiries(this.inquiryPage, this.inquiryPageSize)
-        // this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
-        // this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
-        // this.getSpecialties()
+        this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+        this.getInquiries(this.inquiryPage, this.inquiryPageSize)
+        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+        this.getAllDisease(this.diseasePage, this.diseasePageSize, this.diseaseSearch)
+        this.getSpecialties()
         this.getHealthIndexes(this.healthIndexesPage, this.healthIndexesPageSize)
-        // this.getAllPractitioner()
+        this.getAllPractitioner()
     }
 }
 </script>

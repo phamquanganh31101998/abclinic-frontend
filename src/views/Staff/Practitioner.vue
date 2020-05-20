@@ -812,7 +812,7 @@ export default {
             if(status != 0){
                 searchString += `status=${status},`
             }
-            console.log(searchString)
+            // console.log(searchString)
             params.search = searchString
             let url = `${config.apiUrl}/patients`
             apiService.getApi(url, params).then(result => {

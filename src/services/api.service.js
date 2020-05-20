@@ -117,6 +117,7 @@ async function login(url, params){
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Client-Type': 'abc'
         },
     }
     try {
