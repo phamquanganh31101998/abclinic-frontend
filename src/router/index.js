@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import About from '../views/About.vue'
+import Notification from '../views/Notification.vue'
 import Login from '../views/Auth/Login.vue'
 import Info from '../views/UserInfo.vue'
 import Staff from '../views/Staff/Staff.vue'
 import Coordinator from '../views/Staff/Coordinator'
 import Practitioner from '../views/Staff/Practitioner'
 import Doctor from '../views/Staff/Doctor'
-import Patient from '../views/Staff/Patient'
+// import Patient from '../views/Staff/Patient'
 Vue.use(VueRouter)
 
 const routes = [
@@ -16,7 +16,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    redirect: '/about',
+    redirect: '/notification',
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
@@ -29,9 +29,9 @@ const routes = [
     },
     children: [
       {
-        path: '/about',
-        name: 'About',
-        component: About,
+        path: '/notification',
+        name: 'Notification',
+        component: Notification,
       },
       {
         path: '/staff',
@@ -43,18 +43,18 @@ const routes = [
         name: 'Coordinator',
         component: Coordinator,
       },
-      {
-        path: '/patient/:idPatient',
-        name: 'Patient',
-        component: Patient,
-        props(route) {
-          const props = {
-              ...route.params
-          }
-          props.idPatient
-          return props
-        },
-      },
+      // {
+      //   path: '/patient/:idPatient',
+      //   name: 'Patient',
+      //   component: Patient,
+      //   props(route) {
+      //     const props = {
+      //         ...route.params
+      //     }
+      //     props.idPatient
+      //     return props
+      //   },
+      // },
       {
         path: '/practitioner',
         name: 'Practitioner',
@@ -79,7 +79,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(isLogin){
-        next('/about')
+        next('/notification')
       }
       else {
         // alert('Bắt đầu đăng nhập')

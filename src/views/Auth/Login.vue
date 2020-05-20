@@ -67,7 +67,7 @@
                         }
                         else {
                             this.$store.dispatch('setAuthData', result.data)
-                            this.$router.push('/info')
+                            this.$router.push('/notification')
                         }
                     }
                     else if (result.status === 401){
@@ -86,7 +86,7 @@
                     account: info,
                     password: password
                 }
-                apiService.postApi(url, body).then(result => {
+                apiService.login(url, body).then(result => {
                     if(result.status.toString()[0] === "2"){
                         // console.log(result)
                         localStorage.setItem('ac_uid', result.data)
