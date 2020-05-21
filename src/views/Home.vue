@@ -31,17 +31,26 @@ export default {
       this.$router.push(link)
     },
     checkUID(){
-        // let uid = localStorage.getItem('ac_uid')
         let url = `${config.userUrl}`
         apiService.getApi(url).then(result => {
-            // console.log(result)
             if(result.status === 200){
-                this.$store.dispatch('setAuthData', result.data)
-                this.initWebSocket(this.$store.state.user.id)
+              if(result.data.role == 'PATIENT'){
+                  this.$store.dispatch('clearAuthData')
+                  this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
+                }
+                else {
+                  this.$store.dispatch('setAuthData', result.data)
+                  this.initWebSocket(this.$store.state.user.id)
+                }
             }
-            else if (result.status === 401){
+            else {
                 this.$store.dispatch('clearAuthData')
+                this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
             }
+            // else {
+            //     this.$store.dispatch('clearAuthData')
+            //     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+            // }
         }).catch(error => {
             console.log(error)
         })

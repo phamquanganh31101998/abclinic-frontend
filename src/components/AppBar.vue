@@ -32,17 +32,21 @@ export default {
             this.$store.dispatch('toggleNavDrawer')
         },
         logout(){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đăng xuất...')
             let url = `${config.apiUrl}/auth/sign_out`
-            apiService.postApiParams(url).then(result => {
+            apiService.postApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOffLoadingDialog')
                     this.$store.dispatch('clearAuthData')
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
-            this.$router.dispatch('clearAuthData')
-            // this.$router.replace('/login')
         }
     }
 }

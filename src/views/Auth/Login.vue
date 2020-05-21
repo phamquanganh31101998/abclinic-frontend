@@ -57,17 +57,32 @@
             }
         },
         methods: {
-            checkUID(){
+            //check when user not login yet
+            checkUserRole(){
                 // let uid = localStorage.getItem('ac_uid')
                 let url = `${config.userUrl}`
                 apiService.getApi(url).then(result => {
                     if(result.status === 200){
                         if(result.data.role == 'PATIENT'){
-                            this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám, không dành cho bệnh nhân đăng nhập'})
+                            this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
+                            localStorage.removeItem('ac_uid')
                         }
                         else {
-                            this.$store.dispatch('setAuthData', result.data)
-                            this.$router.push('/notification')
+                            let user = result.data
+                            this.$store.dispatch('setAuthData', user)
+                            switch(user.role){
+                                case 'COORDINATOR':
+                                    this.goToPage('/coordinator');
+                                    break;
+                                case 'PRACTITIONER':
+                                    this.goToPage('/practitioner');
+                                    break;
+                                case 'DIETITIAN':
+                                case 'SPECIALIST':
+                                    this.goToPage('/doctor');
+                                    break;
+                            }
+                            // this.$router.push('/notification')
                         }
                     }
                     else if (result.status === 401){
@@ -88,21 +103,21 @@
                 }
                 apiService.login(url, body).then(result => {
                     if(result.status.toString()[0] === "2"){
-                        // console.log(result)
                         localStorage.setItem('ac_uid', result.data)
-                        this.checkUID()
+                        this.checkUserRole()
                     }
                     else {
                         this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                     }
-                    // localStorage.setItem('ac_uid', result.data)
-                    // this.$router.push('/info')
                 }).catch(error => {
                     console.log(error)
                 }).finally(() => {
                     this.$store.dispatch('turnOffLoadingDialog')
                 })
-            }
+            },
+            goToPage(link){
+                this.$router.replace(link)
+            },
         },
         created(){
             // this.miscMethod()

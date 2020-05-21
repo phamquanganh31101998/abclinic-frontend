@@ -20,7 +20,6 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(!isLogin){
-        // alert('Vui lòng đăng nhập lại')
         next('/login')
       }
       else {
@@ -79,10 +78,9 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const isLogin = localStorage.getItem('ac_uid');
       if(isLogin){
-        next('/notification')
+        next('/')
       }
       else {
-        // alert('Bắt đầu đăng nhập')
         next()
       }
     }

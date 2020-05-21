@@ -25,7 +25,8 @@
                         {{ item.sender.name }}
                     </template>
                     <template v-slot:item.isRead="{ item }">
-                        {{ (item.isRead == true) ? 'Đã đọc' : 'Chưa đọc'}}
+                        <span v-if="item.isRead == true">Đã đọc</span>
+                        <span style="color: red" v-else>Chưa đọc</span>
                     </template>
                     <template v-slot:item.more="{item}">
                         <a @click.stop="getDetailNoti(item.id)">Xem chi tiết</a>
