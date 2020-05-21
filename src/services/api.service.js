@@ -51,12 +51,14 @@ async function postApi(url, body){
     let config = {
         method: 'post',
         url: url,
-        data: body,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': localStorage.getItem('ac_uid'),
         },
+    }
+    if(body){
+        config.data = body
     }
     try {
         const result = await axios(config)
@@ -109,11 +111,11 @@ async function deleteApi(url, body){
     }
 }
 
-async function login(url, params){
+async function login(url, body){
     let config = {
         method: 'post',
         url: url,
-        params: params,
+        data: body,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',

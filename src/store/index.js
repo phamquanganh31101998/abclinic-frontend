@@ -90,6 +90,9 @@ export default new Vuex.Store({
     },
     loadingMsg: state => {
       return state.loadingMsg
+    },
+    user: state => {
+      return state.user
     }
   }
 })
