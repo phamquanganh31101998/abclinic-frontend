@@ -530,7 +530,7 @@ export default {
                 },
             ],
             inquiryAssign: true,
-
+            
         }
     },
     watch: {
@@ -733,7 +733,7 @@ export default {
             let url = `${config.apiUrl}/replies`
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.detailInquiry.replies.unshift(result.data)
+                    this.detailInquiry.replies.push(result.data)
                     this.replyText = ''
                 }
                 else {

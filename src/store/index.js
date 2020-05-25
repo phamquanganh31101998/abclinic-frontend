@@ -12,7 +12,8 @@ export default new Vuex.Store({
     alertMessage: '',
     alertColor: 'error',
     loadingDialog: false,
-    loadingMsg: ''
+    loadingMsg: '',
+    newNotification: null
   },
   mutations: {
     toggleNavDrawer(state){
@@ -45,6 +46,9 @@ export default new Vuex.Store({
     turnOffLoadingDialog(state){
       state.loadingDialog = false;
       state.loadingMsg = ''
+    },
+    setNewNotification(state, payload){
+      state.newNotification = payload
     }
   },
   actions: {
@@ -68,6 +72,9 @@ export default new Vuex.Store({
     },
     turnOffLoadingDialog({commit}){
       commit('turnOffLoadingDialog')
+    },
+    setNewNotification({commit}, data){
+      commit('setNewNotification', data)
     }
   },
   modules: {
@@ -93,6 +100,9 @@ export default new Vuex.Store({
     },
     user: state => {
       return state.user
+    },
+    newNotification: state => {
+      return state.newNotification
     }
   }
 })
