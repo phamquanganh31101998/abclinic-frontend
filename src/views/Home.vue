@@ -13,7 +13,8 @@
 <script>
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-import {eventBus} from '../eventBus'
+// import {eventBus} from '../eventBus'
+import {mapGetters} from 'vuex'
 import SockJS from 'sockjs-client'
 import Stomp from'stomp-websocket'
 import AppBar from '../components/AppBar'
@@ -24,6 +25,16 @@ export default {
   data(){
     return {
       
+    }
+  },
+  computed: {
+    ...mapGetters({
+        newNotification: 'newNotification'
+    })
+  },
+  watch: {
+      newNotification(){
+        this.handleNewNotification(this.newNotification)
     }
   },
   methods: {
@@ -56,13 +67,17 @@ export default {
         })
     },
     initWebSocket(id){
+      let store = this.$store
       try{
         var wsocket = new SockJS('http://fathomless-savannah-38522.herokuapp.com/api/ws');
         var client = Stomp.over(wsocket);
-        client.connect({}, function(frame) {
-          console.log(frame)
+        client.connect({}, function() {
+          // console.log(frame)
             client.subscribe(`/topic/users/${id}`, function (message) {
-                eventBus.newNotification(message.body)
+                // console.log(message.body)
+                // eventBus.newNotification(message.body)
+
+                store.dispatch('setNewNotification', JSON.parse(message.body))
             });
         });
       }
@@ -70,10 +85,10 @@ export default {
         console.log(error)
       }
     },
-    handler(e){
+    handleNewNotification(e){
       this.$toast.open({
-        message: e,
-        type: 'info'
+        message: e.notification,
+        type: 'info',
       })
     }
   },
@@ -82,11 +97,11 @@ export default {
   },
   created() {
     this.checkUID()
-    eventBus.$on('newNotification', this.handler);
+    // eventBus.$on('newNotification', this.handleNewNotification);
   },
-  destroyed(){
-    eventBus.$off('newNotification', this.handler);
-  }
+  // destroyed(){
+  //   eventBus.$off('newNotification', this.handleNewNotification);
+  // }
 }
 </script>
 

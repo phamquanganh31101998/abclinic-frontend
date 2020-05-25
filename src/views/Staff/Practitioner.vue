@@ -569,6 +569,7 @@
 </template>
 <script>
 // import $ from 'jquery'
+import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
 export default {
@@ -708,7 +709,15 @@ export default {
             inquiryAssign: true
         }
     },
+    computed: {
+        ...mapGetters({
+            newNotification: 'newNotification'
+        })
+    },
     watch: {
+        newNotification(){
+            this.handleNewNotification(this.newNotification)
+        },
         selectedInquiry(){
             if(this.selectedInquiry.length == 0){
                 this.selectableDoctor = []
@@ -832,10 +841,6 @@ export default {
         },
         updatePatients(patArray){
             this.allPatients = patArray;
-        },
-        goToPatientPage(id){
-            let url = `/patient/${id}`
-            this.$router.push(url)
         },
         getPatientDetail(id, isDetail){
             this.detailInquiry = null;
@@ -963,6 +968,7 @@ export default {
                         type: 'success',
                         // all other options may go here
                     })
+                    this.getDoctorInCharge(patientId)
                 }
                 else {
                     this.$toast.open({
@@ -977,6 +983,21 @@ export default {
                     type: 'error',
                     // all other options may go here
                 })
+            })
+        },
+        getDoctorInCharge(patientId){
+            let url = `${config.apiUrl}/patients/${patientId}/doctor`
+            apiService.getApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    let data = result.data
+                    this.patientDetail.specialists = data.specialists
+                    this.patientDetail.dietitians = data.dietitians
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
             })
         },
         getAllSpec(){
@@ -1033,7 +1054,7 @@ export default {
             let url = `${config.apiUrl}/replies`
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.detailInquiry.replies.unshift(result.data)
+                    this.detailInquiry.replies.push(result.data)
                     this.replyText = ''
                 }
                 else {
@@ -1115,7 +1136,7 @@ export default {
             })
         },
         getInquiries(page, size, assigned){
-            this.detailInquiry = null;
+            // this.detailInquiry = null;
             this.inquiries = [];
             this.loadingInquiries = true;
             let url = `${config.apiUrl}/inquiries`
@@ -1147,6 +1168,49 @@ export default {
         },
         logging(){
             console.log(this.patientDetail)
+        },
+        handleNewNotification(e){
+            let url = `${config.apiUrl}/notifications/${e.notificationId}`
+            apiService.getApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    let type = result.data.type
+                    //patient send new inquiry
+                    if(type == 0){
+                        this.inquiryPage = 1;
+                        this.getInquiries(this.inquiryPage, this.inquiryPageSize)
+                    }
+                    //doctor advise
+                    else if(type == 1){
+                        console.log('1')
+                    }
+                    //doctor or patient reply
+                    else if (type == 2){
+                        console.log('2')
+                    }
+                    //doctor accept, reject assign
+                    else if(type == 4 || type == 5){
+                        console.log('4 5')
+                    }
+                    //assigned new patient or a patient has been deactivated
+                    else if (type == 3 || type == 10){
+                        this.patientPage = 1;
+                        this.patientSearch = {
+                            name: undefined,
+                            status: 1,
+                            gender: undefined,
+                            age: undefined
+                        }
+                        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                        this.inquiryPage = 1;
+                        this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                    }
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            })
         }
     },
     created(){
