@@ -323,7 +323,7 @@
                                 class="headline primary"
                                 primary-title
                                 >
-                                Tạo tư vấn mới
+                                <span style="color: white">Tạo tư vấn mới</span>
                             </v-card-title>
                             <v-card-text>
                                 <v-container>
@@ -394,6 +394,7 @@
     </v-container>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
 export default {
@@ -533,7 +534,15 @@ export default {
             
         }
     },
+    computed: {
+        ...mapGetters({
+            newNotification: 'newNotification'
+        })
+    },
     watch: {
+        newNotification(){
+            this.handleNewNotification(this.newNotification)
+        },
     },
     methods: {
         clearSpecAndDietCheck(){
@@ -847,6 +856,22 @@ export default {
             apiService.deleteApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa khỏi quyền quản lý thành công'})
+                    if(this.patientDetail.id == id){
+                        this.patientDetail = {
+                            dateOfBirth: '',
+                            createdDate: '',
+                            email: '',
+                            gender: '',
+                            id: '',
+                            inquiries: [],
+                            name: '',
+                            phoneNumber: '',
+                            practitioner: {},
+                            specialists: [],
+                            dietitians: [],
+                        }
+                        this.detailInquiry = null
+                    }
                     this.patientPage = 1;
                     this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                     this.inquiryPage = 1;
@@ -889,6 +914,52 @@ export default {
         },
         logging(){
             console.log(this.patientDetail)
+        },
+        handleNewNotification(e){
+            let url = `${config.apiUrl}/notifications/${e.notificationId}`
+            apiService.getApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    let type = result.data.type
+                    switch(type){
+                        //patient send new inquiry
+                        case 0: {
+                            this.inquiryPage = 1;
+                            this.inquiryAssign = true;
+                            this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                            break;
+                        }
+                        case 2: {
+                            console.log('2')
+                            break
+                        }
+                        //assigned new patient or a patient has been deactivated
+                        case 3: 
+                        case 10: {
+                                this.patientPage = 1;
+                                this.patientSearch = {
+                                    name: undefined,
+                                    status: 1,
+                                    gender: undefined,
+                                    age: undefined
+                                }
+                                this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                                this.inquiryPage = 1;
+                                this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                            break;
+                        }
+                        case 8: {
+                            console.log('8')
+                            break;
+                        }
+                        default: {
+                            console.log(type)
+                            break;
+                        }
+                    }
+                }
+            }).catch(error => {
+                console.log(error)
+            })
         }
     },
     created(){

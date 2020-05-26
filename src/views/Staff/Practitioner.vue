@@ -57,7 +57,7 @@
                             class="headline primary"
                             primary-title
                             >
-                            Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng
+                            <span style="color: white">Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng</span>
                         </v-card-title>
                         <v-card-text>
                             <v-container>
@@ -273,7 +273,7 @@
                             class="headline primary"
                             primary-title
                             >
-                            Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng
+                            <span style="color: white">Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng</span>
                         </v-card-title>
                         <v-card-text>
                             <v-container>
@@ -1121,6 +1121,22 @@ export default {
             apiService.deleteApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa khỏi quyền quản lý thành công'})
+                    if(this.patientDetail.id == id){
+                        this.patientDetail = {
+                            dateOfBirth: '',
+                            createdDate: '',
+                            email: '',
+                            gender: '',
+                            id: '',
+                            inquiries: [],
+                            name: '',
+                            phoneNumber: '',
+                            practitioner: {},
+                            specialists: [],
+                            dietitians: [],
+                        }
+                        this.detailInquiry = null
+                    }
                     this.patientPage = 1;
                     this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                     this.inquiryPage = 1;
@@ -1174,39 +1190,58 @@ export default {
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     let type = result.data.type
-                    //patient send new inquiry
-                    if(type == 0){
-                        this.inquiryPage = 1;
-                        this.getInquiries(this.inquiryPage, this.inquiryPageSize)
-                    }
-                    //doctor advise
-                    else if(type == 1){
-                        console.log('1')
-                    }
-                    //doctor or patient reply
-                    else if (type == 2){
-                        console.log('2')
-                    }
-                    //doctor accept, reject assign
-                    else if(type == 4 || type == 5){
-                        console.log('4 5')
-                    }
-                    //assigned new patient or a patient has been deactivated
-                    else if (type == 3 || type == 10){
-                        this.patientPage = 1;
-                        this.patientSearch = {
-                            name: undefined,
-                            status: 1,
-                            gender: undefined,
-                            age: undefined
+                    let payloadId = result.data.payloadId
+                    switch(type){
+                        //patient send new inquiry
+                        case 0: {
+                            this.inquiryPage = 1;
+                            this.inquiryAssign = true;
+                            this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                            break;
                         }
-                        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
-                        this.inquiryPage = 1;
-                        this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                        //doctor advise
+                        case 1: {
+                            let url = `${config.apiUrl}/records/${payloadId}`
+                            apiService.getApi(url).then(result => {
+                                if(result.status.toString()[0] === "2"){
+                                    if(this.detailInquiry != null && this.detailInquiry.id == result.data.inquiry.id){
+                                        (result.data.inquiry.type == 0) ? (this.detailInquiry.medicalRecords.push(result.data)) : (this.detailInquiry.dietRecords.push(result.data))
+                                    }  
+                                }
+                            }).catch(error => {
+                                console.log(error)
+                            })
+                            break;
+                        }
+                        //assigned new patient or a patient has been deactivated
+                        case 3: 
+                        case 10: {
+                            this.patientPage = 1;
+                            this.patientSearch = {
+                                name: undefined,
+                                status: 1,
+                                gender: undefined,
+                                age: undefined
+                            }
+                            this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                            this.inquiryPage = 1;
+                            this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                        break;
+                        }
+                        //doctor accept, reject assign, remove patient, 
+                        case 4:
+                        case 5:
+                        case 6: {
+                            if(this.patientDetail.id == payloadId){
+                                this.getDoctorInCharge(payloadId)
+                            }
+                            break;
+                        }
+                        default: {
+                            console.log(type)
+                            break;
+                        }
                     }
-                }
-                else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
