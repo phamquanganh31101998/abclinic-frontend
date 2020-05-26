@@ -1792,9 +1792,6 @@ export default {
                         this.getInquiries(this.inquiryPage, this.inquiryPageSize)
                     }
                 }
-                else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
-                }
             }).catch(error => {
                 console.log(error)
             })
