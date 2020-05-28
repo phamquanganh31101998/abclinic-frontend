@@ -502,7 +502,7 @@
                         <br>
                         <v-card class="elevation-4">
                             <v-card-title>
-                                Bình luận
+                                Giải đáp thắc mắc
                             </v-card-title>
                             <v-card-text>
                                 <div :key="reply.id" v-for="reply in detailInquiry.replies" style="margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
@@ -514,12 +514,12 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12">
-                                            <v-textarea v-model="replyText" background-color="#CFD8DC" label="Thêm bình luận tại đây..." outlined rows="4"></v-textarea>
+                                            <v-textarea v-model="replyText" background-color="#CFD8DC" label="Thêm câu trả lời tại đây..." outlined rows="4"></v-textarea>
                                         </v-col>
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12">
-                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)" >Bình luận</v-btn>
+                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)" >Trả lời tư vấn</v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -1045,7 +1045,7 @@ export default {
             })
         },
         addReply(inquiryId, reply){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang thêm bình luận...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang thêm câu trả lời...')
             let body = {
                 "inquiry_id": inquiryId,
                 reply: reply
@@ -1185,6 +1185,18 @@ export default {
         logging(){
             console.log(this.patientDetail)
         },
+        getNewRecordFromNotification(recordId){
+            let url = `${config.apiUrl}/records/${recordId}`
+            apiService.getApi(url).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    if(this.detailInquiry != null && this.detailInquiry.id == result.data.inquiry.id){
+                        (result.data.inquiry.type == 0) ? (this.detailInquiry.medicalRecords.push(result.data)) : (this.detailInquiry.dietRecords.push(result.data))
+                    }  
+                }
+            }).catch(error => {
+                console.log(error)
+            })
+        },
         handleNewNotification(e){
             let url = `${config.apiUrl}/notifications/${e.notificationId}`
             apiService.getApi(url).then(result => {
@@ -1201,16 +1213,7 @@ export default {
                         }
                         //doctor advise
                         case 1: {
-                            let url = `${config.apiUrl}/records/${payloadId}`
-                            apiService.getApi(url).then(result => {
-                                if(result.status.toString()[0] === "2"){
-                                    if(this.detailInquiry != null && this.detailInquiry.id == result.data.inquiry.id){
-                                        (result.data.inquiry.type == 0) ? (this.detailInquiry.medicalRecords.push(result.data)) : (this.detailInquiry.dietRecords.push(result.data))
-                                    }  
-                                }
-                            }).catch(error => {
-                                console.log(error)
-                            })
+                            this.getNewRecordFromNotification(payloadId)
                             break;
                         }
                         //assigned new patient or a patient has been deactivated
@@ -1219,14 +1222,14 @@ export default {
                             this.patientPage = 1;
                             this.patientSearch = {
                                 name: undefined,
-                                status: 1,
+                                status: 0,
                                 gender: undefined,
                                 age: undefined
                             }
                             this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                             this.inquiryPage = 1;
                             this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
-                        break;
+                            break;
                         }
                         //doctor accept, reject assign, remove patient, 
                         case 4:
