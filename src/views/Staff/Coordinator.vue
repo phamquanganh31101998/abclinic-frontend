@@ -10,7 +10,7 @@
                 <v-data-table :headers="doctorHeaders" :items="allDoctors" class="elevation-4" hide-default-footer loading-text="Đang lấy dữ liệu..." no-data-text="Không có kết quả phù hợp" :loading="loadingDoctor">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách nhân viên</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Nhân viên phòng khám</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -27,6 +27,7 @@
                                     <v-btn
                                     color="primary"
                                     dark
+                                    text
                                     v-on="on"
                                     >
                                     <v-icon>search</v-icon>
@@ -90,38 +91,53 @@
                             <span style="color: white">Chi tiết nhân viên</span>
                         </v-card-title>
                         <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="12" sm="6" md="4">
-                                    <v-text-field readonly label="Tên" :value="doctorDetail.name"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                    <v-text-field readonly label="Ngày sinh" :value="doctorDetail.dateOfBirth" ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                    <v-text-field
-                                        readonly 
-                                        label="Giới tính"
-                                        :value="returnGender(doctorDetail.gender)"
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="6" lg="6" xl="6">
-                                    <v-text-field readonly label="Email" :value="doctorDetail.email"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="6" lg="6" xl="6">
-                                    <v-text-field readonly label="Email" :value="doctorDetail.phoneNumber"></v-text-field>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-text-field readonly label="Ghi chú" :value="doctorDetail.description"></v-text-field>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-text-field readonly label="Chuyên môn" :value="doctorDetail.specialty"></v-text-field>
-                                </v-col>
-                            </v-row>
-                        </v-container>
+                            <v-form v-model="doctorDetailValid">
+                                <v-row>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-text-field :rules="noEmptyRules" label="Tên" v-model="doctorDetail.name"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-menu
+                                            ref="dobMenu"
+                                            v-model="dobMenu"
+                                            :close-on-content-click="false"
+                                            :return-value.sync="doctorDetail.dateOfBirth"
+                                            transition="scale-transition"
+                                            offset-y
+                                            min-width="290px"
+                                            >
+                                            <template v-slot:activator="{ on }">
+                                                <v-text-field v-on="on" label="Ngày sinh" v-model="doctorDetail.dateOfBirth" readonly ></v-text-field>
+                                            </template>
+                                            <v-date-picker v-model="doctorDetail.dateOfBirth" @input="$refs.dobMenu.save(doctorDetail.dateOfBirth), dobMenu = false" scrollable></v-date-picker>
+                                        </v-menu>
+                                        
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-select
+                                            v-model="doctorDetail.gender"
+                                            :items="genderArr"
+                                            label="Giới tính"
+                                        ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                        <v-text-field :rules="emailRules" label="Email" v-model="doctorDetail.email"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                        <v-text-field :rules="phoneRules" type="number" label="Số điện thoại" v-model="doctorDetail.phoneNumber"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-text-field label="Ghi chú" v-model="doctorDetail.description"></v-text-field>
+                                    </v-col>
+                                    <!-- <v-col cols="12">
+                                        <v-text-field readonly label="Chuyên môn" v-model="doctorDetail.specialty"></v-text-field>
+                                    </v-col> -->
+                                </v-row>
+                            </v-form>
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
+                            <v-btn color="primary" text :disabled="!doctorDetailValid" @click="updateDoctorInfo(doctorDetail), doctorDetailDialog = false">Chỉnh sửa</v-btn>
                             <v-btn color="red" text @click="doctorDetailDialog = false">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
@@ -135,7 +151,7 @@
                     :items="inquiries" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách yêu cầu tư vấn mới</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Các yêu cầu tư vấn mới</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -235,7 +251,7 @@
                     :items="allPatients" class="elevation-4" hide-default-footer>
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách bệnh nhân</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Bệnh nhân</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -253,6 +269,7 @@
                                     color="primary"
                                     dark
                                     v-on="on"
+                                    text
                                     >
                                     <v-icon>search</v-icon>
                                     Tìm kiếm
@@ -310,26 +327,45 @@
                             <span style="color: white">Chi tiết bệnh nhân</span>
                         </v-card-title>
                         <v-card-text>
-                            <v-container>
+                            <v-form v-model="patientDetailValid">
                                 <v-row>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
-                                        <v-text-field readonly label="Tên" v-model="patientDetail.name"></v-text-field>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-text-field :rules="noEmptyRules" label="Tên" v-model="patientDetail.name"></v-text-field>
                                     </v-col>
-                                    
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
-                                        <v-text-field readonly label="Ngày sinh" v-model="patientDetail.dateOfBirth"></v-text-field>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-menu
+                                            ref="patientDobMenu"
+                                            v-model="patientDobMenu"
+                                            :close-on-content-click="false"
+                                            :return-value.sync="patientDetail.dateOfBirth"
+                                            transition="scale-transition"
+                                            offset-y
+                                            min-width="290px"
+                                            >
+                                            <template v-slot:activator="{ on }">
+                                                <v-text-field readonly label="Ngày sinh" v-model="patientDetail.dateOfBirth" v-on="on"></v-text-field>
+                                            </template>
+                                            <v-date-picker v-model="patientDetail.dateOfBirth" @input="$refs.patientDobMenu.save(patientDetail.dateOfBirth), patientDobMenu = false" scrollable></v-date-picker>
+                                        </v-menu>
                                     </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
-                                        <v-text-field readonly label="Giới tính" v-model="patientDetail.gender"></v-text-field>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-select
+                                            v-model="patientDetail.gender"
+                                            :items="genderArr"
+                                            label="Giới tính"
+                                        ></v-select>
                                     </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="6">
-                                        <v-text-field readonly label="Email" v-model="patientDetail.email"></v-text-field>
+                                    <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                        <v-text-field :rules="emailRules" label="Email" v-model="patientDetail.email"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="6">
-                                        <v-text-field readonly label="Số điện thoại" v-model="patientDetail.phoneNumber"></v-text-field>
+                                    <v-col cols="12" sm="12" md="6" lg="6" xl="6">
+                                        <v-text-field :rules="phoneRules" label="Số điện thoại" type="number" v-model="patientDetail.phoneNumber"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="12" md="6">
+                                        <v-text-field label="Địa chỉ" v-model="patientDetail.address"></v-text-field>
                                     </v-col>
                                 </v-row>
-                                <v-row>
+                                <!-- <v-row>
                                     <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                                         <v-data-table
                                             hide-default-footer
@@ -339,7 +375,7 @@
                                             >
                                             <template v-slot:top>
                                                 <v-toolbar flat>
-                                                    <v-toolbar-title>Danh sách yêu cầu tư vấn</v-toolbar-title>
+                                                    <v-toolbar-title>Các yêu cầu tư vấn</v-toolbar-title>
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
@@ -349,18 +385,15 @@
                                             <template v-slot:item.patient="{ item }">
                                                 {{ item.patient.name }}
                                             </template>
-                                            <!-- <template v-slot:expanded-item="{ item }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
-                                            </template> -->
                                         </v-data-table>
                                     </v-col>
-                                    
-                                </v-row>
-                            </v-container>
-
+                                </v-row> -->
+                            </v-form>
+                                
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
+                            <v-btn :disabled="!patientDetailValid" color="primary" text @click="patientDetailDialog = false, updatePatientInfo(patientDetail)">Chỉnh sửa</v-btn>
                             <v-btn color="red" text @click="patientDetailDialog = false">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
@@ -438,7 +471,7 @@
                 <v-data-table class="elevation-4" :headers="diseaseHeaders" :items="allDisease" hide-default-footer no-data-text="Hiện tại chưa có bệnh nào" loading-text="Đang lấy dữ liệu..." :loading="loadingDisease">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách các căn bệnh</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Các căn bệnh</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -486,6 +519,7 @@
                                     color="primary"
                                     dark
                                     v-on="on"
+                                    text
                                     >
                                     <v-icon>search</v-icon>
                                     Tìm kiếm
@@ -547,12 +581,11 @@
                     </v-card>
                 </v-dialog>
             </v-col>
-            
             <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <v-data-table class="elevation-4" :headers="healthIndexesHeaders" :items="healthIndexes" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách chỉ số sức khỏe</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Chỉ số sức khỏe</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -592,9 +625,9 @@
                                     </v-container>
                                     </v-card-text>
                                     <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text :disabled="createHealthIndexesObj.name == '' || createHealthIndexesObj.description == ''" @click="createHealthIndexes(createHealthIndexesObj.name, createHealthIndexesObj.description, createHealthIndexesObj.fields), createHealthIndexesDialog = false">TẠO MỚI</v-btn>
-                                    <v-btn color="red" text @click="createHealthIndexesDialog = false">ĐÓNG</v-btn>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text :disabled="createHealthIndexesObj.name == '' || createHealthIndexesObj.description == ''" @click="createHealthIndexes(createHealthIndexesObj.name, createHealthIndexesObj.description, createHealthIndexesObj.fields), createHealthIndexesDialog = false">TẠO MỚI</v-btn>
+                                        <v-btn color="red" text @click="createHealthIndexesDialog = false">ĐÓNG</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </v-dialog>
@@ -653,7 +686,7 @@
                 <v-data-table v-show="showSpec" class="elevation-4" :headers="specHeaders" :items="specialties" hide-default-footer no-data-text="Hiện tại chưa có chuyên môn nào" loading-text="Đang lấy dữ liệu..." :loading="loadingSpec">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title><h3>Danh sách chuyên môn</h3></v-toolbar-title>
+                            <v-toolbar-title><h3>Các chuyên môn</h3></v-toolbar-title>
                             <v-divider
                                 class="mx-4"
                                 inset
@@ -766,6 +799,7 @@
                                             >
                                             <template v-slot:activator="{ on }">
                                                 <v-text-field
+                                                    readonly
                                                     v-model="registerObj.dateOfBirth"
                                                     label="Ngày sinh"
                                                     prepend-icon="event"
@@ -869,6 +903,7 @@ import config from '../../config'
 export default {
     data(){
         return {
+            dobMenu: false,
             doctorPages: 0,
             doctorPage: 1,
             doctorPageSize: 10,
@@ -923,6 +958,7 @@ export default {
                 specialty: '',
                 phoneNumber: 0
             },
+            doctorDetailValid: true,
             allDoctors: [],
             doctorHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -970,23 +1006,13 @@ export default {
                 email: '',
                 gender: '',
                 id: '',
-                inquiries: [
-                    {
-                        "id": 3,
-                        "patient": 
-                            {
-                                "id": 16,
-                                "role": "PATIENT",
-                                "name": "Trần Tuấn Thành",
-                                "age": 22
-                            },
-                        "content": "Batman bị chán ăn"
-                    }
-                ],
+                inquiries: [],
                 name: '',
                 phoneNumber: '',
                 practitioner: '',
             },
+            patientDetailValid: true,
+            patientDobMenu: false,
             inquiryHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
@@ -1024,27 +1050,27 @@ export default {
                 phoneNumber: '',
                 role: 4,
                 roles: [
-                {
-                    text: 'Đa khoa',
-                    value: 0
-                },
-                {
-                    text: 'Chuyên khoa',
-                    value: 1
-                },
-                {
-                    text: 'Dinh dưỡng',
-                    value: 2
-                },
-                {
-                    text: 'Điều phối viên',
-                    value: 3
-                },
-                {
-                    text: 'Bệnh nhân',
-                    value: 4
-                }
-            ],
+                    {
+                        text: 'Đa khoa',
+                        value: 0
+                    },
+                    {
+                        text: 'Chuyên khoa',
+                        value: 1
+                    },
+                    {
+                        text: 'Dinh dưỡng',
+                        value: 2
+                    },
+                    {
+                        text: 'Điều phối viên',
+                        value: 3
+                    },
+                    {
+                        text: 'Bệnh nhân',
+                        value: 4
+                    }
+                ],
             },
             emailRules: [
                 v => !!v || 'Chưa nhập E-mail',
@@ -1143,7 +1169,6 @@ export default {
             healthIndexesPage: 1,
             healthIndexesPages: 0,
             healthIndexesPageSize: 10
-
         }
     },
     computed: {
@@ -1232,6 +1257,7 @@ export default {
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.doctorDetail = Object.assign({}, result.data)
+                    this.doctorDetail.dateOfBirth = result.data.dateOfBirth.split("/").reverse().join("-")
                     this.doctorDetailDialog = true
                 }
                 else {
@@ -1495,14 +1521,16 @@ export default {
             })
         },
         processPatientDetailFromServer(data, isDetail){
-            this.patientDetail.dateOfBirth = data.dateOfBirth
-            this.patientDetail.createdDate = data.createdDate
-            this.patientDetail.email = data.email
-            this.patientDetail.gender = this.returnGender(data.gender)
-            this.patientDetail.id = data.id
-            this.patientDetail.inquiries = data.inquiries
-            this.patientDetail.name = data.name
-            this.patientDetail.phoneNumber = data.phoneNumber
+            this.patientDetail = data;
+            this.patientDetail.dateOfBirth = data.dateOfBirth.split("/").reverse().join("-")
+            // this.patientDetail.createdDate = data.createdDate
+            // this.patientDetail.email = data.email
+            // this.patientDetail.gender = data.gender
+            // this.patientDetail.id = data.id
+            // this.patientDetail.inquiries = data.inquiries
+            // this.patientDetail.name = data.name
+            // this.patientDetail.phoneNumber = data.phoneNumber
+            // this.patientDetail.address = data.address
             if(isDetail == true){
                 this.patientDetailDialog = true
             }
@@ -1794,6 +1822,59 @@ export default {
                 }
             }).catch(error => {
                 console.log(error)
+            })
+        },
+        updateDoctorInfo(detailObj){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
+            let url = `${config.apiUrl}/user/${detailObj.id}`
+            let body = {
+                "description": detailObj.description,
+                "dob": detailObj.dateOfBirth.split("-").reverse().join("/"),
+                "email": detailObj.email,
+                "gender": detailObj.gender,
+                "name": detailObj.name,
+                "phone": detailObj.phoneNumber
+            }
+            apiService.putApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
+                    this.doctorPage = 1;
+                    this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        updatePatientInfo(detailObj){
+            // console.log(detailObj)
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
+            let url = `${config.apiUrl}/user/${detailObj.id}`
+            let body = {
+                "address": detailObj.address,
+                "dob": detailObj.dateOfBirth.split("-").reverse().join("/"),
+                "email": detailObj.email,
+                "gender": detailObj.gender,
+                "name": detailObj.name,
+                "phone": detailObj.phoneNumber
+            }
+            apiService.putApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
+                    this.patientPage = 1;
+                    this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
         }
     },

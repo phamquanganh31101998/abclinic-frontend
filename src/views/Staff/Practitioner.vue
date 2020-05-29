@@ -141,6 +141,7 @@
                                         <v-btn
                                         color="primary"
                                         dark
+                                        text
                                         v-on="on"
                                         >
                                         <v-icon>search</v-icon>
@@ -446,58 +447,87 @@
                             <v-col cols="12">
                                 <h3>Nội dung: {{detailInquiry.content}}</h3>
                                 <h3>Kiểu yêu cầu: {{returnInquiryType(detailInquiry.type)}}</h3>
-                                <h3 v-if="detailInquiry.type == 0">Thời gian làm xét nghiệm: {{detailInquiry.date}}</h3>
-                                <h3 v-if="detailInquiry.type == 1">Thời gian ăn: {{detailInquiry.date}}</h3>
+                                <h3 v-if="detailInquiry.type == 0">Thời gian làm xét nghiệm: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
+                                <h3 v-if="detailInquiry.type == 1">Thời gian ăn: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
                                 <h3>Ảnh: </h3>
                             </v-col>
                         </v-row>
                         <v-row>
                             <v-col v-for="(record, index) in detailInquiry.medicalRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
-                                        Bác sĩ: {{record.specialist.name}}
-                                        <br>
-                                        Chức vụ: {{record.specialist.role}}
-                                        <br>
-                                        <!-- Chuyên môn: {{record.specialist.specialty.name}}
-                                        <br> -->
-                                        Chẩn đoán: {{record.diagnose}}
-                                        <br>
-                                        Kê đơn thuốc: {{record.prescription}}
-                                        <br>
-                                        Ghi chú: {{record.note}}
-                                        <br>
+                                        <h3>
+                                            Chẩn đoán: {{record.diagnose}}
+                                            <br>
+                                            Kê đơn: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                            Trạng thái: <span v-if="record.status == 0" style="color: red">Đang chờ duyệt</span>
+                                            <span v-else style="color: green">Đã được duyệt</span>
+                                        </h3>
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Chỉnh sửa tư vấn</v-btn>
+                                        <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Duyệt tư vấn</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </v-col>
-                            <v-col v-for="(record, index) in detailInquiry.dietRecords" :key="record.id" cols="12">
+                            <v-col v-for="(record) in detailInquiry.dietRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
-                                        Bác sĩ: {{record.dietitian.name}}
-                                        <br>
-                                        Chức vụ: {{record.dietitian.role}}
-                                        <br>
-                                        <!-- Chuyên môn: {{record.dietitian.specialty.name}}
-                                        <br> -->
-                                        <!-- Chẩn đoán: {{record.diagnose}}
-                                        <br> -->
-                                        Kê đơn thuốc: {{record.prescription}}
-                                        <br>
-                                        Ghi chú: {{record.note}}
-                                        <br>
+                                        <h3>
+                                            Kê đơn: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                            Trạng thái: <span v-if="record.status == 0" style="color: red">Đang chờ duyệt</span>
+                                            <span v-else style="color: green">Đã được duyệt</span>
+                                        </h3>
+                                    </v-card-text>
+                                    <!-- <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Duyệt tư vấn</v-btn>
+                                    </v-card-actions> -->
+                                </v-card>
+                            </v-col>
+                            <v-dialog max-width="700px" v-model="editRecord.dialog" persistent>
+                                <v-card class="elevation-4" v-if="editRecord.obj != null">
+                                    <v-card-title
+                                        class="headline primary"
+                                        primary-title
+                                        >
+                                        <span style="color: white">Duyệt tư vấn của BS chuyên khoa </span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row v-if="editRecord.isMedical == true">
+                                                <v-col cols="12">
+                                                    <v-textarea rows="2" v-model="editRecord.obj.diagnose" label="Chẩn đoán"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-textarea rows="2" v-model="editRecord.obj.prescription" label="Đơn thuốc"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-textarea rows="2" v-model="editRecord.obj.note" label="Ghi chú"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Chỉnh sửa tư vấn</v-btn>
+                                        <v-btn color="blue" v-if="editRecord.isMedical == true" :disabled="editRecord.obj.diagnose == '' || editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(editRecord.recordId, editRecord.recordIndex, editRecord.isMedical, editRecord.obj.prescription, editRecord.obj.note, editRecord.obj.diagnose), editRecord.dialog = false, editRecord.obj = null">DUYỆT</v-btn>
+                                        <v-btn color="blue" v-if="editRecord.isMedical == false" :disabled="editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(editRecord.recordId, editRecord.recordIndex, editRecord.isMedical, editRecord.obj.prescription, editRecord.obj.note), editRecord.dialog = false, editRecord.obj = null">DUYỆT</v-btn>
+                                        <v-btn color="red" text @click="editRecord.dialog = false, editRecord.obj = null">Đóng</v-btn>
                                     </v-card-actions>
                                 </v-card>
-                            </v-col>
+                            </v-dialog>
                         </v-row>
                         <br>
                         <v-card class="elevation-4">
@@ -519,7 +549,7 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12">
-                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)" >Trả lời tư vấn</v-btn>
+                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)">Trả lời</v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -527,41 +557,7 @@
                             </v-card-actions>
                         </v-card>
                     </v-card-text>
-                    <v-dialog max-width="700px" v-model="editRecord.dialog" persistent>
-                        <v-card class="elevation-4" v-if="editRecord.obj != null">
-                            <v-card-title
-                                class="headline primary"
-                                primary-title
-                                >
-                                Chỉnh sửa tư vấn 
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row v-if="editRecord.isMedical == true">
-                                        <v-col cols="12">
-                                            <v-textarea rows="2" v-model="editRecord.obj.diagnose" label="Chẩn đoán"></v-textarea>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="12">
-                                            <v-textarea rows="2" v-model="editRecord.obj.prescription" label="Đơn thuốc"></v-textarea>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="12">
-                                            <v-textarea rows="2" v-model="editRecord.obj.note" label="Ghi chú"></v-textarea>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue" v-if="editRecord.isMedical == true" :disabled="editRecord.obj.diagnose == '' || editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(editRecord.recordId, editRecord.recordIndex, editRecord.isMedical, editRecord.obj.prescription, editRecord.obj.note, editRecord.obj.diagnose), editRecord.dialog = false, editRecord.obj = null">Chỉnh sửa</v-btn>
-                                <v-btn color="blue" v-if="editRecord.isMedical == false" :disabled="editRecord.obj.prescription == ''|| editRecord.obj.note ==''" text @click="updateRecord(editRecord.recordId, editRecord.recordIndex, editRecord.isMedical, editRecord.obj.prescription, editRecord.obj.note), editRecord.dialog = false, editRecord.obj = null">Chỉnh sửa</v-btn>
-                                <v-btn color="red" text @click="editRecord.dialog = false, editRecord.obj = null">Đóng</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                    
                 </v-card>
             </v-col>
         </v-row>
@@ -569,6 +565,7 @@
 </template>
 <script>
 // import $ from 'jquery'
+import moment from 'moment'
 import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
@@ -756,6 +753,28 @@ export default {
         },
     },
     methods: {
+        returnTimeFromTimeArray(arr){
+            try {
+                let i = 0;
+                let dayArr = []
+                let timeArr = []
+                while(i < arr.length){
+                    if(i < 3){
+                        dayArr.push(arr[i])
+                    }
+                    else {
+                        timeArr.push(arr[i])
+                    }
+                    i++
+                }
+                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
+                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
+            }
+            catch(error){
+                console.log(error)
+                return "_"
+            }
+        },
         clearSpecAndDietCheck(){
             if(this.patientAllStatus[0].value == true){
                 this.patientAllStatus[1].value = false;
@@ -1092,10 +1111,10 @@ export default {
             if(diag){
                 body.diagnose = diag;
             }
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang chỉnh sửa trả lời tư vấn...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang duyệt tư vấn của bác sĩ chuyên khoa...')
             apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Chỉnh sửa tư vấn thành công'})
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Duyệt tư vấn thành công'})
                     if(isMedical == true){
                         this.detailInquiry.medicalRecords[index].diagnose = diag
                         this.detailInquiry.medicalRecords[index].prescription = pres
