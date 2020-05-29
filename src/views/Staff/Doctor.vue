@@ -11,7 +11,7 @@
                     <v-data-table class="elevation-1" no-data-text="Không có yêu cầu tư vấn nào" loading-text="Đang lấy dữ liệu" :loading="loadingInquiries" :headers="inquiryHeadersMain" :items="inquiries" hide-default-footer>
                         <template v-slot:top>
                             <v-toolbar flat>
-                                <v-toolbar-title><h3>Danh sách yêu cầu tư vấn</h3></v-toolbar-title>
+                                <v-toolbar-title><h3>Yêu cầu tư vấn</h3></v-toolbar-title>
                                 <v-divider
                                     class="mx-4"
                                     inset
@@ -65,6 +65,7 @@
                                         color="primary"
                                         dark
                                         v-on="on"
+                                        text
                                         >
                                         <v-icon>search</v-icon>
                                         Tìm kiếm
@@ -107,7 +108,12 @@
                                     <v-list-item @click="getPatientDetail(item.id)">
                                         <v-list-item-title>Xem chi tiết</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item @click="removePatientObj.id = item.id, removePatientObj.dialog = true"><v-list-item-title>Xóa bệnh nhân khỏi quyền quản lý</v-list-item-title></v-list-item>
+                                    <v-list-item @click="newSchedule.patientId = item.id, newScheduleDialog = true">
+                                        <v-list-item-title>Tạo lịch gửi chỉ số sức khỏe</v-list-item-title>
+                                    </v-list-item>
+                                    <v-list-item @click="removePatientObj.id = item.id, removePatientObj.dialog = true">
+                                        <v-list-item-title>Xóa bệnh nhân khỏi quyền quản lý</v-list-item-title>
+                                    </v-list-item>
                                 </v-list>
                             </v-menu>
                         </template>
@@ -196,7 +202,7 @@
                                     <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
                                         <template v-slot:top>
                                             <v-toolbar flat>
-                                                <v-toolbar-title><h3>Danh sách yêu cầu tư vấn</h3></v-toolbar-title>
+                                                <v-toolbar-title><h3>Yêu cầu tư vấn</h3></v-toolbar-title>
                                                 <v-divider
                                                     class="mx-4"
                                                     inset
@@ -234,59 +240,55 @@
                             <v-col cols="12">
                                 <h3>Nội dung: {{detailInquiry.content}}</h3>
                                 <h3>Kiểu yêu cầu: {{returnInquiryType(detailInquiry.type)}}</h3>
-                                <h3 v-if="detailInquiry.type == 0">Thời gian làm xét nghiệm: {{detailInquiry.date}}</h3>
-                                <h3 v-if="detailInquiry.type == 1">Thời gian ăn: {{detailInquiry.date}}</h3>
+                                <h3 v-if="detailInquiry.type == 0">Thời gian làm xét nghiệm: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
+                                <h3 v-if="detailInquiry.type == 1">Thời gian ăn: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
                                 <h3>Ảnh: </h3>
                             </v-col>
                         </v-row>
                         <v-row>
-                            <v-col v-for="(record, index) in detailInquiry.medicalRecords" :key="record.id" cols="12">
+                            <v-col v-for="(record) in detailInquiry.medicalRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
-                                        Bác sĩ: {{record.specialist.name}}
-                                        <br>
-                                        Chức vụ: {{record.specialist.role}}
-                                        <br>
-                                        <!-- Chuyên môn: {{record.specialist.specialty.name}}
-                                        <br> -->
-                                        Chẩn đoán: {{record.diagnose}}
-                                        <br>
-                                        Kê đơn thuốc: {{record.prescription}}
-                                        <br>
-                                        Ghi chú: {{record.note}}
-                                        <br>
+                                        <h3>
+                                            Chẩn đoán: {{record.diagnose}}
+                                            <br>
+                                            Kê đơn: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                            Trạng thái: <span v-if="record.status == 0" style="color: red">Đang chờ bác sĩ đa khoa duyệt</span>
+                                            <span v-else style="color: green">Đã được bác sĩ đa khoa duyệt</span>
+                                        </h3>
                                     </v-card-text>
-                                    <v-card-actions v-if="record.specialist && record.specialist.id == $store.state.user.id">
+                                    <!-- <v-card-actions v-if="record.specialist && record.specialist.id == $store.state.user.id">
                                         <v-spacer></v-spacer>
                                         <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Chỉnh sửa tư vấn</v-btn>
-                                    </v-card-actions>
+                                    </v-card-actions> -->
                                 </v-card>
                             </v-col>
-                            <v-col v-for="(record, index) in detailInquiry.dietRecords" :key="record.id" cols="12">
+                            <v-col v-for="(record) in detailInquiry.dietRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Trả lời yêu cầu tư vấn</v-card-title>
+                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
-                                        Bác sĩ: {{record.dietitian.name}}
-                                        <br>
-                                        Chức vụ: {{record.dietitian.role}}
-                                        <br>
-                                        <!-- Chuyên môn: {{record.dietitian.specialty.name}}
-                                        <br> -->
-                                        Kê đơn thuốc: {{record.prescription}}
-                                        <br>
-                                        Ghi chú: {{record.note}}
-                                        <br>
+                                        <h3>
+                                            Kê đơn: {{record.prescription}}
+                                            <br>
+                                            Ghi chú: {{record.note}}
+                                            <br>
+                                            Trạng thái: <span v-if="record.status == 0" style="color: red">Đang chờ bác sĩ đa khoa duyệt</span>
+                                            <span v-else style="color: green">Đã được bác sĩ đa khoa duyệt</span>
+                                        </h3>
                                     </v-card-text>
-                                    <v-card-actions v-if="record.dietitian && record.dietitian.id == $store.state.user.id">
+                                    <!-- <v-card-actions v-if="record.dietitian && record.dietitian.id == $store.state.user.id">
                                         <v-spacer></v-spacer>
                                         <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, false)">Chỉnh sửa tư vấn</v-btn>
-                                    </v-card-actions>
+                                    </v-card-actions> -->
                                 </v-card>
                             </v-col>
                         </v-row>
                         <br>
-                        <v-btn @click="openNewRecordDialog(detailInquiry.id, detailInquiry.type)" rounded color="primary">Thêm câu trả lời tư vấn mới</v-btn>
+                        <v-btn @click="openNewRecordDialog(detailInquiry.id, detailInquiry.type)" rounded color="primary">Thêm tư vấn mới</v-btn>
                         <br>
                         <br>
                         <v-card class="elevation-4">
@@ -308,7 +310,7 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12">
-                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)" >Trả lời tư vấn</v-btn>
+                                            <v-btn :disabled="replyText == ''" color="primary" @click="addReply(detailInquiry.id, replyText)" >Trả lời</v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -402,37 +404,139 @@
                                 inset
                                 vertical
                             ></v-divider>
-                            <v-btn color="primary" dark> <v-icon>add</v-icon> Tạo lịch mới</v-btn>
-                            <!-- <v-dialog v-model="createDisease.dialog" persistent width="400" max-width="70%">
-                                <template v-slot:activator="{ on }">
-                                    <v-btn color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo căn bệnh mới</v-btn>
-                                </template>
+                            <!-- dialog tạo lịch -->
+                            <v-dialog v-model="newScheduleDialog" persistent max-width="700px">
                                 <v-card>
                                     <v-card-title
                                         class="headline primary"
                                         primary-title
                                         >
-                                        <span style="color: white">Tạo căn bệnh mới</span>
+                                        <span style="color: white">Tạo lịch gửi chỉ số sức khỏe</span>
                                     </v-card-title>
                                     <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="createDisease.name" label="Tên căn bệnh"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-textarea rows="3" v-model="createDisease.description" label="Mô tả căn bệnh"></v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6" lg="4" xl="4">
+                                                    <h3>Thời gian nhắc nhở</h3>
+                                                </v-col>
+                                                <v-col cols="12" sm="3" md="3" lg="4" xl="4">
+                                                    <v-menu
+                                                        ref="startDateMenu"
+                                                        v-model="newSchedule.startDateMenu"
+                                                        :close-on-content-click="false"
+                                                        :return-value.sync="newSchedule.startDateMenu"
+                                                        transition="scale-transition"
+                                                        offset-y
+                                                        min-width="290px"
+                                                        >
+                                                        <template v-slot:activator="{ on }">
+                                                            <v-text-field
+                                                                v-model="newSchedule.startDate"
+                                                                label="Ngày bắt đầu"
+                                                                readonly
+                                                                prepend-icon="event"
+                                                                v-on="on"
+                                                            ></v-text-field>
+                                                        </template>
+                                                        <v-date-picker v-model="newSchedule.startDate" @input="newSchedule.startDateMenu = false" scrollable></v-date-picker>
+                                                    </v-menu>
+                                                </v-col>
+                                                <v-col cols="12" sm="3" md="3" lg="4" xl="4">
+                                                    <v-menu
+                                                        ref="startTimeMenu"
+                                                        v-model="newSchedule.startTimeMenu"
+                                                        :close-on-content-click="false"
+                                                        :return-value.sync="newSchedule.startTimeMenu"
+                                                        transition="scale-transition"
+                                                        offset-y
+                                                        min-width="290px"
+                                                        >
+                                                        <template v-slot:activator="{ on }">
+                                                            <v-text-field
+                                                                v-model="newSchedule.startTime"
+                                                                label="Giờ bắt đầu"
+                                                                readonly
+                                                                prepend-icon="event"
+                                                                v-on="on"
+                                                            ></v-text-field>
+                                                        </template>
+                                                        <v-time-picker v-model="newSchedule.startTime" scrollable @click:minute="newSchedule.startTimeMenu = false"></v-time-picker>
+                                                    </v-menu>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col sm="4" md="4" lg="2" xl="2">
+                                                    <h3>Chu kỳ nhắc nhở</h3>
+                                                </v-col>
+                                                <v-col>
+                                                    <v-text-field v-model="newSchedule.month" label="Tháng" type="number"></v-text-field>
+                                                </v-col>
+                                                <v-col>
+                                                    <v-text-field v-model="newSchedule.week" label="Tuần" type="number"></v-text-field>
+                                                </v-col>
+                                                <v-col>
+                                                    <v-text-field v-model="newSchedule.day" label="Ngày" type="number"></v-text-field>
+                                                </v-col>
+                                                <v-col>
+                                                    <v-text-field v-model="newSchedule.hour" label="Giờ" type="number"></v-text-field>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                                    <v-data-table 
+                                                        class="elevation-4" 
+                                                        :headers="healthIndexesHeaders" 
+                                                        :items="healthIndexes" 
+                                                        show-select
+                                                        single-select
+                                                        v-model="newSchedule.indexObj"
+                                                        hide-default-footer 
+                                                        no-data-text="Hiện tại chưa có chuyên môn nào" 
+                                                        loading-text="Đang lấy dữ liệu..." 
+                                                        :loading="loadingHealthIndexes"
+                                                        show-expand
+                                                        single-expand
+                                                        >
+                                                        <template v-slot:top>
+                                                            <v-toolbar flat>
+                                                                <v-toolbar-title><h3>Chọn chỉ số sức khỏe</h3></v-toolbar-title>
+                                                                <v-divider
+                                                                    class="mx-4"
+                                                                    inset
+                                                                    vertical
+                                                                ></v-divider>
+                                                            </v-toolbar>
+                                                        </template>
+                                                        <template v-slot:expanded-item="{ item }">
+                                                            <td :colspan="healthIndexesHeaders.length">
+                                                                <br>
+                                                                <h4>Danh sách các trường</h4>
+                                                                <div v-for="(field) in item.fields" :key="field.id" style="padding-left: 20px;">
+                                                                    - {{field.name}} 
+                                                                </div>
+                                                                <br>
+                                                            </td>
+                                                        </template>
+                                                    </v-data-table>
+                                                    <br>
+                                                    <div class="text-center">
+                                                        <v-pagination
+                                                            v-model="healthIndexesPage"
+                                                            :length="healthIndexesPages"
+                                                            @input="newSchedule.indexObj = [], getHealthIndexes(healthIndexesPage, healthIndexesPageSize)"
+                                                        ></v-pagination>
+                                                    </div>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
                                     </v-card-text>
                                     <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" :disabled="createDisease.name == '' || createDisease.description == ''" text @click="createNewDisease(createDisease.name, createDisease.description), createDisease.dialog = false">TẠO</v-btn>
-                                    <v-btn color="red" text @click="createDisease.dialog = false">ĐÓNG</v-btn>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text :disabled="(!checkTimeScheduleAvailable) || (newSchedule.indexObj.length == 0)" @click="newScheduleDialog = false, createSchedule(newSchedule)">TẠO</v-btn>
+                                        <v-btn color="red" text @click="newScheduleDialog = false">ĐÓNG</v-btn>
                                     </v-card-actions>
                                 </v-card>
-                            </v-dialog> -->
+                            </v-dialog>
                             <v-spacer></v-spacer>
                             <v-menu
                                 v-model="healthIndexesSchedules.searchMenu"
@@ -444,6 +548,7 @@
                                     <v-btn
                                     color="primary"
                                     dark
+                                    text
                                     v-on="on"
                                     >
                                     <v-icon>search</v-icon>
@@ -458,7 +563,7 @@
                                     <v-card-text>
                                         <v-text-field clearable v-model="healthIndexesSchedules.search.id" type="number" label="ID bệnh nhân"></v-text-field>
                                         <v-text-field clearable v-model="healthIndexesSchedules.search.name" label="Tên bệnh nhân"></v-text-field>
-                                        <v-text-field clearable v-model="healthIndexesSchedules.search.status" type="number" label="Trạng thái"></v-text-field>
+                                        <v-select v-model="healthIndexesSchedules.search.status" label="Trạng thái lịch gửi" :items="healthIndexesSchedules.allStatus"></v-select>
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
@@ -474,6 +579,10 @@
                     </template>
                     <template v-slot:item.scheduledTime="{item}">
                         {{convertSecond(item.scheduledTime)}}
+                    </template>
+                    <template v-slot:item.status="{item}">
+                        <span v-if="item.status == 0">Đang hoạt động</span>
+                        <span v-else style="color: red">Đã xóa</span>
                     </template>
                     <template v-slot:item.more="{item}">
                         <v-menu offset-y>
@@ -522,7 +631,6 @@
                                     <h4>Tên: {{healthIndexesSchedules.detailSchedule.index.name}}</h4>
                                     <h4>Mô tả: {{healthIndexesSchedules.detailSchedule.index.description}}</h4>
                                     <h4>Danh sách các trường</h4>
-
                                     <div v-for="(field) in healthIndexesSchedules.detailSchedule.index.fields" :key="field.id" style="padding-left: 20px;">
                                         <h4> - {{field.name}} </h4>
                                     </div>
@@ -601,6 +709,7 @@
                                     color="primary"
                                     dark
                                     v-on="on"
+                                    text
                                     >
                                     <v-icon>search</v-icon>
                                     Tìm kiếm
@@ -657,7 +766,7 @@
                     </v-card-title>
                     <v-card-text v-if="healthIndexesResult.detailResult.schedule != null">
                         <v-container>
-                            <h2>Thông tin lịch gửi</h2>
+                            <h1>Thông tin lịch gửi</h1>
                             <v-row>
                                 <v-col cols="12">
                                     <h3>Bệnh nhân: {{healthIndexesResult.detailResult.schedule.patient.name}}</h3>
@@ -679,13 +788,9 @@
                                     <h4>Thời gian kết thúc gửi: {{returnTimeFromTimeArray(healthIndexesResult.detailResult.schedule.endedAt)}}</h4>
                                 </v-col>
                             </v-row>
-                        </v-container>
-                    </v-card-text>
-                    <v-card-text>
-                        <v-container>
                             <v-row>
                                 <v-col cols="12">
-                                    <v-data-table class="elevation-4" :headers="healthIndexesResult.detailResult.headers" :items="healthIndexesResult.detailResult.result" hide-default-footer no-data-text="Hiện tại chưa có kết quả nào">
+                                    <v-data-table hide-default-header class="elevation-4" :headers="healthIndexesResult.detailResult.headers" :items="healthIndexesResult.detailResult.result" hide-default-footer no-data-text="Hiện tại chưa có kết quả nào">
                                         <template v-slot:item.field="{item}">
                                             {{item.field.name}}
                                         </template>
@@ -704,6 +809,7 @@
                             </v-row>
                         </v-container>
                     </v-card-text>
+                    
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="red" text @click="healthIndexesResult.detailResult.schedule = null, healthIndexesResult.detailResult.result = [], healthIndexesResult.detailResultDialog = false">Đóng</v-btn>
@@ -748,7 +854,7 @@ export default {
             },
             inquiryHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
-                { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                { text: 'BỆNH NHÂN', value: 'patient', align: 'start' },
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
                 { text: '', value: 'data-table-expand' },
             ],
@@ -835,7 +941,7 @@ export default {
             inquiryPages: 0,
             inquiryHeadersMain: [
                 { text: 'ID', value: 'id' , align: 'start'},
-                { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                { text: 'BỆNH NHÂN', value: 'patient', align: 'start' },
                 { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
                 // { text: '', value: 'data-table-expand' },
                 {text: 'NỘI DUNG', value: 'content', align: 'start'},
@@ -859,14 +965,25 @@ export default {
                 pageSize: 10,
                 search: {
                     id: undefined,
-                    status: undefined,
+                    status: 0,
                     name: undefined
                 },
+                allStatus: [
+                    {
+                        text: 'Đang hoạt động',
+                        value: 0
+                    },
+                    {
+                        text: 'Đã xóa',
+                        value: 10
+                    }
+                ],
                 searchMenu: false,
                 headers: [
                     { text: 'ID', value: 'id' , align: 'start'},
-                    { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                    { text: 'BỆNH NHÂN', value: 'patient', align: 'start' },
                     { text: 'THỜI GIAN NHẮC', value: 'scheduledTime', align: 'start' },
+                    { text: 'TRẠNG THÁI', value: 'status', align: 'start' },
                     { text: 'HÀNH ĐỘNG', value: 'more', align: 'end' },
                 ],
                 loading: false,
@@ -874,11 +991,32 @@ export default {
                 deleteDialog: false,
                 detailSchedule: null,
                 detailScheduleDialog: false,
-                newScheduleDialog: false,
-                newSchedule: {
-
-                }
             },
+            newScheduleDialog: false,
+            newSchedule: {
+                patientId: 0,
+                month: '',
+                week: '',
+                day: '',
+                hour: '',
+                startDate: '',
+                startDateMenu: false,
+                startTime: '08:00',
+                startTimeMenu: false,
+                indexObj: []
+            },
+            healthIndexes: [],
+            healthIndexesHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN', value: 'name', align: 'start' },
+                { text: 'MÔ TẢ', value: 'description', align: 'start' },
+                { text: '', value: 'data-table-expand' },
+            ],
+            loadingHealthIndexes: false,
+            detailHealthIndexes: null,
+            healthIndexesPage: 1,
+            healthIndexesPages: 0,
+            healthIndexesPageSize: 10,
             healthIndexesResult: {
                 data: [],
                 page: 1,
@@ -909,18 +1047,30 @@ export default {
                     ]
                 },
                 detailResultDialog: false
-            }
+            },
+            
         }
     },
     computed: {
         ...mapGetters({
             newNotification: 'newNotification'
-        })
+        }),
+        checkTimeScheduleAvailable(){
+            let charArr = new Array(this.newSchedule.month, this.newSchedule.week, this.newSchedule.day, this.newSchedule.hour)
+            // console.log(charArr)
+            for(let i = 0; i < charArr.length; i++){
+                if(charArr[i] != 0 && charArr[i] != ""){
+                    return true
+                }
+            }
+            return false
+        }
     },
     watch: {
         newNotification(){
             this.handleNewNotification(this.newNotification)
         },
+
     },
     methods: {
         returnTimeFromTimeArray(arr){
@@ -1315,18 +1465,23 @@ export default {
             console.log(this.patientDetail)
         },
         convertSecond(sec){
-            let day = Math.floor(sec / 86400)
+            let month = Math.floor(sec/ 18144000)
+            let monthStr = (month == 0) ? '' : `${month} tháng `
+            let week = Math.floor((sec % 18144000)/ 604800)
+            let weekStr = (week == 0) ? '' : `${week} tuàn `
+            let day = Math.floor((sec % 18144000 % 604800) / 86400)
             let dayStr = (day == 0) ? '' : `${day} ngày `
-            let hour = Math.floor((sec % 86400) / 3600)
+            let hour = Math.floor((sec % 18144000 % 604800 % 86400) / 3600)
             let hourStr = (hour == 0) ? '' : `${hour} giờ `
-            let minute = Math.floor((sec % 86400 % 3600) / 60)
-            let minuteStr = (minute == 0) ? '' : `${minute} phút `
-            let second = (sec % 86400 % 3600 % 60)
-            let secondStr = (second == 0) ? '' : `${second} giây `
-            let result = dayStr + hourStr + minuteStr + secondStr
+            // let minute = Math.floor((sec % 86400 % 3600) / 60)
+            // let minuteStr = (minute == 0) ? '' : `${minute} phút `
+            // let second = (sec % 86400 % 3600 % 60)
+            // let secondStr = (second == 0) ? '' : `${second} giây `
+            let result = monthStr + weekStr + dayStr + hourStr
             return result
         },
         getHealthIndexesSchedule(page, size, searchObj){
+            // console.log(searchObj)
             this.healthIndexesSchedules.data = []
             this.healthIndexesSchedules.loading = true;
             let params = {
@@ -1337,6 +1492,9 @@ export default {
             //Loop through all property of patientSearch Obj
             for (const property in searchObj) {
                 if(searchObj[property] != undefined && searchObj[property] != null && searchObj[property] != ''){
+                    searchString += `${property}=${searchObj[property]},`
+                }
+                if(searchObj[property] == 0){
                     searchString += `${property}=${searchObj[property]},`
                 }
             }
@@ -1375,6 +1533,49 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
+        createSchedule(scheduleObj){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo lịch gửi mới...')
+            let scheduled = 0;
+            if(scheduleObj.month != ''){
+                scheduled += parseInt(scheduleObj.month) * 18144000
+            }
+            if(scheduleObj.week != ''){
+                scheduled += parseInt(scheduleObj.week) * 604800
+            }
+            if(scheduleObj.day != ''){
+                scheduled += parseInt(scheduleObj.day) * 86400
+            }
+            if(scheduleObj.hour != ''){
+                scheduled += parseInt(scheduleObj.hour) * 3600
+            }
+            
+            let body = {
+                "index_id": scheduleObj.indexObj[0].id,
+                "patient_id": scheduleObj.patientId,
+                "scheduled": scheduled,
+                "start": `${scheduleObj.startDate.split("-").reverse().join("/")} ${scheduleObj.startTime}:00`
+            }
+            let url = `${config.apiUrl}/health_indexes/schedule`
+            apiService.postApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo lịch gửi thành công'})
+                    this.healthIndexesSchedules.page = 1;
+                    this.healthIndexesSchedules.search = {
+                        id: undefined,
+                        status: undefined,
+                        name: undefined
+                    }
+                    this.getHealthIndexesSchedule(this.healthIndexesSchedules.page, this.healthIndexesSchedules.pageSize, this.healthIndexesSchedules.search)
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
         deleteSchedule(scheduleId){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa lịch gửi...')
             let url = `${config.apiUrl}/health_indexes/schedule`
@@ -1384,6 +1585,8 @@ export default {
             apiService.deleteApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa lịch gửi thành công'})
+                    this.healthIndexesSchedules.page = 1;
+                    this.getHealthIndexesSchedule(this.healthIndexesSchedules.page, this.healthIndexesSchedules.pageSize, this.healthIndexesSchedules.search)
                 }
                 else {
                     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
@@ -1471,6 +1674,28 @@ export default {
                 console.log(error)
             })
         },
+        getHealthIndexes(page, size){
+            this.healthIndexes = []
+            this.loadingHealthIndexes = true
+            let params = {
+                page: page,
+                size: size
+            }
+            let url = `${config.apiUrl}/health_indexes`
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.healthIndexesPages = result.data.totalPages
+                    this.healthIndexes = result.data.content
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingHealthIndexes = false;
+            })
+        },
         handleNewNotification(e){
             let url = `${config.apiUrl}/notifications/${e.notificationId}`
             apiService.getApi(url).then(result => {
@@ -1529,11 +1754,12 @@ export default {
 
     },
     created(){
-        // alert(this.convertSecond(7 * 86400))
+        this.newSchedule.startDate = new Date().toISOString().substr(0, 10)
         this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
         this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
         this.getHealthIndexesSchedule(this.healthIndexesSchedules.page, this.healthIndexesSchedules.pageSize, this.healthIndexesSchedules.search)
         this.getHealthIndexesResult(this.healthIndexesResult.page, this.healthIndexesResult.pageSize, this.healthIndexesResult.search)
+        this.getHealthIndexes(this.healthIndexesPage, this.healthIndexesPageSize)
     }
 }
 </script>
