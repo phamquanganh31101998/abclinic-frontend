@@ -42,14 +42,14 @@
                                     <v-card-text>
                                         <v-text-field clearable v-model="doctorSearch.name" label="Tên"></v-text-field>
                                         <v-select clearable v-model="doctorSearch.role" :items="doctorRoles" label="Chức vụ"></v-select>
-                                        <v-select clearable v-model="doctorSearch.specialty" :items="[]" label="Chuyên môn"></v-select>
+                                        <v-text-field clearable v-model="doctorSearch.specialty" label="Tên chuyên môn"></v-text-field>
                                         <v-text-field clearable v-model="doctorSearch.experience" label="Kinh nghiệm (năm)" type="number"></v-text-field>
                                         <v-select v-model="doctorSearch.status" :items="doctorStatus" label="Trạng thái"></v-select>
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn text color="red" @click="doctorSearchMenu = false">Đóng</v-btn>
                                         <v-btn color="primary" text @click="doctorSearchMenu =  false, doctorPage = 1, getAllDoctor(doctorPage, doctorPageSize, doctorSearch)">Tìm kiếm</v-btn>
+                                        <v-btn text color="red" @click="doctorSearchMenu = false">Đóng</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </v-menu>
@@ -66,7 +66,8 @@
                                     >
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = true, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
+                                <v-list-item v-if="doctorSearch.status == 1" @click="deleteUserId = item.id, deleteUserTypeIsStaff = true, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
+                                <v-list-item v-if="doctorSearch.status == 1024" @click="reactivateUser(item.id, true)"><v-list-item-title>Kích hoạt lại tài khoản</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -304,8 +305,9 @@
                                 <v-list-item @click="getPatientDetail(item.id, true)">
                                     <v-list-item-title>Xem chi tiết</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
-                                <v-list-item @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
+                                <v-list-item v-if="patientSearch.status != 1024" @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                <v-list-item v-if="patientSearch.status != 1024" @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
+                                <v-list-item v-if="patientSearch.status == 1024" @click="reactivateUser(item.id, false)"><v-list-item-title>Kích hoạt lại tài khoản</v-list-item-title></v-list-item>
                             </v-list>
                         </v-menu>
                     </template>
@@ -938,7 +940,7 @@ export default {
                     value: 1
                 },
                 {
-                    text: 'Ngừng hoạt động',
+                    text: 'Hủy kích hoạt',
                     value: 1024
                 },
             ],
@@ -1030,12 +1032,12 @@ export default {
             patientSearchMenu: false,
             patientStatus: [
                 {
-                    text: 'Tất cả bệnh nhân',
-                    value: -1
+                    text: 'Chưa có bác sĩ quản lý',
+                    value: 1
                 },
                 {
-                    text: 'Bệnh nhân chưa có bác sĩ quản lý',
-                    value: 1
+                    text: 'Đã hủy kích hoạt',
+                    value: 1024
                 }
             ],
             registerObj: {
@@ -1271,7 +1273,7 @@ export default {
             
         },
         deleteUser(id, isStaff){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang xóa tài khoản này...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang hủy kích hoạt tài khoản này...')
             let url = `${config.apiUrl}/user`
             let body = {
                 id: id
@@ -1298,6 +1300,34 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
                 this.deleteUserId = 0;
                 this.deleteUserTypeIsStaff = null;
+            })
+        },
+        reactivateUser(id, isStaff){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tái kích hoạt tài khoản này...')
+            let url = `${config.apiUrl}/user`
+            let body = {
+                id: id
+            }
+            apiService.postApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tái kích hoạt tài khoản thành công'})
+                    if(isStaff){
+                        this.doctorPage = 1;
+                        this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                    }
+                    else {
+                        this.patientPage = 1;
+                        this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                    }
+                }
+                else {
+                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+                
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
             })
         },
         getSpecialties(){
