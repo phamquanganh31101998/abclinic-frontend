@@ -1236,8 +1236,7 @@ export default {
                             break;
                         }
                         //assigned new patient or a patient has been deactivated
-                        case 3: 
-                        case 10: {
+                        case 3:  {
                             this.patientPage = 1;
                             this.patientSearch = {
                                 name: undefined,
@@ -1257,6 +1256,36 @@ export default {
                             if(this.patientDetail.id == payloadId){
                                 this.getDoctorInCharge(payloadId)
                             }
+                            break;
+                        }
+                        //a patient has been deactivated
+                        case 10: {
+                            if(payloadId == this.patientDetail.id){
+                                this.patientDetail = {
+                                    dateOfBirth: '',
+                                    createdDate: '',
+                                    email: '',
+                                    gender: '',
+                                    id: '',
+                                    inquiries: [],
+                                    name: '',
+                                    phoneNumber: '',
+                                    practitioner: {},
+                                    specialists: [],
+                                    dietitians: [],
+                                }
+                                this.detailInquiry = null
+                            }
+                            this.patientPage = 1;
+                            this.patientSearch = {
+                                name: undefined,
+                                status: 0,
+                                gender: undefined,
+                                age: undefined
+                            }
+                            this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                            this.inquiryPage = 1;
+                            this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
                             break;
                         }
                         default: {

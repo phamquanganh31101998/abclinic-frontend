@@ -13,7 +13,9 @@ export default new Vuex.Store({
     alertColor: 'error',
     loadingDialog: false,
     loadingMsg: '',
-    newNotification: null
+    newNotification: null,
+    typeNoti: 0,
+    payloadId: 0
   },
   mutations: {
     toggleNavDrawer(state){
@@ -49,6 +51,14 @@ export default new Vuex.Store({
     },
     setNewNotification(state, payload){
       state.newNotification = payload
+    },
+    setHandleNotification(state, payload){
+      state.typeNoti = payload.typeNoti
+      state.payloadId = payload.payloadId
+    },
+    resetHandleNotification(state){
+      state.typeNoti = 0;
+      state.payloadId = 0;
     }
   },
   actions: {
@@ -75,6 +85,12 @@ export default new Vuex.Store({
     },
     setNewNotification({commit}, data){
       commit('setNewNotification', data)
+    },
+    setHandleNotification({commit}, data){
+      commit('setHandleNotification', data)
+    },
+    resetHandleNotification({commit}){
+      commit('resetHandleNotification')
     }
   },
   modules: {
@@ -103,6 +119,13 @@ export default new Vuex.Store({
     },
     newNotification: state => {
       return state.newNotification
+    },
+    handleNotificationObj: state => {
+      let obj = {
+        payloadId: state.payloadId,
+        typeNoti: state.typeNoti
+      }
+      return obj
     }
   }
 })

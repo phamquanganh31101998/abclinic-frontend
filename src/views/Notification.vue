@@ -1,5 +1,5 @@
 <template>
-  <v-container class="full-height">
+    <v-container class="full-height">
       <v-row>
             <v-col>
                 <h1>Thông báo</h1>
@@ -55,6 +55,7 @@
                                 <h3>Kiểu tư vấn: {{returnNotificationType(detailNoti.type)}}</h3>
                                 <h3>Nội dung: {{detailNoti.message}}</h3>
                                 <h3>Mã yêu cầu tư vấn tương ứng: {{detailNoti.payloadId}}</h3>
+                                <h3><a @click.stop="handleNoti(detailNoti.type, detailNoti.payloadId)">Xem chi tiết >></a></h3>
                             </v-col>
                         </v-row>
                         <v-row>
@@ -119,7 +120,8 @@ export default {
     },
     computed: {
         ...mapGetters({
-            newNotification: 'newNotification'
+            newNotification: 'newNotification',
+            handleNotificationObj: 'handleNotificationObj'
         })
     },
     watch: {
@@ -178,6 +180,16 @@ export default {
         handleNewNotification(){
             this.notiPage = 1;
             this.getNoti(this.notiPage, this.notiPageSize)
+        },
+        handleNoti(type, id){
+            let obj = {
+                typeNoti: type,
+                payloadId: id
+            }
+            this.$store.dispatch('setHandleNotification', obj)
+            console.log(this.handleNotificationObj)
+            this.$store.dispatch('resetHandleNotification')
+            console.log(this.handleNotificationObj.typeNoti)
         },
         returnNotificationType(type){
             switch(type){
