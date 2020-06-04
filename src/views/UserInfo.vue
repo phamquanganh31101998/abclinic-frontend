@@ -134,7 +134,7 @@ export default {
         },
         getInfo(){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin cho người dùng...')
-            let url = `${config.userUrl}`
+            let url = `${config.apiUrl}/user`
             apiService.getApi(url).then(result=> {
                 this.userInfo = result.data
                 this.userInfo.gender = result.data.gender.toString()
@@ -177,14 +177,24 @@ export default {
             if(description){
                 body.description = description
             }
-            let url = `${config.userUrl}`
+            let url = `${config.apiUrl}/user`
             apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thông tin thành công'})
+                    this.$toast.open({
+                        message: 'Cập nhật thông tin thành công',
+                        type: 'success',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thông tin thành công'})
                     // this.getInfo()
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -207,14 +217,24 @@ export default {
                     }
                 }
             ).then(result => {
-                console.log(result)
+                // console.log(result)
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật ảnh đại diện thành công'})
+                    this.$toast.open({
+                        message: 'Cập nhật ảnh đại diện thành công',
+                        type: 'success',
+                        // all other options may go here
+                        })
+                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật ảnh đại diện thành công'})
                     this.userInfo.avatar = result.data
                     this.file = null;
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -229,7 +249,12 @@ export default {
                     this.allSpecialties = result.data
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -252,10 +277,20 @@ export default {
             }
             apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật chuyên môn thành công'})
+                    this.$toast.open({
+                        message: 'Cập nhật chuyên môn thành công',
+                        type: 'success',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật chuyên môn thành công'})
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')

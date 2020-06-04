@@ -34,12 +34,13 @@
                             label="Password"
                             prepend-icon="lock"
                             type="password"
+                            @keyup.enter="login()"
                         />
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn color="primary" @click="login()">Login</v-btn>
+                        <v-btn color="primary" @click="login()">Đăng nhập</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -60,11 +61,16 @@
             //check when user not login yet
             checkUserRole(){
                 // let uid = localStorage.getItem('ac_uid')
-                let url = `${config.userUrl}`
+                let url = `${config.apiUrl}/user`
                 apiService.getApi(url).then(result => {
                     if(result.status === 200){
                         if(result.data.role == 'PATIENT'){
-                            this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
+                            this.$toast.open({
+                                message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC',
+                                type: 'error',
+                                // all other options may go here
+                            })
+                            // this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
                             localStorage.removeItem('ac_uid')
                         }
                         else {
@@ -107,7 +113,12 @@
                         this.checkUserRole()
                     }
                     else {
-                        this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                        this.$toast.open({
+                            message: result.data.message,
+                            type: 'error',
+                            // all other options may go here
+                        })
+                        // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                     }
                 }).catch(error => {
                     console.log(error)
