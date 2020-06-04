@@ -1,6 +1,6 @@
 <template>
     <v-container class="full-height">
-      <v-row>
+        <v-row>
             <v-col>
                 <h1>Thông báo</h1>
             </v-col>
@@ -24,6 +24,12 @@
                     <template v-slot:item.sender="{ item }">
                         {{ item.sender.name }}
                     </template>
+                    <template v-slot:item.createdAt="{ item }">
+                        {{ returnTimeFromTimeArray(item.createdAt) }}
+                    </template>
+                    <template v-slot:item.type="{ item }">
+                        {{ returnNotificationType(item.type) }}
+                    </template>
                     <template v-slot:item.isRead="{ item }">
                         <span v-if="item.isRead == true">Đã đọc</span>
                         <span style="color: red" v-else>Chưa đọc</span>
@@ -31,10 +37,26 @@
                     <template v-slot:item.more="{item}">
                         <a @click.stop="getDetailNoti(item.id, item.number)">Xem chi tiết</a>
                     </template>
+                    <template v-slot:item.more="{item}">
+                        <v-menu offset-y>
+                            <template v-slot:activator="{ on }">
+                                <v-icon v-on="on">more_vert</v-icon>
+                            </template>
+                            <v-list>
+                                <v-list-item @click="getDetailNoti(item.id, item.number)">
+                                    <v-list-item-title>Xem chi tiết</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item @click="goToServicePage(item.type, item.payloadId)">
+                                    <v-list-item-title>Đến trang chức năng</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </template>
                 </v-data-table>
                 <br>
                 <div class="text-center">
                     <v-pagination
+                        :total-visible="7"
                         v-model="notiPage"
                         :length="notiPages"
                         @input="getNoti(notiPage, notiPageSize)"
@@ -51,11 +73,11 @@
                     <v-container>
                         <v-row>
                             <v-col cols="12">
-                                <h3>Mã thông báo: {{detailNoti.id}}</h3>
-                                <h3>Kiểu tư vấn: {{returnNotificationType(detailNoti.type)}}</h3>
+                                <!-- <h3>Mã thông báo: {{detailNoti.id}}</h3> -->
                                 <h3>Nội dung: {{detailNoti.message}}</h3>
-                                <h3>Mã yêu cầu tư vấn tương ứng: {{detailNoti.payloadId}}</h3>
-                                <h3><a @click.stop="handleNoti(detailNoti.type, detailNoti.payloadId)">Xem chi tiết >></a></h3>
+                                <h3>Kiểu thông báo: {{returnNotificationType(detailNoti.type)}}</h3>
+                                <h3>Thời gian nhận: {{returnTimeFromTimeArray(detailNoti.createdAt)}}</h3>
+                                <h3><a @click.stop="goToServicePage(detailNoti.type, detailNoti.payloadId)">Đến trang chức năng >></a></h3>
                             </v-col>
                         </v-row>
                         <v-row>
@@ -87,7 +109,7 @@
                 <v-card-actions>
                     <v-spacer>
                     </v-spacer>
-                    <v-btn @click="detailNotiDialog = false" text color="red">ĐÓNG</v-btn>
+                    <v-btn @click="detailNotiDialog = false, $store.dispatch('resetHandleNotification')" text color="red">ĐÓNG</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -99,6 +121,7 @@ import {mapGetters} from 'vuex'
 // import {eventBus} from '../eventBus'
 import config from '../config'
 import apiService from '../services/api.service'
+import moment from 'moment'
 export default {
     data(){
         return {
@@ -108,11 +131,13 @@ export default {
             notiPageSize: 10,
             loadingNoti: false,
             notiHeaders: [
-                { text: 'ID', value: 'id' , align: 'start'},
-                { text: 'TRẠNG THÁI', value: 'isRead', align: 'start' },
+                // { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'NGƯỜI GỬI', value: 'sender', align: 'start' },
-                { text: 'NỘI DUNG', value: 'message', align: 'start' },
-                { text: 'CHI TIẾT', value: 'more', align: 'right' },
+                { text: 'THỜI GIAN NHẬN', value: 'createdAt', align: 'start' },
+                { text: 'TRẠNG THÁI', value: 'isRead', align: 'start' },
+                { text: 'KIỂU THÔNG BÁO', value: 'type', align: 'start' },
+                // { text: 'NỘI DUNG', value: 'message', align: 'start' },
+                { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
             ],
             detailNoti: null,
             detailNotiDialog: false,
@@ -121,7 +146,8 @@ export default {
     computed: {
         ...mapGetters({
             newNotification: 'newNotification',
-            handleNotificationObj: 'handleNotificationObj'
+            // handleNotificationObj: 'handleNotificationObj',
+            user: 'user'
         })
     },
     watch: {
@@ -130,6 +156,28 @@ export default {
         }
     },
     methods: {
+        returnTimeFromTimeArray(arr){
+            try {
+                let i = 0;
+                let dayArr = []
+                let timeArr = []
+                while(i < arr.length){
+                    if(i < 3){
+                        dayArr.push(arr[i])
+                    }
+                    else {
+                        timeArr.push(arr[i])
+                    }
+                    i++
+                }
+                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
+                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
+            }
+            catch(error){
+                console.log(error)
+                return "_"
+            }
+        },
         checkLocalStorage(){
             console.log(this.$store.state.ac_uid)
             console.log(this.$store.state.user)
@@ -151,7 +199,12 @@ export default {
                     this.notiPages = result.data.totalPages
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -169,7 +222,12 @@ export default {
                     this.detailNotiDialog = true;
                 }
                 else {
-                    this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -181,15 +239,38 @@ export default {
             this.notiPage = 1;
             this.getNoti(this.notiPage, this.notiPageSize)
         },
-        handleNoti(type, id){
+        goToServicePage(type, id){
             let obj = {
                 typeNoti: type,
                 payloadId: id
             }
             this.$store.dispatch('setHandleNotification', obj)
-            console.log(this.handleNotificationObj)
-            this.$store.dispatch('resetHandleNotification')
-            console.log(this.handleNotificationObj.typeNoti)
+            let role = this.user.role.toLowerCase()
+            switch(role){
+                case "coordinator": 
+                case "practitioner": {
+                    this.goToPage(role)
+                    break;
+                }
+                case "specialist":
+                case "dietitian": {
+                    this.goToPage('doctor')
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        },
+        goToPage(page){
+            if(page){
+                // console.log(this.$store.state.ac_uid)
+                let url = `/${page}`
+                this.$router.push(url)
+            }
+            else{
+                this.$router.push('/')
+            }
         },
         returnNotificationType(type){
             switch(type){
@@ -215,6 +296,8 @@ export default {
                     return 'CÓ LỊCH GỬI CHỈ SỐ SỨC KHỎE PHẢI NỘP'
                 case 10: 
                     return 'ĐÃ ĐƯỢC HỦY KÍCH HOẠT'
+                case 11: 
+                    return 'CẬP NHẬT LẠI TƯ VẤN'
             }
         }
     },

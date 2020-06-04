@@ -14,8 +14,8 @@ export default new Vuex.Store({
     loadingDialog: false,
     loadingMsg: '',
     newNotification: null,
-    typeNoti: 0,
-    payloadId: 0
+    typeNoti: -1,
+    payloadId: -1
   },
   mutations: {
     toggleNavDrawer(state){
@@ -57,8 +57,8 @@ export default new Vuex.Store({
       state.payloadId = payload.payloadId
     },
     resetHandleNotification(state){
-      state.typeNoti = 0;
-      state.payloadId = 0;
+      state.typeNoti = -1;
+      state.payloadId = -1;
     }
   },
   actions: {
