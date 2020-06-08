@@ -11,8 +11,8 @@
                 sm="10"
                 offset-sm="1"
                 md="4"
-            >
-                <v-card class="elevation-12">
+                >
+                <v-card class="elevation-4">
                     <v-toolbar
                         color="primary"
                         dark

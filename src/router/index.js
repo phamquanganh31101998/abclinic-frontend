@@ -8,7 +8,6 @@ import Staff from '../views/Staff/Staff.vue'
 import Coordinator from '../views/Staff/Coordinator'
 import Practitioner from '../views/Staff/Practitioner'
 import Doctor from '../views/Staff/Doctor'
-// import Patient from '../views/Staff/Patient'
 Vue.use(VueRouter)
 
 const routes = [
