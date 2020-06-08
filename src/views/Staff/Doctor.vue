@@ -8,7 +8,7 @@
         <v-row wrap row>
             <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <v-card class="elevation-4" height="100%">
-                    <v-data-table class="elevation-1" no-data-text="Không có yêu cầu tư vấn nào" loading-text="Đang lấy dữ liệu" :loading="loadingInquiries" :headers="inquiryHeadersMain" :items="inquiries" hide-default-footer>
+                    <v-data-table class="elevation-0" no-data-text="Không có yêu cầu tư vấn nào" loading-text="Đang lấy dữ liệu" :loading="loadingInquiries" :headers="inquiryHeadersMain" :items="inquiries" hide-default-footer>
                         <template v-slot:top>
                             <v-toolbar flat>
                                 <v-toolbar-title><h3>Yêu cầu tư vấn</h3></v-toolbar-title>
@@ -21,6 +21,18 @@
                                 <!-- <v-select :items="inquiryAssignValue" v-model="inquiryAssign" @input="inquiryPage = 1, getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"></v-select> -->
                             </v-toolbar>
                         </template>
+                        <template v-slot:footer>
+                            <br>
+                            <div class="text-center">
+                                <v-pagination
+                                    :total-visible="7"
+                                    v-model="inquiryPage"
+                                    :length="inquiryPages"
+                                    @input="getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"
+                                ></v-pagination>
+                            </div>
+                            <br>
+                        </template>
                         <template v-slot:item.patient="{ item }">
                             {{ item.patient.name }}
                         </template>
@@ -31,21 +43,11 @@
                             <a @click.stop="getDetailInquiry(item.id)">Xem</a>
                         </template>
                     </v-data-table>
-                    <br>
-                    <div class="text-center">
-                        <v-pagination
-                            :total-visible="7"
-                            v-model="inquiryPage"
-                            :length="inquiryPages"
-                            @input="getInquiries(inquiryPage, inquiryPageSize, inquiryAssign)"
-                        ></v-pagination>
-                    </div>
-                    <br>
                 </v-card>
             </v-col>
             <v-col cols="12" md="12" sm="12" lg="6" xl="6">
                 <v-card class="elevation-4" height="100%">
-                    <v-data-table class="elevation-1" no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient" v-show="showPatient" :headers="patientHeaders" :items="allPatients" hide-default-footer>
+                    <v-data-table class="elevation-0" no-data-text="Không có kết quả phù hợp" loading-text="Đang lấy dữ liệu" :loading="loadingPatient" v-show="showPatient" :headers="patientHeaders" :items="allPatients" hide-default-footer>
                         <template v-slot:top>
                             <v-toolbar flat>
                                 <v-toolbar-title><h3>Bệnh nhân quản lý</h3></v-toolbar-title>
@@ -118,17 +120,19 @@
                                 </v-list>
                             </v-menu>
                         </template>
+                        <template v-slot:footer>
+                            <br>
+                            <div class="text-center">
+                                <v-pagination
+                                    :total-visible="7"
+                                    v-model="patientPage"
+                                    :length="patientPages"
+                                    @input="getAllPatients(patientPage, patientPageSize, patientSearch)"
+                                ></v-pagination>
+                            </div>
+                            <br>
+                        </template>
                     </v-data-table>
-                    <br>
-                    <div class="text-center">
-                        <v-pagination
-                            :total-visible="7"
-                            v-model="patientPage"
-                            :length="patientPages"
-                            @input="getAllPatients(patientPage, patientPageSize, patientSearch)"
-                        ></v-pagination>
-                    </div>
-                    <br>
                 </v-card>
             </v-col>
             <v-dialog
@@ -175,7 +179,7 @@
         <v-row>
             <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <v-card height="100%" class="elevation-4">
-                    <v-data-table class="elevation-1" :headers="healthIndexesSchedules.headers" :items="healthIndexesSchedules.data" hide-default-footer no-data-text="Hiện tại chưa có lịch gửi nào" loading-text="Đang lấy dữ liệu..." :loading="healthIndexesSchedules.loading">
+                    <v-data-table class="elevation-0" :headers="healthIndexesSchedules.headers" :items="healthIndexesSchedules.data" hide-default-footer no-data-text="Hiện tại chưa có lịch gửi nào" loading-text="Đang lấy dữ liệu..." :loading="healthIndexesSchedules.loading">
                         <template v-slot:top>
                             <v-toolbar flat>
                                 <v-toolbar-title><h3>Lịch gửi chỉ số sức khỏe</h3></v-toolbar-title>
@@ -279,7 +283,7 @@
                                                             >
                                                             <template v-slot:top>
                                                                 <v-toolbar flat>
-                                                                    <v-toolbar-title><h3>Chọn chỉ số sức khỏe</h3></v-toolbar-title>
+                                                                    <v-toolbar-title><h3>Chọn mẫu</h3></v-toolbar-title>
                                                                     <v-divider
                                                                         class="mx-4"
                                                                         inset
@@ -290,7 +294,7 @@
                                                             <template v-slot:expanded-item="{ item }">
                                                                 <td :colspan="healthIndexesHeaders.length">
                                                                     <br>
-                                                                    <h4>Danh sách các trường</h4>
+                                                                    <h4>Danh sách các chỉ số cần gửi</h4>
                                                                     <div v-for="(field) in item.fields" :key="field.id" style="padding-left: 20px;">
                                                                         - {{field.name}} 
                                                                     </div>
@@ -381,17 +385,22 @@
                                 </v-list>
                             </v-menu>
                         </template>
+                        <template v-slot:footer>
+                            <br>
+                            <div class="text-center">
+                                <v-pagination
+                                    :total-visible="7"
+                                    v-model="healthIndexesSchedules.page"
+                                    :length="healthIndexesSchedules.pages"
+                                    @input="getHealthIndexesSchedule(healthIndexesSchedules.page, healthIndexesSchedules.pages, healthIndexesSchedules.search)"
+                                ></v-pagination>
+                            </div>
+                            <br>
+
+                        </template>
                     </v-data-table>
-                    <br>
-                    <div class="text-center">
-                        <v-pagination
-                            :total-visible="7"
-                            v-model="healthIndexesSchedules.page"
-                            :length="healthIndexesSchedules.pages"
-                            @input="getHealthIndexesSchedule(healthIndexesSchedules.page, healthIndexesSchedules.pages, healthIndexesSchedules.search)"
-                        ></v-pagination>
-                    <br>
-                </div>
+                    
+                
                 </v-card>
             </v-col>
             <v-dialog max-width="700px" persistent v-model="healthIndexesSchedules.detailScheduleDialog">
@@ -412,13 +421,13 @@
                             </v-row>
                             <v-row>
                                 <v-col>
-                                    <h2>Thông tin chỉ số sức khỏe cần gửi</h2>
+                                    <h2>Thông tin mẫu chỉ số sức khỏe:</h2>
                                     <h4>Tên: {{healthIndexesSchedules.detailSchedule.index.name}}</h4>
                                     <h4>Mô tả: {{healthIndexesSchedules.detailSchedule.index.description}}</h4>
-                                    <!-- <h4>Danh sách các trường</h4>
+                                    <h4>Danh sách các chỉ số cần gửi</h4>
                                     <div v-for="(field) in healthIndexesSchedules.detailSchedule.index.fields" :key="field.id" style="padding-left: 20px;">
                                         <h4> - {{field.name}} </h4>
-                                    </div> -->
+                                    </div>
                                     <h4>Thời gian nhắc nhở: {{convertSecond(healthIndexesSchedules.detailSchedule.scheduledTime)}}</h4>
                                     <h4>Thời gian bắt đầu gửi: {{returnTimeFromTimeArray(healthIndexesSchedules.detailSchedule.startedAt)}}</h4>
                                     <h4>Thời gian kết thúc gửi: {{returnTimeFromTimeArray(healthIndexesSchedules.detailSchedule.endedAt)}}</h4>
@@ -474,7 +483,7 @@
             </v-dialog>
             <v-col cols="12" sm="12" md="12" lg="6" xl="6">
                 <v-card class="elevation-4" height="100%">
-                    <v-data-table class="elevation-1" :headers="healthIndexesResult.headers" :items="healthIndexesResult.data" hide-default-footer no-data-text="Hiện tại chưa có kết quả nào" loading-text="Đang lấy dữ liệu..." :loading="healthIndexesResult.loading">
+                    <v-data-table class="elevation-0" :headers="healthIndexesResult.headers" :items="healthIndexesResult.data" hide-default-footer no-data-text="Hiện tại chưa có kết quả nào" loading-text="Đang lấy dữ liệu..." :loading="healthIndexesResult.loading">
                         <template v-slot:top>
                             <v-toolbar flat>
                                 <v-toolbar-title><h3>Kết quả chỉ số bệnh nhân gửi lên</h3></v-toolbar-title>
@@ -532,17 +541,20 @@
                         <template v-slot:item.more="{item}">
                             <a @click.stop="getDetailHealthIndexesResultSchedule(item.schedule.id, item.tagId)">Xem chi tiết</a>
                         </template>
+                        <template v-slot:footer>
+                            <br>
+                            <div class="text-center">
+                                <v-pagination
+                                    :total-visible="7"
+                                    v-model="healthIndexesResult.page"
+                                    :length="healthIndexesResult.pages"
+                                    @input="getHealthIndexesResult(healthIndexesResult.page, healthIndexesResult.pages, healthIndexesResult.search)"
+                                ></v-pagination>
+                            </div>
+                            <br>
+                        </template>
                     </v-data-table>
-                    <br>
-                    <div class="text-center">
-                        <v-pagination
-                            :total-visible="7"
-                            v-model="healthIndexesResult.page"
-                            :length="healthIndexesResult.pages"
-                            @input="getHealthIndexesResult(healthIndexesResult.page, healthIndexesResult.pages, healthIndexesResult.search)"
-                        ></v-pagination>
-                    </div>
-                    <br>
+                    
                 </v-card>
             </v-col>
             <v-dialog max-width="700px" persistent v-model="healthIndexesResult.detailResultDialog">
@@ -564,11 +576,10 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12">
-                                    <h3>Thông tin chỉ số sức khỏe cần gửi</h3>
+                                    <h3>Thông tin mẫu chỉ số sức khỏe</h3>
                                     <h4>Tên: {{healthIndexesResult.detailResult.schedule.index.name}}</h4>
                                     <h4>Mô tả: {{healthIndexesResult.detailResult.schedule.index.description}}</h4>
-                                    <h4>Danh sách các trường</h4>
-
+                                    <h4>Danh sách các chỉ số cần gửi: </h4>
                                     <div v-for="(field) in healthIndexesResult.detailResult.schedule.index.fields" :key="field.id" style="padding-left: 20px;">
                                         <h4> - {{field.name}} </h4>
                                     </div>
@@ -691,7 +702,7 @@
                         <v-row>
                             <v-col v-for="(record) in detailInquiry.medicalRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
+                                    <v-card-title>Tư vấn của {{returnRole(record.doctor.role)}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
                                         <h3>
                                             Chẩn đoán: {{record.diagnose}}
@@ -712,7 +723,7 @@
                             </v-col>
                             <v-col v-for="(record) in detailInquiry.dietRecords" :key="record.id" cols="12">
                                 <v-card class="elevation-4">
-                                    <v-card-title>Tư vấn của {{record.doctor.role}} {{record.doctor.name}}</v-card-title>
+                                    <v-card-title>Tư vấn của {{returnRole(record.doctor.role)}} {{record.doctor.name}}</v-card-title>
                                     <v-card-text>
                                         <h3>
                                             Kê đơn: {{record.prescription}}
@@ -740,7 +751,7 @@
                             </v-card-title>
                             <v-card-text>
                                 <div :key="reply.id" v-for="reply in detailInquiry.replies" style="margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
-                                    <h4>{{reply.user.name}} ({{reply.user.role}}) </h4>
+                                    <h4>{{reply.user.name}} ({{returnRole(reply.user.role)}}) </h4>
                                     <p>{{reply.content}}</p> 
                                 </div>
                             </v-card-text>
@@ -1043,7 +1054,7 @@ export default {
                 pageSize: 10,
                 loading: false,
                 headers: [
-                    { text: 'MÃ KẾT QUẢ', value: 'tagId' , align: 'start'},
+                    { text: 'ID', value: 'tagId' , align: 'start'},
                     { text: 'BỆNH NHÂN', value: 'schedule', align: 'start' },
                     { text: 'THỜI GIAN GỬI', value: 'createdAt', align: 'start' },
                     { text: 'KẾT QUẢ', value: 'value', align: 'start' },
@@ -1093,6 +1104,30 @@ export default {
 
     },
     methods: {
+        returnRole(role){
+            let result = '';
+            switch(role){
+                case 'PATIENT':
+                    result = 'Bệnh nhân';
+                    break;
+                case 'PRACTITIONER':
+                    result = 'Bác sĩ đa khoa';
+                    break;
+                case 'SPECIALIST':
+                    result = 'Bác sĩ chuyên khoa';
+                    break;
+                case 'DIETITIAN':
+                    result = 'Bác sĩ dinh dưỡng';
+                    break;
+                case 'COORDINATOR':
+                    result = 'ĐIỀU PHỐI VIÊN';
+                    break;
+                default:
+                    result = '';
+                    break;
+            }
+            return result
+        },
         scrollBottom() {
 			window.scrollTo(0,document.body.scrollHeight)
 		},
@@ -1210,6 +1245,7 @@ export default {
             this.allPatients = patArray;
         },
         getPatientDetail(id){
+            this.scrollBottom()
             this.detailInquiry = null;
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
             let url = `${config.apiUrl}/patients/${id}`
@@ -1240,6 +1276,7 @@ export default {
             })
         },
         getPatientDetailAfterGetInquiry(id, isDetail){
+            this.scrollBottom()
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
             let url = `${config.apiUrl}/patients/${id}`
             let params = {
@@ -1297,7 +1334,7 @@ export default {
             else {
                 this.patientDetail.dietitians = []
             }
-            this.scrollBottom()
+            
         },
         getRepliesForInquiry(index, inquiryId, page, size){
             let url = `${config.apiUrl}/replies`
@@ -1328,6 +1365,7 @@ export default {
             })
         },
         getDetailInquiry(id){
+            this.scrollBottom()
             this.detailInquiry = null;
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết yêu cầu tư vấn...')
             let url = `${config.apiUrl}/inquiries/${id}`
@@ -1580,7 +1618,7 @@ export default {
             let month = Math.floor(sec/ 18144000)
             let monthStr = (month == 0) ? '' : `${month} tháng `
             let week = Math.floor((sec % 18144000)/ 604800)
-            let weekStr = (week == 0) ? '' : `${week} tuàn `
+            let weekStr = (week == 0) ? '' : `${week} tuần `
             let day = Math.floor((sec % 18144000 % 604800) / 86400)
             let dayStr = (day == 0) ? '' : `${day} ngày `
             let hour = Math.floor((sec % 18144000 % 604800 % 86400) / 3600)

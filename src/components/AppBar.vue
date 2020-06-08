@@ -28,7 +28,6 @@
                 max-width="375"
                 class="mx-auto"
                 >
-
                 <v-list two-line>
                     <v-list-item v-if="user != null">
                         <v-list-item-icon>
@@ -68,11 +67,19 @@
                     
 
                     <v-list-item>
-                        <v-row>
+                        <!-- <v-row>
                             <v-col>
                                 <a @click="logout()">Đăng xuất</a>
                             </v-col>
-                        </v-row>
+                        </v-row> -->
+                        <v-btn
+                            text
+                            color="primary"
+                            @click="logout()"
+                            >
+                            <span class="mr-2" >Đăng xuất</span>
+                            <v-icon>mdi-open-in-new</v-icon>
+                        </v-btn>
                     </v-list-item>
                 </v-list>
             </v-card>
