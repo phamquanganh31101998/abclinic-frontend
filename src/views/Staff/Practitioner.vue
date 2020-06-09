@@ -36,7 +36,7 @@
                                     <v-list-item @click="getDetailInquiry(item.id)">
                                         <v-list-item-title>Xem chi tiết</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item @click="openAssignToDoctorMainDialog(item)"><v-list-item-title>Gán yêu cầu này cho bác sĩ cấp dưới</v-list-item-title></v-list-item>
+                                    <v-list-item @click="openAssignToDoctorMainDialog(item)"><v-list-item-title>Yêu cầu hội chẩn chuyên khoa</v-list-item-title></v-list-item>
                                 </v-list>
                             </v-menu>
                         </template>
@@ -61,7 +61,7 @@
                             class="headline primary"
                             primary-title
                             >
-                            <span style="color: white">Gán quyền quản lý bệnh nhân cho Bác sĩ chuyên khoa/dinh dưỡng</span>
+                            <span style="color: white">Yêu cầu hội chẩn chuyên khoa</span>
                         </v-card-title>
                         <v-card-text>
                             <v-container>
@@ -161,12 +161,13 @@
                                             <v-text-field clearable v-model="patientSearch.name" label="Tên"></v-text-field>
                                             <v-select clearable v-model="patientSearch.gender" :items="genderArr" label="Giới tính"></v-select>
                                             <v-text-field clearable type="number" v-model="patientSearch.age" label="Tuổi"></v-text-field> 
-                                            
-                                            <!-- <v-checkbox :label="patientAllStatus[0].text" v-model="patientAllStatus[0].value"></v-checkbox>
-                                            <v-checkbox :label="patientAllStatus[1].text" v-model="patientAllStatus[1].value"></v-checkbox>
-                                            <v-checkbox :label="patientAllStatus[2].text" v-model="patientAllStatus[2].value"></v-checkbox>
-                                            <v-checkbox :label="patientAllStatus[3].text" v-model="patientAllStatus[3].value"></v-checkbox> -->
-                                            <!-- <v-select v-model="patientSearch.status" :items="patientStatus" label="Trạng thái"></v-select> -->
+                                            <span>
+                                                <v-checkbox @change="setPatientStatusBit(6, patientStatusBitAllValue[6])" v-model="patientStatusBitAllValue[6]" label="Tất cả bệnh nhân quản lý"></v-checkbox>
+                                                <!-- <v-checkbox @change="setPatientStatusBit(5, patientStatusBitAllValue[5])" v-model="patientStatusBitAllValue[5]" label="Bệnh nhân chỉ có bác sĩ đa khoa"></v-checkbox> -->
+                                                <v-checkbox @change="setPatientStatusBit(2, patientStatusBitAllValue[2])" v-model="patientStatusBitAllValue[2]" label="Bệnh nhân có bác sĩ chuyên khoa"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(3, patientStatusBitAllValue[3])" v-model="patientStatusBitAllValue[3]" label="Bệnh nhân có bác sĩ dinh dưỡng"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(4, patientStatusBitAllValue[4])" v-model="patientStatusBitAllValue[4]" label="Bệnh nhân có lịch gửi chỉ số sức khỏe"></v-checkbox>
+                                            </span>
                                         </v-card-text>
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
@@ -931,7 +932,7 @@
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Duyệt tư vấn</v-btn>
+                                        <v-btn v-if="record.status != 2" color="primary" rounded @click="openEditRecordDialog(record.id, index, true)">Duyệt tư vấn</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </v-col>
@@ -1030,6 +1031,7 @@ import moment from 'moment'
 import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
+var convertNumber = require('decimal-to-binary')
 export default {
     data(){
         return {
@@ -1068,44 +1070,21 @@ export default {
             ],
             patientSearch: {
                 name: undefined,
-                status: 0,
+                status: -1,
                 gender: undefined,
                 age: undefined,
             },
             patientSearchMenu: false,
-            //Array of all status can be chosen
-            patientAllStatus: [
-                {
-                    key: 2,
-                    text: 'Đã được gán cho Bác sĩ đa khoa',
-                    value: false
-                },
-                {
-                    key: 4,
-                    text: 'Đã được gán cho Bác sĩ chuyên khoa',
-                    value: false
-                },
-                {
-                    key: 8,
-                    text: 'Đã được gán cho Bác sĩ dinh dưỡng',
-                    value: false
-                },
-                {
-                    key: 16,
-                    text: 'Đã được đặt lịch gửi chỉ số sức khỏe',
-                    value: false
-                },
-            ],
-            //Array of chosen status
-            // patientChosenStatusArr: [],
+            patientStatusBitAllValue: [false, false, false, false, false, false, false, false, false, false, false, false],
             detailInquiry: null,
             replyText: '',
             doctorHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
                 { text: 'EMAIL', value: 'email', align: 'start' },
-                { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
-                { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
+                { text: 'SỐ ĐT', value: 'phoneNumber', align: 'start' },
+                // { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
+                // { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
             ],
             allSpecialist: [],
             allDietitian: [],
@@ -1315,6 +1294,63 @@ export default {
         },
     },
     methods: {
+        setPatientStatusBit(index, value){
+            // console.log(index)
+            // console.log(value)
+            if(value == true){
+                switch(index){
+                    //has spec or diet
+                    case 2:
+                    case 3: {
+                        this.patientStatusBitAllValue[5] = 0;
+                        this.patientStatusBitAllValue[6] = 0;
+                        break;
+                    }
+                    case 4: {
+                        this.patientStatusBitAllValue[6] = 0;
+                        break;
+                    }
+                    // //only has prac
+                    // case 5: {
+                    //     this.patientStatusBitAllValue[2] = 0;
+                    //     this.patientStatusBitAllValue[3] = 0;
+                    //     this.patientStatusBitAllValue[6] = 0;
+                    //     break;
+                    // }
+                    //all patient
+                    case 6: {
+                        this.patientStatusBitAllValue[2] = 0;
+                        this.patientStatusBitAllValue[3] = 0;
+                        this.patientStatusBitAllValue[4] = 0;
+                        this.patientStatusBitAllValue[5] = 0;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+            // console.log(this.returnValueFromStatusBit())
+        },
+        returnValueFromStatusBit(){
+            if(this.patientStatusBitAllValue[6] == true || !this.patientStatusBitAllValue.includes(true)){
+                return -1;
+            }
+            // else if(this.patientStatusBitAllValue[5] == true){
+            //     return (this.patientStatusBitAllValue[4] == true) ? 18 : 2
+            // }
+            else {
+                let bitArr = []
+                for(let i = 0; i < 5 ; i++){
+                    bitArr[i] = (this.patientStatusBitAllValue[i] == true) ? 1 : 0
+                }
+                let statusValue = bitArr.reverse().join("")
+                // console.log(statusValue)
+                //has been reverse
+                // console.log(bitArr)
+                return convertNumber.convertToDecimal(statusValue) + 2;
+            }
+        },
         returnRole(role){
             let result = '';
             switch(role){
@@ -1397,6 +1433,7 @@ export default {
                 page: page,
                 size: size,
             }
+            searchObj.status = this.returnValueFromStatusBit()
             let searchString = '';
             //Loop through all property of patientSearch Obj
             for (const property in searchObj) {
@@ -1420,15 +1457,15 @@ export default {
             //     }
             // }
             // console.log(status)
-            let status = 0;
-            for(let i = 0; i < this.patientAllStatus.length; i++){
-                if(this.patientAllStatus[i].value == true){
-                    status += this.patientAllStatus[i].key
-                }
-            }
-            if(status != 0){
-                searchString += `status=${status},`
-            }
+            // let status = 0;
+            // for(let i = 0; i < this.patientAllStatus.length; i++){
+            //     if(this.patientAllStatus[i].value == true){
+            //         status += this.patientAllStatus[i].key
+            //     }
+            // }
+            // if(status != 0){
+            //     searchString += `status=${status},`
+            // }
             // console.log(searchString)
             params.search = searchString
             let url = `${config.apiUrl}/patients`
@@ -1764,6 +1801,9 @@ export default {
         },
         updateRecord(recordId, index, isMedical, pres, note, diag){
             let url = `${config.apiUrl}/records`
+            let params = { 
+                type: 0
+            }
             let body = {
                 id: recordId,
                 prescription: pres,
@@ -1773,7 +1813,7 @@ export default {
                 body.diagnose = diag;
             }
             this.$store.dispatch('turnOnLoadingDialog', 'Đang duyệt tư vấn...')
-            apiService.putApi(url, body).then(result => {
+            apiService.putApi(url, body, params).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
                         message: 'Duyệt tư vấn thành công',
@@ -1784,12 +1824,12 @@ export default {
                     if(isMedical == true){
                         this.detailInquiry.medicalRecords.splice(index, 1)
                         // this.detailInquiry.medicalRecords.push(result.data)
-                        this.getNewRecordFromNotification(result.data.id)
+                        this.getNewRecordFromNotification(result.data.id, 0)
                     }
                     else {
                         this.detailInquiry.dietRecords[index].splice(index, 1)
                         // this.detailInquiry.dietRecords[index].push(result.data)
-                        this.getNewRecordFromNotification(result.data.id)
+                        this.getNewRecordFromNotification(result.data.id, 1)
                     }
                 }
                 else {
@@ -1891,9 +1931,12 @@ export default {
         logging(){
             console.log(this.patientDetail)
         },
-        getNewRecordFromNotification(recordId){
+        getNewRecordFromNotification(recordId, typeRecord){
             let url = `${config.apiUrl}/records/${recordId}`
-            apiService.getApi(url).then(result => {
+            let params = {
+                type: typeRecord
+            }
+            apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
                     if(this.detailInquiry != null && this.detailInquiry.id == result.data.inquiry.id){
                         (result.data.inquiry.type == 0) ? (this.detailInquiry.medicalRecords.push(result.data)) : (this.detailInquiry.dietRecords.push(result.data))
@@ -1903,9 +1946,12 @@ export default {
                 console.log(error)
             })
         },
-        getInquiryFromRecordId(recordId){
+        getInquiryFromRecordId(recordId, typeRecord){
             let url = `${config.apiUrl}/records/${recordId}`
-            apiService.getApi(url).then(result => {
+            let params = {
+                type: typeRecord
+            }
+            apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.detailInquiry = null;
                     let record = result.data
@@ -1914,6 +1960,7 @@ export default {
                     apiService.getApi(url).then(result => {
                         if(result.status.toString()[0] === "2"){
                             this.detailInquiry = result.data
+                            //chi add tu van chua dc duyet (recordType = 0 va status = 0)
                             if((record.recordType + record.status) == 0){
                                 this.detailInquiry.medicalRecords.push(record)
                             }
@@ -2226,9 +2273,13 @@ export default {
                             this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
                             break;
                         }
-                        //doctor advise
+                        //specialist advise, dietitian advise 
                         case 1: {
-                            this.getNewRecordFromNotification(payloadId)
+                            this.getNewRecordFromNotification(payloadId, 0)
+                            break;
+                        }
+                        case 11: {
+                            this.getNewRecordFromNotification(payloadId, 1)
                             break;
                         }
                         //assigned new patient or a patient has been deactivated
@@ -2236,7 +2287,7 @@ export default {
                             this.patientPage = 1;
                             this.patientSearch = {
                                 name: undefined,
-                                status: 0,
+                                status: -1,
                                 gender: undefined,
                                 age: undefined
                             }
@@ -2275,7 +2326,7 @@ export default {
                             this.patientPage = 1;
                             this.patientSearch = {
                                 name: undefined,
-                                status: 0,
+                                status: -1,
                                 gender: undefined,
                                 age: undefined
                             }
@@ -2297,7 +2348,6 @@ export default {
         checkComeFromNotiPage(){
             let typeNoti = this.handleNotificationObj.typeNoti
             let payloadId = this.handleNotificationObj.payloadId
-            console.log(typeNoti)
             if(typeNoti != -1){
                 switch(typeNoti){
                     case 0:
@@ -2308,7 +2358,11 @@ export default {
                         break;
                     }
                     case 1: {
-                        this.getInquiryFromRecordId(payloadId)
+                        this.getInquiryFromRecordId(payloadId, 0)
+                        break;
+                    }
+                    case 11: {
+                        this.getInquiryFromRecordId(payloadId, 1)
                         break;
                     }
                     case 6: {

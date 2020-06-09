@@ -75,6 +75,10 @@
                         <template v-slot:item.role="{ item }">
                             {{returnRole(item.role)}}
                         </template>
+                        <template v-slot:item.status="{item}">
+                            <span v-if="item.status != 1024">Đang hoạt động</span>
+                            <span v-if="item.status == 1024" style="color: red">Đã ngừng hoạt động</span>
+                        </template>
                         <template v-slot:footer>
                             <br>
                             <div class="text-center">
@@ -664,7 +668,7 @@ export default {
                     value: 1
                 },
                 {
-                    text: 'Hủy kích hoạt',
+                    text: 'Ngừng hoạt động',
                     value: 1024
                 },
             ],
@@ -693,6 +697,7 @@ export default {
                 { text: 'TUỔI', value: 'age', align: 'start' },
                 { text: 'EMAIL', value: 'email', align: 'start' },
                 { text: 'SỐ ĐT', value: 'phoneNumber', align: 'start' },
+                { text: 'TRẠNG THÁI', value: 'status', align: 'start' },
                 { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'end' },
             ],
             loadingDoctor: false,
@@ -923,7 +928,8 @@ export default {
                     age: this.checkString(doctorArray[i].age),
                     dateOfBirth: this.checkString(doctorArray[i].dateOfBirth),
                     description: this.checkString(doctorArray[i].description),
-                    specialty: this.checkString(doctorArray[i].specialty)
+                    specialty: this.checkString(doctorArray[i].specialty),
+                    status: this.checkString(doctorArray[i].status)
                 }
                 // console.log(obj)
                 this.allDoctors.push(obj)

@@ -5,7 +5,7 @@ export default {
     getApi, postApi, login, postApiParams, deleteApi, putApi
 }
 
-async function getApi(url, param){
+async function getApi(url, params){
     try {
         let config = {
             headers: {
@@ -14,8 +14,8 @@ async function getApi(url, param){
                 'Authorization': localStorage.getItem('ac_uid'),
             },
         }
-        if (param != null && param != undefined){
-            config.params = param
+        if (params != null && params != undefined){
+            config.params = params
         }
         const result = await axios.get(url, config)
         return result
@@ -25,7 +25,7 @@ async function getApi(url, param){
     }
 }
 
-async function putApi(url, body){
+async function putApi(url, body, params){
     let config = {
         method: 'put',
         url: url,
@@ -37,6 +37,9 @@ async function putApi(url, body){
     }
     if (body){
         config.data = body
+    }
+    if (params != null && params != undefined){
+        config.params = params
     }
     try {
         const result = await axios(config)
