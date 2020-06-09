@@ -56,8 +56,7 @@ export default {
         ...mapGetters({
             drawer: 'navDrawer',
             user: 'user'
-        }),
-
+        }), 
     },
     methods: {
         goToPage(page){
