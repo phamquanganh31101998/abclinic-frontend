@@ -151,16 +151,25 @@
                                         Tìm kiếm
                                         </v-btn>
                                     </template>
-
                                     <v-card>
                                         <v-card-title>
                                             <h4>Tìm kiếm bệnh nhân</h4>
                                         </v-card-title>
                                         <v-card-text>
                                             <v-text-field clearable v-model="patientSearch.name" label="Tên"></v-text-field>
-                                            <v-select v-model="patientSearch.status" :items="patientStatus" label="Trạng thái"></v-select>
+                                            <!-- <v-select v-model="patientSearch.status" :items="patientStatus" label="Trạng thái"></v-select> -->
                                             <v-select clearable v-model="patientSearch.gender" :items="genderArr" label="Giới tính"></v-select>
                                             <v-text-field clearable type="number" v-model="patientSearch.age" label="Tuổi"></v-text-field>
+                                            <!-- <v-text-field v-model="patientSearch.status" label="Trạng thái"></v-text-field> -->
+                                            <span>
+                                                <v-checkbox @change="setPatientStatusBit(0, patientStatusBitAllValue[0])" v-model="patientStatusBitAllValue[0]" label="Bệnh nhân chưa có bác sĩ quản lý"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(1, patientStatusBitAllValue[1])" v-model="patientStatusBitAllValue[1]" label="Bệnh nhân có bác sĩ đa khoa"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(2, patientStatusBitAllValue[2])" v-model="patientStatusBitAllValue[2]" label="Bệnh nhân có bác sĩ chuyên khoa"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(3, patientStatusBitAllValue[3])" v-model="patientStatusBitAllValue[3]" label="Bệnh nhân có bác sĩ dinh dưỡng"></v-checkbox>
+                                                <!-- <v-checkbox @change="setPatientStatusBit(4, patientStatusBitAllValue[4])" v-model="patientStatusBitAllValue[4]" label="Bệnh nhân có lịch gửi chỉ số sức khỏe"></v-checkbox> -->
+                                                <v-checkbox @change="setPatientStatusBit(10, patientStatusBitAllValue[10])" v-model="patientStatusBitAllValue[10]" label="Bệnh nhân hủy quyền kích hoạt"></v-checkbox>
+                                                <v-checkbox @change="setPatientStatusBit(11, patientStatusBitAllValue[11])" v-model="patientStatusBitAllValue[11]" label="Tất cả bệnh nhân"></v-checkbox>
+                                            </span>
                                         </v-card-text>
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
@@ -177,14 +186,18 @@
                                     <v-icon v-on="on">more_vert</v-icon>
                                 </template>
                                 <v-list>
-                                    <v-list-item @click="getPatientDetail(item.id, true)">
+                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, true)">
                                         <v-list-item-title>Chỉnh sửa thông tin</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item v-if="patientSearch.status != 1024" @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
-                                    <v-list-item v-if="patientSearch.status != 1024" @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
-                                    <v-list-item v-if="patientSearch.status == 1024" @click="reactivateUser(item.id, false)"><v-list-item-title>Kích hoạt lại tài khoản</v-list-item-title></v-list-item>
+                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                    <v-list-item v-if="item.status != 1024" @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
+                                    <v-list-item v-if="item.status == 1024" @click="reactivateUser(item.id, false)"><v-list-item-title>Kích hoạt lại tài khoản</v-list-item-title></v-list-item>
                                 </v-list>
                             </v-menu>
+                        </template>
+                        <template v-slot:item.status="{item}">
+                            <span v-if="item.status != 1024">Đang hoạt động</span>
+                            <span v-else style="color: red">Đã ngừng hoạt động</span>
                         </template>
                         <template v-slot:footer>
                             <br>
@@ -504,16 +517,15 @@ export default {
                 { text: 'SỐ ĐT', value: 'phoneNumber', align: 'start' },
             ],
             loadingDoctor: false,
-            
             deleteUserDialog: false,
             deleteUserId: 0,
             deleteUserTypeIsStaff: null,
-            
             allPatients: [],
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
                 { text: 'TUỔI', value: 'age', align: 'start' },
+                { text: 'TRẠNG THÁI', value: 'status', align: 'start' },
                 { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'end' },
             ],
             patientPage: 1,
@@ -556,10 +568,12 @@ export default {
                     value: 1
                 },
                 {
-                    text: 'Đã hủy kích hoạt',
+                    text: 'Ngừng hoạt động',
                     value: 1024
                 }
             ],
+            patientStatusBitAllValue: [false, false, false, false, false, false, false, false, false, false, false, false],
+            
             registerObj: {
                 dateOfBirth: '',
                 dateMenu: false,
@@ -621,7 +635,6 @@ export default {
                     value: 2
                 },
             ],
-            
             inquiries: [],
             loadingInquiries: false,
             inquiryPage: 1,
@@ -649,7 +662,6 @@ export default {
                 },
             ],
             inquiryAssign: true,
-            
         }
     },
     computed: {
@@ -664,6 +676,89 @@ export default {
         }
     },
     methods: {
+        setPatientStatusBit(index, value){
+            // console.log(index)
+            // console.log(value)
+            if(value == true){
+                switch(index){
+                    //new patient
+                    case 0: {
+                        this.patientStatusBitAllValue[1] = 0;
+                        this.patientStatusBitAllValue[2] = 0;
+                        this.patientStatusBitAllValue[3] = 0;
+                        this.patientStatusBitAllValue[10] = 0;
+                        this.patientStatusBitAllValue[11] = 0;
+                        break;
+                    }
+                    //not new patient
+                    case 1:
+                    case 2:
+                    case 3: {
+                        this.patientStatusBitAllValue[0] = 0;
+                        this.patientStatusBitAllValue[10] = 0;
+                        this.patientStatusBitAllValue[11] = 0;
+                        break;
+                    }
+                    // //schedule
+                    // case 4: {
+                    //     this.patientStatusBitAllValue[10] = 0;
+                    //     this.patientStatusBitAllValue[11] = 0;
+                    //     break;
+                    // }
+                    //deactivated
+                    case 10: {
+                        this.patientStatusBitAllValue[0] = 0;
+                        this.patientStatusBitAllValue[1] = 0;
+                        this.patientStatusBitAllValue[2] = 0;
+                        this.patientStatusBitAllValue[3] = 0;
+                        this.patientStatusBitAllValue[4] = 0;
+                        this.patientStatusBitAllValue[11] = 0;
+                        break;
+                    }
+                    //all patient
+                    case 11: {
+                        this.patientStatusBitAllValue[0] = 0;
+                        this.patientStatusBitAllValue[1] = 0;
+                        this.patientStatusBitAllValue[2] = 0;
+                        this.patientStatusBitAllValue[3] = 0;
+                        this.patientStatusBitAllValue[4] = 0;
+                        this.patientStatusBitAllValue[10] = 0;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+            // console.log(this.returnValueFromStatusBit())
+        },
+        returnValueFromStatusBit(){
+            if(this.patientStatusBitAllValue[11] == true){
+                return -1
+            }
+            else if (this.patientStatusBitAllValue[10] == true){
+                return 1024
+            }
+            else if (this.patientStatusBitAllValue[0]  == true){
+                return (this.patientStatusBitAllValue[4] == true) ? 17 : 1
+            }
+            else {
+                let bitArr = []
+                for(let i = 0; i < this.patientStatusBitAllValue.length - 1 ; i++){
+                    bitArr[i] = (this.patientStatusBitAllValue[i] == true) ? 1 : 0
+                }
+                let statusValue = bitArr.reverse().join("")
+                // console.log(statusValue)
+                //has been reverse
+                // console.log(bitArr)
+                if(bitArr[9] == 0 && (bitArr[8] == 1 || bitArr[7] == 1)){
+                    return convertNumber.convertToDecimal(statusValue) + 1;
+                }
+                else {
+                    return convertNumber.convertToDecimal(statusValue);
+                }
+            }
+        },
         returnInquiryType(type){
             return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
         },
@@ -711,6 +806,7 @@ export default {
                 page: page,
                 size: size,
             }
+            searchObj.status = (this.returnValueFromStatusBit() == 0) ? 1 : this.returnValueFromStatusBit()
             let searchString = '';
             //Loop through all property of patientSearch Obj
             for (const property in searchObj) {
@@ -1025,7 +1121,6 @@ export default {
             this.selectedInquiryMain.push(item)
             this.assignToPracDialogMain = true
         },
-        
         findObjIndexById(arr, id){
             let result = -1;
             for(let i = 0; i < arr.length; i++){
@@ -1147,7 +1242,7 @@ export default {
                         break;
                     }
                     case 6: {
-                        this.getPatientDetail(payloadId, true)
+                        this.getPatientDetail(payloadId, false)
                         break
                     }
                     default: {
@@ -1160,8 +1255,8 @@ export default {
     },
     created(){
         // eventBus.$on('newNotification', this.handleNewNotification);
-        alert(convertNumber.convertToBinary(8))
-        alert(convertNumber.convertToDecimal(10000))
+        // alert(convertNumber.convertToBinary(8))
+        // alert(convertNumber.convertToDecimal(10000))
         this.checkComeFromNotiPage()
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
         

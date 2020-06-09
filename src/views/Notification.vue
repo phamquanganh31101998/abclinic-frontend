@@ -278,7 +278,7 @@ export default {
                 case 0: 
                     return 'YÊU CẦU TƯ VẤN'
                 case 1: 
-                    return 'TƯ VẤN'
+                    return 'TƯ VẤN CHUYÊN KHOA'
                 case 2: 
                     return 'TRẢ LỜI TƯ VẤN'
                 case 3: 
@@ -298,7 +298,7 @@ export default {
                 case 10: 
                     return 'ĐÃ ĐƯỢC HỦY KÍCH HOẠT'
                 case 11: 
-                    return 'CẬP NHẬT LẠI TƯ VẤN'
+                    return 'TƯ VẤN DINH DƯỠNG'
             }
         }
     },

@@ -731,7 +731,7 @@
                                             Ghi chú: {{record.note}}
                                             <br>
                                             Trạng thái: <span v-if="record.status == 0" style="color: red">Đang chờ bác sĩ đa khoa duyệt</span>
-                                            <span v-else style="color: green">Đã được bác sĩ đa khoa duyệt</span>
+                                            <span v-else style="color: green">Đã được duyệt</span>
                                         </h3>
                                     </v-card-text>
                                     <!-- <v-card-actions v-if="record.dietitian && record.dietitian.id == $store.state.user.id">

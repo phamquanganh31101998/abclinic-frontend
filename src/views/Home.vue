@@ -86,7 +86,7 @@ export default {
     initWebSocket(id){
       let store = this.$store
       try{
-        var wsocket = new SockJS('https://fathomless-savannah-38522.herokuapp.com/api/ws');
+        var wsocket = new SockJS(`${config.apiUrl}/ws`);
         var client = Stomp.over(wsocket);
         client.connect({}, function() {
           // console.log(frame)
