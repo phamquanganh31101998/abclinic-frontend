@@ -248,6 +248,116 @@
                 </v-dialog>
             </v-col>
         </v-row>
+        <v-row>
+            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                <v-card class="elevation-4" height="100%">
+                    <v-data-table class="elevation-0" :headers="healthIndexesHeaders" :items="healthIndexes" hide-default-footer no-data-text="Hiện tại chưa có chỉ số nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
+                        <template v-slot:top>
+                            <v-toolbar flat>
+                                <v-toolbar-title><h3>Mẫu kiểm tra chỉ số sức khỏe</h3></v-toolbar-title>
+                                <v-divider
+                                    class="mx-4"
+                                    inset
+                                    vertical
+                                ></v-divider>
+                                <v-spacer></v-spacer>
+                                
+                            </v-toolbar>
+                        </template>
+                        <template v-slot:item.more="{ item }">
+                            <a @click="detailHealthIndexes = Object.assign({}, item), detailHealthIndexesDialog = true"><v-icon>create</v-icon></a>
+                        </template>
+                        <template v-slot:item.fields="{ item }">
+                            <span v-for="field in item.fields" :key="field.id">{{field.name}}, </span>
+                        </template>
+                        <template v-slot:footer>
+                            <br>
+                            <div class="text-center">
+                                <v-pagination
+                                    :total-visible="7"
+                                    v-model="healthIndexesPage"
+                                    :length="healthIndexesPages"
+                                    @input="getHealthIndexes(healthIndexesPage, healthIndexesPageSize)"
+                                ></v-pagination>
+                            </div>
+                            <v-dialog v-model="createHealthIndexesDialog" persistent width="400" max-width="70%">
+                                <template v-slot:activator="{ on }">
+                                    <v-btn text color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo mẫu mới</v-btn>
+                                </template>
+                                <v-card>
+                                    <v-card-title
+                                        class="headline primary"
+                                        primary-title
+                                        >
+                                        <span style="color: white">Tạo mẫu kiểm tra chỉ số sức khỏe</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-text-field v-model="createHealthIndexesObj.name" label="Tên mẫu"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-textarea rows="3" v-model="createHealthIndexesObj.description" label="Mô tả"></v-textarea>
+                                            </v-col>
+                                            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                                <h4>Danh sách các chỉ số bệnh nhân cần gửi</h4>
+                                                <div v-for="(field, index) in createHealthIndexesObj.fields" :key="field" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
+                                                    <span>{{field}} </span>
+                                                    <v-icon style="position: absolute; right: 0; color: red" @click="createHealthIndexesObj.fields.splice(index, 1)">clear</v-icon>
+                                                </div>
+                                                <br>
+                                                <v-text-field label="Nhập tên chỉ số mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="createHealthIndexesObj.fields.push(healthIndexesNewField), healthIndexesNewField = ''"></v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text :disabled="createHealthIndexesObj.name == '' || createHealthIndexesObj.description == ''" @click="createHealthIndexes(createHealthIndexesObj.name, createHealthIndexesObj.description, createHealthIndexesObj.fields), createHealthIndexesDialog = false">TẠO MỚI</v-btn>
+                                        <v-btn color="red" text @click="createHealthIndexesDialog = false">ĐÓNG</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </template>
+                    </v-data-table>
+                    
+                </v-card>
+                <v-dialog offset-y persistent v-model="detailHealthIndexesDialog" width="400" max-width="70%">
+                    <v-card v-if="detailHealthIndexes != null">
+                        <v-card-title
+                            class="headline primary"
+                            primary-title
+                            >
+                            <span style="color: white">Chỉnh sửa chỉ số sức khỏe</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-row>
+                                <v-col cols="12" sm="12" md="12">
+                                    <v-text-field v-model="detailHealthIndexes.name" label="Tên chỉ số"></v-text-field>
+                                    <v-textarea rows="3" v-model="detailHealthIndexes.description" label="Mô tả"></v-textarea>
+                                    <v-btn color="primary" :disabled="detailHealthIndexes.name == '' || detailHealthIndexes.description == ''" @click="updateHealthIndexes(detailHealthIndexes.id, detailHealthIndexes.name, detailHealthIndexes.description)">Cập nhật thông tin cơ bản</v-btn>
+                                </v-col>
+                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
+                                    <h4>Danh sách các trường</h4>
+                                    <div v-for="(field) in detailHealthIndexes.fields" :key="field.id" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
+                                        <span>{{field.name}} </span>
+                                        <v-icon style="position: absolute; right: 0; color: red" @click="deleteField(detailHealthIndexes.id, field.id)">clear</v-icon>
+                                    </div>
+                                    <br>
+                                    <v-text-field label="Nhập tên trường mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="addField(detailHealthIndexes.id, healthIndexesNewField)"></v-text-field>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <!-- <v-btn color="blue darken-1" text @click="detailHealthIndexesDialog = false">CHỈNH SỬA</v-btn> -->
+                        <v-btn color="red" text @click="getHealthIndexes(healthIndexesPage, healthIndexesPageSize), detailHealthIndexesDialog = false">ĐÓNG</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-col>
+        </v-row>
         <v-row wrap row>
             <v-col cols="12" sm="12" md="12" lg="12" xl="12">
                 <v-card height="100%" class="elevation-4">
@@ -374,116 +484,7 @@
             </v-col>
             
         </v-row>
-        <v-row>
-            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
-                <v-card class="elevation-4" height="100%">
-                    <v-data-table class="elevation-0" :headers="healthIndexesHeaders" :items="healthIndexes" hide-default-footer no-data-text="Hiện tại chưa có chỉ số nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
-                        <template v-slot:top>
-                            <v-toolbar flat>
-                                <v-toolbar-title><h3>Mẫu kiểm tra chỉ số sức khỏe</h3></v-toolbar-title>
-                                <v-divider
-                                    class="mx-4"
-                                    inset
-                                    vertical
-                                ></v-divider>
-                                <v-spacer></v-spacer>
-                                
-                            </v-toolbar>
-                        </template>
-                        <template v-slot:item.more="{ item }">
-                            <a @click="detailHealthIndexes = Object.assign({}, item), detailHealthIndexesDialog = true"><v-icon>create</v-icon></a>
-                        </template>
-                        <template v-slot:item.fields="{ item }">
-                            <span v-for="field in item.fields" :key="field.id">{{field.name}}, </span>
-                        </template>
-                        <template v-slot:footer>
-                            <br>
-                            <div class="text-center">
-                                <v-pagination
-                                    :total-visible="7"
-                                    v-model="healthIndexesPage"
-                                    :length="healthIndexesPages"
-                                    @input="getHealthIndexes(healthIndexesPage, healthIndexesPageSize)"
-                                ></v-pagination>
-                            </div>
-                            <v-dialog v-model="createHealthIndexesDialog" persistent width="400" max-width="70%">
-                                <template v-slot:activator="{ on }">
-                                    <v-btn v-show="user != null && user.role == 'COORDINATOR'" text color="primary" dark v-on="on"> <v-icon>add</v-icon> Tạo mẫu mới</v-btn>
-                                </template>
-                                <v-card>
-                                    <v-card-title
-                                        class="headline primary"
-                                        primary-title
-                                        >
-                                        <span style="color: white">Tạo mẫu kiểm tra chỉ số sức khỏe</span>
-                                    </v-card-title>
-                                    <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="createHealthIndexesObj.name" label="Tên mẫu"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-textarea rows="3" v-model="createHealthIndexesObj.description" label="Mô tả"></v-textarea>
-                                            </v-col>
-                                            <v-col cols="12" sm="12" md="12" lg="12" xl="12">
-                                                <h4>Danh sách các chỉ số bệnh nhân cần gửi</h4>
-                                                <div v-for="(field, index) in createHealthIndexesObj.fields" :key="field" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
-                                                    <span>{{field}} </span>
-                                                    <v-icon style="position: absolute; right: 0; color: red" @click="createHealthIndexesObj.fields.splice(index, 1)">clear</v-icon>
-                                                </div>
-                                                <br>
-                                                <v-text-field label="Nhập tên chỉ số mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="createHealthIndexesObj.fields.push(healthIndexesNewField), healthIndexesNewField = ''"></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn color="blue darken-1" text :disabled="createHealthIndexesObj.name == '' || createHealthIndexesObj.description == ''" @click="createHealthIndexes(createHealthIndexesObj.name, createHealthIndexesObj.description, createHealthIndexesObj.fields), createHealthIndexesDialog = false">TẠO MỚI</v-btn>
-                                        <v-btn color="red" text @click="createHealthIndexesDialog = false">ĐÓNG</v-btn>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-dialog>
-                        </template>
-                    </v-data-table>
-                    
-                </v-card>
-                <v-dialog offset-y persistent v-model="detailHealthIndexesDialog" width="400" max-width="70%">
-                    <v-card v-if="detailHealthIndexes != null">
-                        <v-card-title
-                            class="headline primary"
-                            primary-title
-                            >
-                            <span style="color: white">Chỉnh sửa chỉ số sức khỏe</span>
-                        </v-card-title>
-                        <v-card-text>
-                            <v-row>
-                                <v-col cols="12" sm="12" md="12">
-                                    <v-text-field v-model="detailHealthIndexes.name" label="Tên chỉ số"></v-text-field>
-                                    <v-textarea rows="3" v-model="detailHealthIndexes.description" label="Mô tả"></v-textarea>
-                                    <v-btn color="primary" :disabled="detailHealthIndexes.name == '' || detailHealthIndexes.description == ''" @click="updateHealthIndexes(detailHealthIndexes.id, detailHealthIndexes.name, detailHealthIndexes.description)">Cập nhật thông tin cơ bản</v-btn>
-                                </v-col>
-                                <v-col cols="12" sm="12" md="12" lg="12" xl="12">
-                                    <h4>Danh sách các trường</h4>
-                                    <div v-for="(field) in detailHealthIndexes.fields" :key="field.id" style="position: relative; margin: 10px; padding: 10px; border: 1px solid grey; border-radius: 10px;">
-                                        <span>{{field.name}} </span>
-                                        <v-icon style="position: absolute; right: 0; color: red" @click="deleteField(detailHealthIndexes.id, field.id)">clear</v-icon>
-                                    </div>
-                                    <br>
-                                    <v-text-field label="Nhập tên trường mới rồi nhấn Enter" v-model="healthIndexesNewField" @keyup.enter="addField(detailHealthIndexes.id, healthIndexesNewField)"></v-text-field>
-                                </v-col>
-                            </v-row>
-                        </v-card-text>
-                        <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <!-- <v-btn color="blue darken-1" text @click="detailHealthIndexesDialog = false">CHỈNH SỬA</v-btn> -->
-                        <v-btn color="red" text @click="getHealthIndexes(healthIndexesPage, healthIndexesPageSize), detailHealthIndexesDialog = false">ĐÓNG</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-col>
-        </v-row>
+        
         <v-row>
             <v-col cols="12" sm="12" md="12" lg="12" xl="12">
                 <v-card height="100%" class="elevation-4">
@@ -1458,7 +1459,7 @@ export default {
             this.doctorHeaders.splice(this.doctorHeaders.length - 1, 1)
             this.specHeaders.splice(this.specHeaders.length - 1, 1)
             this.diseaseHeaders.splice(this.diseaseHeaders.length - 1, 1)
-            this.healthIndexesHeaders.splice(this.healthIndexesHeaders.length - 1, 1)
+            // this.healthIndexesHeaders.splice(this.healthIndexesHeaders.length - 1, 1)
         }
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
         this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
