@@ -37,6 +37,7 @@
     "vuex": "^3.1.2"
   },
   "devDependencies": {
+    "@babel/compat-data": "^7.9.0",
     "@vue/cli-plugin-babel": "^4.2.0",
     "@vue/cli-plugin-eslint": "^4.2.0",
     "@vue/cli-service": "^4.2.0",
@@ -66,5 +67,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "resolutions": {
+    "@babel/preset-env": "^7.8.0"
+  }
 }

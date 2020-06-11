@@ -911,8 +911,31 @@
                                 <h3>Kiểu yêu cầu: {{returnInquiryType(detailInquiry.type)}}</h3>
                                 <h3 v-if="detailInquiry.type == 0">Thời gian làm xét nghiệm: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
                                 <h3 v-if="detailInquiry.type == 1">Thời gian ăn: {{returnTimeFromTimeArray(detailInquiry.date)}}</h3>
-                                <h3>Ảnh: </h3>
+                                
                             </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12">
+                                <h3 v-if="images.length > 0">Ảnh bệnh nhân cung cấp </h3>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="6" lg="3" xl="3" v-for="image in images" :key="image">
+                                <v-img max-height="90%" max-width="90%" :src="image" @click="showImage.link = image, showImage.dialog = true"></v-img>
+                            </v-col>
+                            <v-dialog v-model="showImage.dialog" persistent>
+                                <v-card>
+                                    <v-card-title
+                                        class="headline primary"
+                                        primary-title
+                                        >
+                                        <span style="color: white">Ảnh</span>
+                                        <v-spacer></v-spacer>
+                                        <v-btn icon dark @click="showImage.dialog = false, showImage.link = ''">
+                                            <v-icon>close</v-icon>
+                                        </v-btn>
+                                    </v-card-title>
+                                    <v-img :src="showImage.link"></v-img>
+                                </v-card>
+                            </v-dialog>
                         </v-row>
                         <v-row>
                             <v-col v-for="(record, index) in detailInquiry.medicalRecords" :key="record.id" cols="12">
@@ -1035,6 +1058,11 @@ var convertNumber = require('decimal-to-binary')
 export default {
     data(){
         return {
+            images: [],
+            showImage: {
+                link: '',
+                dialog: false,
+            },
             allPatients: [],
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
@@ -1618,12 +1646,17 @@ export default {
         getDetailInquiry(id){
             this.scrollBottom()
             this.detailInquiry = null;
+            this.images = [];
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết yêu cầu tư vấn...')
             let url = `${config.apiUrl}/inquiries/${id}`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.detailInquiry = result.data
+                    if(this.detailInquiry.albumId != null){
+                        this.getImages(this.detailInquiry.albumId)
+                    }
                     this.getPatientDetailAfterGetInquiry(result.data.patient.id, true)
+                    
                 }
                 else {
                     this.$toast.open({
@@ -1641,6 +1674,29 @@ export default {
                 })
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        getImages(albumId){
+            // let imageArr = []
+            let params = {
+                album_id: albumId
+            }
+            let url = `${config.apiUrl}/images`
+            apiService.getApi(url, params).then(result => {
+                // console.log(result)
+                if(result.status.toString()[0] === "2"){
+                    this.images = result.data
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
             })
         },
         assignToPrac(patientId, inquiryArr, doctorArr){
