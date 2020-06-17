@@ -88,7 +88,9 @@ export default {
       try{
         var wsocket = new SockJS(`${config.apiUrl}/ws`);
         var client = Stomp.over(wsocket);
-        client.connect({}, function() {
+        client.connect({
+          Authorization: localStorage.getItem('ac_uid')
+        }, function() {
           // console.log(frame)
             client.subscribe(`/topic/users/${id}`, function (message) {
                 // console.log(message.body)
