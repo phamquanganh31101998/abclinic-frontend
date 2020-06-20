@@ -254,7 +254,7 @@
                     <v-data-table class="elevation-0" :headers="healthIndexesHeaders" :items="healthIndexes" hide-default-footer no-data-text="Hiện tại chưa có chỉ số nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
                         <template v-slot:top>
                             <v-toolbar flat>
-                                <v-toolbar-title><h3>Mẫu kiểm tra chỉ số sức khỏe</h3></v-toolbar-title>
+                                <v-toolbar-title><h3>Mẫu thông số sức khỏe</h3></v-toolbar-title>
                                 <v-divider
                                     class="mx-4"
                                     inset
@@ -289,7 +289,7 @@
                                         class="headline primary"
                                         primary-title
                                         >
-                                        <span style="color: white">Tạo mẫu kiểm tra chỉ số sức khỏe</span>
+                                        <span style="color: white">Tạo mẫu thông số sức khỏe</span>
                                     </v-card-title>
                                     <v-card-text>
                                     <v-container>
@@ -329,7 +329,7 @@
                             class="headline primary"
                             primary-title
                             >
-                            <span style="color: white">Chỉnh sửa chỉ số sức khỏe</span>
+                            <span style="color: white">Chỉnh sửa mẫu thông số sức khỏe</span>
                         </v-card-title>
                         <v-card-text>
                             <v-row>
@@ -1247,7 +1247,7 @@ export default {
             // this.specDetailDialog = false;
         },
         createHealthIndexes(name, description, fields){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo chỉ số sức khỏe...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo mẫu thông số sức khỏe...')
             let body = {
                 name: name,
                 description: description,
@@ -1257,7 +1257,7 @@ export default {
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
-                        message: 'Tạo chỉ số sức khỏe mới thành công',
+                        message: 'Tạo mẫu thông số sức khỏe mới thành công',
                         type: 'success',
                         // all other options may go here
                     })
