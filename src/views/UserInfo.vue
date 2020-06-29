@@ -133,7 +133,7 @@ export default {
             return (str != null & str != undefined) ? str : '_'
         },
         getInfo(){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin cho người dùng...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin người dùng...')
             let url = `${config.apiUrl}/user`
             apiService.getApi(url).then(result=> {
                 this.userInfo = result.data
