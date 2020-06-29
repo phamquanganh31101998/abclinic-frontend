@@ -524,7 +524,7 @@ export default {
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
-                { text: 'TUỔI', value: 'age', align: 'start' },
+                // { text: 'TUỔI', value: 'age', align: 'start' },
                 { text: 'TRẠNG THÁI', value: 'status', align: 'start' },
                 { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'end' },
             ],

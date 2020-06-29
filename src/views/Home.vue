@@ -44,9 +44,6 @@ export default {
     }
   },
   methods: {
-    goToPage(link){
-      this.$router.push(link)
-    },
     checkUID(){
         let url = `${config.apiUrl}/user`
         apiService.getApi(url).then(result => {
