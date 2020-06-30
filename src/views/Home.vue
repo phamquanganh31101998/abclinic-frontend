@@ -131,6 +131,11 @@ export default {
       // })
     },
     handleNewNotification(e){
+      var audioFile = new Audio(require('../../public/noti.mp3'));
+      audioFile.play();
+      setTimeout(() => {
+          audioFile.pause()
+      }, 2000)
       let time = moment().format('HH:mm:ss')
       this.$toast.open({
         message: `THÔNG BÁO MỚI: ${e.notification}! (${time})`,

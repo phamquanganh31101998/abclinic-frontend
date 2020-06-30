@@ -864,43 +864,66 @@
                             </v-row>
                             <v-row v-if="patientDetail.id != '' && patientDetail.id != 0">
                                 <v-col cols="12">
-                                    <v-data-table show-expand hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="inquiryHeaders">
-                                        <template v-slot:top>
-                                            <v-toolbar flat>
-                                                <v-toolbar-title><h3>Yêu cầu tư vấn</h3></v-toolbar-title>
-                                                <v-divider
-                                                    class="mx-4"
-                                                    inset
-                                                    vertical
-                                                ></v-divider>
-                                            </v-toolbar>
-                                        </template>
-                                        <template v-slot:item.patient="{ item }">
-                                            {{item.patient.name}}
-                                        </template>
-                                        <template v-slot:item.type="{ item }">
-                                            {{ returnInquiryType(item.type) }}
-                                        </template>
-                                        <template v-slot:expanded-item="{ item }">
-                                            <td :colspan="inquiryHeaders.length">
-                                                <br>
-                                                <h4>Nội dung: {{ item.content }}</h4>
-                                                <br>
-                                                <a @click.stop="getDetailInquiry(item.id)">Xem chi tiết >></a>
-                                                <br>
-                                            </td>
-                                        </template>
-                                    </v-data-table>
+                                    <h3>
+                                        <a @click="patientInquiryHistoryDialog = true">LỊCH SỬ TƯ VẤN</a>
+                                        <br>
+                                        <a @click="getPatientDetail(patientDetail.id, false)">GÁN BỆNH NHÂN</a>
+                                        <br>
+                                        <a @click="newSchedule.patientId = patientDetail.id, newScheduleDialog = true">TẠO LỊCH GỬI THÔNG SỐ SỨC KHỎE</a>
+                                        <br>
+                                        <br>
+                                        <a style="color: red" @click="removePatientObj.id = patientDetail.id, removePatientObj.dialog = true">XÓA BỆNH NHÂN KHỎI QUYỀN QUẢN LÝ</a>
+                                    </h3>
                                 </v-col>
-                            </v-row>
-                            <v-row v-if="patientDetail.id != '' && patientDetail.id != 0">
-                                <v-col cols="12">
-                                    <v-btn text color="primary" @click="getPatientDetail(patientDetail.id, false)">Gán bệnh nhân</v-btn>
-                                    <br>
-                                    <v-btn text color="primary" @click="newSchedule.patientId = patientDetail.id, newScheduleDialog = true">Tạo lịch gửi thông số sức khỏe</v-btn>
-                                    <br>
-                                    <v-btn text color="error" @click="removePatientObj.id = patientDetail.id, removePatientObj.dialog = true">Xóa bệnh nhân khỏi quyền quản lý</v-btn>
-                                </v-col>
+                                <v-dialog scrollable v-model="patientInquiryHistoryDialog" max-width="1000px" persistent>
+                                    <v-card>
+                                        <v-card-title
+                                            class="headline primary"
+                                            primary-title
+                                            >
+                                            <span style="color: white">Lịch sử tư vấn</span>
+                                        </v-card-title>
+                                        <v-card-text>
+                                            <v-container>
+                                                <v-row>
+                                                    <v-row v-if="patientDetail.id != '' && patientDetail.id != 0">
+                                                        <v-col cols="12">
+                                                            <v-data-table hide-default-footer class="elevation-4" :items="patientDetail.inquiries" :headers="patientInquiryHistoryHeaders">
+                                                                <!-- <template v-slot:top>
+                                                                    <v-toolbar flat>
+                                                                        <v-toolbar-title><h3>Yêu cầu tư vấn</h3></v-toolbar-title>
+                                                                        <v-divider
+                                                                            class="mx-4"
+                                                                            inset
+                                                                            vertical
+                                                                        ></v-divider>
+                                                                    </v-toolbar>
+                                                                </template> -->
+                                                                <template v-slot:item.patient="{ item }">
+                                                                    {{item.patient.name}}
+                                                                </template>
+                                                                <template v-slot:item.createdAt="{ item }">
+                                                                    {{returnTimeFromTimeArray(item.createdAt)}}
+                                                                </template>
+                                                                <template v-slot:item.type="{ item }">
+                                                                    {{ returnInquiryType(item.type) }}
+                                                                </template>
+                                                                
+                                                                <template v-slot:item.more="{item}">
+                                                                    <a @click="patientInquiryHistoryDialog = false, getDetailInquiry(item.id)">Xem chi tiết >></a>
+                                                                </template>
+                                                            </v-data-table>
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-row>
+                                            </v-container>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="red" text @click="patientInquiryHistoryDialog = false">ĐÓNG</v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
                             </v-row>
                         </v-container>
                     </v-card-text>
@@ -1047,7 +1070,6 @@
                             </v-card-actions>
                         </v-card>
                     </v-card-text>
-                    
                 </v-card>
             </v-col>
         </v-row>
@@ -1094,6 +1116,15 @@ export default {
                 specialists: [],
                 dietitians: [],
             },
+            patientInquiryHistoryDialog: false,
+            patientInquiryHistoryHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN BỆNH NHÂN', value: 'patient', align: 'start' },
+                { text: 'KIỂU YÊU CẦU', value: 'type', align: 'start' },
+                { text: 'NỘI DUNG', value: 'content', align: 'start' },
+                { text: 'THỜI GIAN TẠO', value: 'createdAt', align: 'start'},
+                { text: 'XEM CHI TIẾT', value: 'more', align: 'start'}
+            ],
             assignToDoctorDialog: false,
             inquiryHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},

@@ -186,10 +186,10 @@
                                     <v-icon v-on="on">more_vert</v-icon>
                                 </template>
                                 <v-list>
-                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, true)">
-                                        <v-list-item-title>Chỉnh sửa thông tin</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, false)"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
+                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'detail')"><v-list-item-title>Chỉnh sửa thông tin cá nhân</v-list-item-title></v-list-item>
+                                    <!-- <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'diseases')"><v-list-item-title>Chỉnh sửa hồ sơ bệnh án</v-list-item-title></v-list-item> -->
+                                    <!-- <v-list-item v-if="item.status != 1024"><v-list-item-title>Chỉnh sửa thông tin sức khỏe</v-list-item-title></v-list-item> -->
+                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'assign')"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
                                     <v-list-item v-if="item.status != 1024" @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
                                     <v-list-item v-if="item.status == 1024" @click="reactivateUser(item.id, false)"><v-list-item-title>Kích hoạt lại tài khoản</v-list-item-title></v-list-item>
                                 </v-list>
@@ -198,6 +198,9 @@
                         <template v-slot:item.status="{item}">
                             <span v-if="item.status != 1024">Đang hoạt động</span>
                             <span v-else style="color: red">Đã ngừng hoạt động</span>
+                        </template>
+                        <template v-slot:item.diseases="{item}">
+                            <span v-for="disease in item.diseases" :key="disease.id">{{disease.name}}, </span>
                         </template>
                         <template v-slot:footer>
                             <br>
@@ -260,31 +263,7 @@
                                         <v-text-field label="Địa chỉ" v-model="patientDetail.address"></v-text-field>
                                     </v-col>
                                 </v-row>
-                                <!-- <v-row>
-                                    <v-col xs="12" sm="12" md="12" lg="12" xl="12">
-                                        <v-data-table
-                                            hide-default-footer
-                                            :headers="inquiryHeaders"
-                                            :items="patientDetail.inquiries"
-                                            class="elevation-4"
-                                            >
-                                            <template v-slot:top>
-                                                <v-toolbar flat>
-                                                    <v-toolbar-title>Các yêu cầu tư vấn</v-toolbar-title>
-                                                    <v-spacer></v-spacer>
-                                                </v-toolbar>
-                                            </template>
-                                            <template v-slot:item.type="{ item }">
-                                                {{ returnInquiryType(item.type) }}
-                                            </template>
-                                            <template v-slot:item.patient="{ item }">
-                                                {{ item.patient.name }}
-                                            </template>
-                                        </v-data-table>
-                                    </v-col>
-                                </v-row> -->
                             </v-form>
-                                
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -326,9 +305,6 @@
                                             <template v-slot:item.type="{ item }">
                                                 {{ returnInquiryType(item.type) }}
                                             </template>
-                                            <!-- <template v-slot:expanded-item="{ item }">
-                                                <td :colspan="inquiryHeaders.length"><b>Yêu cầu tư vấn: {{ item.content }}</b> </td>
-                                            </template> -->
                                         </v-data-table>
                                     </v-col>
                                     <v-col xs="12" sm="12" md="12" lg="12" xl="12">
@@ -344,6 +320,11 @@
                                             <template v-slot:top>
                                                 <v-toolbar flat>
                                                     <v-toolbar-title>Chọn Bác sĩ đa khoa</v-toolbar-title>
+                                                    <v-divider
+                                                        class="mx-4"
+                                                        inset
+                                                        vertical
+                                                    ></v-divider>
                                                     <v-spacer></v-spacer>
                                                 </v-toolbar>
                                             </template>
@@ -359,13 +340,62 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
+                <v-dialog scrollable v-model="diseasesHistoryDialog" max-height="90%" max-width="700px" persistent>
+                    <v-card>
+                        <v-card-title
+                            class="headline primary"
+                            primary-title
+                            >
+                            <span style="color: white">Chỉnh sửa hồ sơ bệnh án</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <br>
+                            <h3>Các căn bệnh:
+                                <div v-for="(field) in diseasesHistoryArray" :key="field.id" style="padding-left: 20px;">
+                                    - {{field.name}} 
+                                </div>
+                            </h3>
+                            <br>
+                            <v-text-field v-model="searchDiseasesName" label="Nhập tên căn bệnh muốn tìm kiếm rồi nhấn Enter" append-icon="search" @keyup.enter="getAllDiseases(searchDiseasesName)"></v-text-field>
+                            <br>
+                            <v-data-table
+                                :loading="diseasesLoading"
+                                loading-text="Đang tìm kiếm các căn bệnh"
+                                no-results-text="Không tìm thấy kết quả nào phù hợp"
+                                no-data-text="Hiện tại chưa có kết quả nào"
+                                hide-default-footer 
+                                v-model="diseasesHistoryArray"
+                                :headers="diseaseHeaders"
+                                :items="allDiseases"
+                                show-select
+                                class="elevation-4">
+                                <template v-slot:top>
+                                    <v-toolbar flat>
+                                        <v-toolbar-title>Các căn bệnh</v-toolbar-title>
+                                        <v-divider
+                                            class="mx-4"
+                                            inset
+                                            vertical
+                                        ></v-divider>
+                                        <v-spacer></v-spacer>
+                                    </v-toolbar>
+                                </template>
+                            </v-data-table>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="primary" text @click="diseasesHistoryDialog = false, createPatientDiseasesHistory(patientDiseasesHistoryId, diseasesHistoryArray)">Chỉnh sửa</v-btn>
+                            <v-btn color="red" text @click="diseasesHistoryDialog = false">Đóng</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-col>
         </v-row>
         <v-row>
             <v-col xs="12" sm="12" md="12" lg="12" xl="12">
                 <v-dialog scrollable v-model="registerObj.dialog" max-width="700px" persistent>
                     <template v-slot:activator="{ on }">
-                        <v-btn color="primary" dark v-on="on">Tạo tài khoản bệnh nhân</v-btn>
+                        <v-btn color="primary" dark v-on="on"> <v-icon>person_add</v-icon> Tạo tài khoản bệnh nhân</v-btn>
                     </template>
                     <v-card>
                         <v-card-title
@@ -376,9 +406,14 @@
                         </v-card-title>
                         <v-card-text>
                             <v-form v-model="registerObj.valid">
+                                <v-row>
+                                    <v-col cols="12">
+                                        <h2>Thông tin cá nhân</h2>
+                                    </v-col>
+                                </v-row>
                                 <v-row wrap>
                                     <v-col xs="12" sm="12" md="12" lg="12" xl="12">
-                                        <v-text-field prepend-icon="people" :rules="noEmptyRules" v-model="registerObj.name" label="Tên người dùng"></v-text-field>
+                                        <v-text-field prepend-icon="people" :rules="noEmptyRules" v-model="registerObj.name" label="Tên bệnh nhân"></v-text-field>
                                     </v-col>
                                 </v-row>
                                 <v-row>
@@ -415,7 +450,6 @@
                                             <v-spacer></v-spacer>
                                             <v-btn text color="primary" @click="$refs.menu.save(registerObj.dateOfBirth)">CHỌN</v-btn>
                                             <v-btn text color="red" @click="registerObj.dateMenu = false">ĐÓNG</v-btn>
-                                            
                                             </v-date-picker>
                                         </v-menu>
                                     </v-col>
@@ -445,12 +479,80 @@
                                         ></v-text-field>
                                     </v-col>
                                 </v-row>
-                                
                             </v-form>
+                            <br>
+                            <v-divider></v-divider>
+                            <br>
+                            <h2>Hồ sơ bệnh án</h2>
+                            <div v-for="(field) in diseasesHistoryArray" :key="field.id" style="padding-left: 20px;">
+                                <h3>- {{field.name}} </h3>
+                            </div>
+                            <br>
+                            <v-text-field v-model="searchDiseasesName" label="Nhập tên căn bệnh muốn tìm kiếm rồi nhấn Enter" append-icon="search" @keyup.enter="getAllDiseases(searchDiseasesName)"></v-text-field>
+                            <br>
+                            <v-data-table
+                                :loading="diseasesLoading"
+                                loading-text="Đang tìm kiếm các căn bệnh"
+                                no-results-text="Không tìm thấy kết quả nào phù hợp"
+                                no-data-text="Hiện tại chưa có kết quả nào"
+                                hide-default-footer 
+                                v-model="diseasesHistoryArray"
+                                :headers="diseaseHeaders"
+                                :items="allDiseases"
+                                show-select
+                                class="elevation-4">
+                                <template v-slot:top>
+                                    <v-toolbar flat>
+                                        <v-toolbar-title>Các căn bệnh</v-toolbar-title>
+                                        <v-divider
+                                            class="mx-4"
+                                            inset
+                                            vertical
+                                        ></v-divider>
+                                        <v-spacer></v-spacer>
+                                    </v-toolbar>
+                                </template>
+                            </v-data-table>
+                            <br>
+                            <v-divider></v-divider>
+                            <br>
+                            <h2>Thông tin sức khỏe bệnh nhân</h2>
+                            <br>
+                            <div v-for="(healthIndexes) in healthIndexesArray" :key="healthIndexes.id" style="padding-left: 20px;">
+                                <h3>- {{healthIndexes.name}} </h3>
+                                <br>
+                                <div v-for="(field) in healthIndexes.fields" :key="field.id" style="padding-left: 40px;">
+                                    <h3>
+                                        <span>+ {{field.name}}: <v-text-field placeholder="Nhập giá trị cho chỉ số này" v-model="field.value"></v-text-field>
+                                        </span>
+                                    </h3>
+                                    <br>
+                                </div>
+                            </div>
+                            <br>
+                            <v-text-field v-model="searchHealthIndexes" label="Nhập tên mẫu thông số sức khỏe cần tìm kiếm rồi nhấn Enter" append-icon="search"></v-text-field>
+                            <br>
+                            <v-data-table :search="searchHealthIndexes" v-model="healthIndexesArray" show-select class="elevation-4" :headers="healthIndexesHeaders" :items="allHealthIndexes" hide-default-footer no-results-text="Không có kết quả phù hợp" no-data-text="Hiện tại chưa có chỉ số nào" loading-text="Đang lấy dữ liệu..." :loading="loadingHealthIndexes">
+                                <template v-slot:top>
+                                    <v-toolbar flat>
+                                        <v-toolbar-title><h3>Mẫu thông số sức khỏe</h3></v-toolbar-title>
+                                        <v-divider
+                                            class="mx-4"
+                                            inset
+                                            vertical
+                                        ></v-divider>
+                                        <v-spacer></v-spacer>
+                                    </v-toolbar>
+                                </template>
+                                <template v-slot:item.fields="{ item }">
+                                    <span v-for="field in item.fields" :key="field.id">{{field.name}}, </span>
+                                </template>
+                            </v-data-table>
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" :disabled="!registerObj.valid" text @click="registerObj.dialog = false, register(registerObj.name, registerObj.email, registerObj.phoneNumber, registerObj.dateOfBirth, registerObj.gender, registerObj.role, registerObj.password)">Tạo</v-btn>
+                            <v-btn color="blue darken-1" :disabled="!registerObj.valid" text @click="registerObj.dialog = false, register(registerObj)">Tạo</v-btn>
+                            <!-- <v-btn color="blue darken-1" text @click="createPatientHealthIndexesInfo(healthIndexesArray)">Tạo</v-btn> -->
                             <v-btn color="red" text @click="registerObj.dialog = false">ĐÓNG</v-btn>
                         </v-card-actions>
                     </v-card>
@@ -524,8 +626,9 @@ export default {
             patientHeaders: [
                 { text: 'ID', value: 'id' , align: 'start'},
                 { text: 'TÊN', value: 'name', align: 'start' },
-                // { text: 'TUỔI', value: 'age', align: 'start' },
+                { text: 'TUỔI', value: 'age', align: 'start' },
                 { text: 'TRẠNG THÁI', value: 'status', align: 'start' },
+                // { text: 'TIỀN SỬ BỆNH', value: 'diseases', align: 'start' },
                 { text: 'CHỌN HÀNH ĐỘNG', value: 'more', align: 'end' },
             ],
             patientPage: 1,
@@ -573,7 +676,6 @@ export default {
                 }
             ],
             patientStatusBitAllValue: [false, false, false, false, false, false, false, false, false, false, false, false],
-            
             registerObj: {
                 dateOfBirth: '',
                 dateMenu: false,
@@ -586,22 +688,6 @@ export default {
                 phoneNumber: '',
                 role: 4,
                 roles: [
-                    // {
-                    //     text: 'Đa khoa',
-                    //     value: 0
-                    // },
-                    // {
-                    //     text: 'Chuyên khoa',
-                    //     value: 1
-                    // },
-                    // {
-                    //     text: 'Dinh dưỡng',
-                    //     value: 2
-                    // },
-                    // {
-                    //     text: 'Điều phối viên',
-                    //     value: 3
-                    // },
                     {
                         text: 'Bệnh nhân',
                         value: 4
@@ -662,6 +748,38 @@ export default {
                 },
             ],
             inquiryAssign: true,
+            allDiseases: [
+                {
+                    id: 1,
+                    name: 'Ho',
+                    description: 'Ho'
+                },
+                {
+                    id: 2,
+                    name: 'Ốm',
+                    description: 'Ốm'
+                }
+            ],
+            diseasesLoading: false,
+            searchDiseasesName: '',
+            patientDiseasesHistoryId: 0,
+            diseaseHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN', value: 'name', align: 'start' },
+                { text: 'MÔ TẢ', value: 'description', align: 'start' },
+            ],
+            diseasesHistoryDialog: false,
+            diseasesHistoryArray: [],
+            allHealthIndexes: [],
+            healthIndexesArray: [],
+            healthIndexesHeaders: [
+                { text: 'ID', value: 'id' , align: 'start'},
+                { text: 'TÊN', value: 'name', align: 'start' },
+                { text: 'MÔ TẢ', value: 'description', align: 'start' },
+                { text: 'CÁC CHỈ SỐ', value: 'fields', align: 'start' },
+            ],
+            loadingHealthIndexes: false,
+            searchHealthIndexes: '',
         }
     },
     computed: {
@@ -673,6 +791,16 @@ export default {
     watch: {
         newNotification(){
             this.handleNewNotification(this.newNotification)
+        },
+        healthIndexesArray(){
+            if(this.healthIndexesArray.length > 0){
+                for (let i = 0; i < this.healthIndexesArray.length; i++){
+                    let obj = this.healthIndexesArray[i]
+                    for (let j = 0; j < obj.fields.length; j++){
+                        obj.fields[j].value = '';
+                    }
+                }
+            }
         }
     },
     methods: {
@@ -848,7 +976,7 @@ export default {
             let url = `/patient/${id}`
             this.$router.push(url)
         },
-        getPatientDetail(id, isDetail){
+        getPatientDetail(id, func){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
             let url = `${config.apiUrl}/patients/${id}`
             let params = {
@@ -856,7 +984,7 @@ export default {
             }
             apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    this.processPatientDetailFromServer(result.data, isDetail)
+                    this.processPatientDetailFromServer(result.data, func)
                 }
                 else {
                     this.$toast.open({
@@ -872,22 +1000,19 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
-        processPatientDetailFromServer(data, isDetail){
+        processPatientDetailFromServer(data, func){
             this.patientDetail = data;
             this.patientDetail.dateOfBirth = data.dateOfBirth.split("/").reverse().join("-")
-            // this.patientDetail.createdDate = data.createdDate
-            // this.patientDetail.email = data.email
-            // this.patientDetail.gender = data.gender
-            // this.patientDetail.id = data.id
-            // this.patientDetail.inquiries = data.inquiries
-            // this.patientDetail.name = data.name
-            // this.patientDetail.phoneNumber = data.phoneNumber
-            // this.patientDetail.address = data.address
-            if(isDetail == true){
+            if(func == 'detail'){
                 this.patientDetailDialog = true
             }
-            else {
+            else if (func == 'assign') {
                 this.assignToPracDialog = true
+            }
+            else if (func == 'diseases') {
+                this.patientDiseasesHistoryId = this.patientDetail.id
+                this.diseasesHistoryArray = this.patientDetail.diseases
+                this.diseasesHistoryDialog = true
             }
         },
         assignToPrac(patientId, inquiry, doctor, fromMainTable){
@@ -945,16 +1070,16 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
-        register(name, email, phone, dob, gender, role, password){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang Tạo tài khoản mới...')
+        register(registerObject){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo tài khoản mới...')
             let body = {
-                name: name,
-                email: email,
-                phone: phone,
-                dob: dob.split("-").reverse().join("/"),
-                gender: parseInt(gender, 10),
-                role: role,
-                password: password
+                name: registerObject.name,
+                email: registerObject.email,
+                phone: registerObject.phoneNumber,
+                dob: registerObject.dateOfBirth.split("-").reverse().join("/"),
+                gender: parseInt(registerObject.gender, 10),
+                role: registerObject.role,
+                password: registerObject.password
             }
             let url = `${config.apiUrl}/auth/sign_up`
             apiService.postApi(url, body).then(result => {
@@ -973,6 +1098,13 @@ export default {
                         age: undefined
                     }
                     this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
+                    if(this.diseasesHistoryArray.length > 0){
+                        this.patientDiseasesHistoryId = result.data.id
+                        this.createPatientDiseasesHistory(this.patientDiseasesHistoryId, this.diseasesHistoryArray)
+                    }
+                    if(this.healthIndexesArray.length > 0){
+                        this.createPatientHealthIndexesInfo(result.data.id, this.healthIndexesArray)
+                    }
                 }
                 else {
                     this.$toast.open({
@@ -1242,7 +1374,7 @@ export default {
                         break;
                     }
                     case 6: {
-                        this.getPatientDetail(payloadId, false)
+                        this.getPatientDetail(payloadId, 'detail')
                         break
                     }
                     default: {
@@ -1251,22 +1383,151 @@ export default {
                 }
                 this.$store.dispatch('resetHandleNotification')
             }
+        },
+        getAllDiseases(name){
+            this.allDiseases = []
+            this.diseasesLoading = true;
+            let params = {
+                page: 1,
+                size: 10000,
+                search: `name=${name}`
+            }
+            let url = `${config.apiUrl}/diseases`
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.allDiseases = result.data.content
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.diseasesLoading = false;
+            })
+        },
+        createPatientDiseasesHistory(id, diseasesIdArray){
+            // console.log(id)
+            let diseases = []
+            for (let i = 0; i < diseasesIdArray.length; i++){
+                diseases.push(diseasesIdArray[i].id)
+            }
+            // console.log(diseases)
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo hồ sơ bệnh án cho bệnh nhân...')
+            let body = {
+                diseases: diseases
+            }
+            let url = `${config.apiUrl}/user/${id}/diseases`
+            apiService.postApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$toast.open({
+                        message: 'Tạo hồ sơ bệnh án cho bệnh nhân thành công!',
+                        type: 'success',
+                        // all other options may go here
+                    })
+                    this.searchDiseasesName = '';
+                    this.getAllDiseases(this.searchDiseasesName)
+                    this.patientDiseasesHistoryId = 0;
+                    this.diseasesHistoryArray = [];
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                    })
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        getHealthIndexes(page, size){
+            this.healthIndexes = []
+            this.loadingHealthIndexes = true
+            let params = {
+                page: page,
+                size: size
+            }
+            let url = `${config.apiUrl}/health_indexes`
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    // this.healthIndexesPages = result.data.totalPages
+                    this.allHealthIndexes = result.data.content
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                        // all other options may go here
+                    })
+                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingHealthIndexes = false;
+            })
+        },
+        createPatientHealthIndexesInfo(id, healthIndexesArray){
+            let results = []
+            for (let i = 0; i < healthIndexesArray.length; i++){
+                let index = healthIndexesArray[i]
+                let obj = {
+                    index_id: index.id,
+                    values: []
+                }
+                for (let j = 0; j < index.fields.length; j++){
+                    let valueObj = {
+                        field_id: index.fields[j].id,
+                        value: index.fields[j].value
+                    }
+                    obj.values.push(valueObj)
+                }
+                results.push(obj)
+            }
+            let body = {
+                results: results
+            }
+            let url = `${config.apiUrl}/user/${id}/results`
+            apiService.postApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$toast.open({
+                        message: 'Tạo thông tin sức khỏe cho bệnh nhân thành công!',
+                        type: 'success',
+                        // all other options may go here
+                    })
+                    this.healthIndexesArray = []
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                    })
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
         }
     },
     created(){
-        // eventBus.$on('newNotification', this.handleNewNotification);
-        // alert(convertNumber.convertToBinary(8))
-        // alert(convertNumber.convertToDecimal(10000))
         this.checkComeFromNotiPage()
         this.registerObj.dateOfBirth = new Date().toISOString().substr(0, 10)
-        
         this.getInquiries(this.inquiryPage, this.inquiryPageSize)
         this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
-        
         this.getAllPractitioner()
+        this.getAllDiseases(this.searchDiseasesName)
+        this.getHealthIndexes(1, 10000)
     },
     destroyed(){
-        // eventBus.$off('newNotification', this.handleNewNotification);
+
     }
 }
 </script>
