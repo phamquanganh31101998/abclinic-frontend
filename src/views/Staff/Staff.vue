@@ -321,7 +321,6 @@
                             </v-dialog>
                         </template>
                     </v-data-table>
-                    
                 </v-card>
                 <v-dialog offset-y persistent v-model="detailHealthIndexesDialog" width="400" max-width="70%">
                     <v-card v-if="detailHealthIndexes != null">
