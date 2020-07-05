@@ -652,6 +652,10 @@
                                     <h3>Bác sĩ dinh dưỡng phụ trách:</h3>
                                     <h3 :key="doctor.id" v-for="doctor in patientDetail.dietitians"> - {{doctor.name}}</h3>
                                 </v-col>
+                                <v-col cols="12">
+                                    <h3>Các căn bệnh hiện tại:</h3>
+                                    <h3 :key="disease.id" v-for="disease in patientDetail.diseases"> - {{disease.name}}</h3>
+                                </v-col>
                             </v-row>
                             <v-row v-if="patientDetail.id != '' && patientDetail.id != 0">
                                 <v-col cols="12">
@@ -941,6 +945,7 @@ export default {
                 practitioner: {},
                 specialists: [],
                 dietitians: [],
+                diseases: []
             },
             patientInquiryHistoryDialog: false,
             patientInquiryHistoryHeaders: [
@@ -1407,6 +1412,7 @@ export default {
             this.patientDetail.name = data.name
             this.patientDetail.phoneNumber = data.phoneNumber
             this.patientDetail.inquiries = data.inquiries
+            this.patientDetail.diseases = data.diseases
             if(data.practitioner){
                 this.patientDetail.practitioner = data.practitioner
             }
@@ -1678,6 +1684,7 @@ export default {
                             practitioner: {},
                             specialists: [],
                             dietitians: [],
+                            diseases: []
                         }
                         this.detailInquiry = null
                     }
@@ -2075,6 +2082,7 @@ export default {
                                     practitioner: {},
                                     specialists: [],
                                     dietitians: [],
+                                    diseases: []
                                 }
                                 this.detailInquiry = null
                             }

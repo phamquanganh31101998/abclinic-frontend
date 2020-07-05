@@ -9,8 +9,9 @@
             <v-col
                 cols="12"
                 sm="10"
-                offset-sm="1"
-                md="4"
+                md="6"
+                lg="4"
+                xl="4"
                 >
                 <v-card class="elevation-4">
                     <v-toolbar
@@ -18,7 +19,7 @@
                         dark
                         flat
                         >
-                        <v-toolbar-title>ĐĂNG NHẬP VÀO HỆ THỐNG ABCLINIC</v-toolbar-title>
+                        <v-toolbar-title>ABCLINIC - Đăng nhập</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text>
                         <v-form>
