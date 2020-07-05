@@ -187,7 +187,7 @@
                                 </template>
                                 <v-list>
                                     <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'detail')"><v-list-item-title>Chỉnh sửa thông tin cá nhân</v-list-item-title></v-list-item>
-                                    <!-- <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'diseases')"><v-list-item-title>Chỉnh sửa hồ sơ bệnh án</v-list-item-title></v-list-item> -->
+                                    <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'diseases')"><v-list-item-title>Chỉnh sửa hồ sơ bệnh án</v-list-item-title></v-list-item>
                                     <!-- <v-list-item v-if="item.status != 1024"><v-list-item-title>Chỉnh sửa thông tin sức khỏe</v-list-item-title></v-list-item> -->
                                     <v-list-item v-if="item.status != 1024" @click="getPatientDetail(item.id, 'assign')"><v-list-item-title>Gán bệnh nhân</v-list-item-title></v-list-item>
                                     <v-list-item v-if="item.status != 1024" @click="deleteUserId = item.id, deleteUserTypeIsStaff = false, deleteUserDialog = true"><v-list-item-title>Hủy kích hoạt tài khoản</v-list-item-title></v-list-item>
@@ -384,7 +384,7 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary" text @click="diseasesHistoryDialog = false, createPatientDiseasesHistory(patientDiseasesHistoryId, diseasesHistoryArray)">Chỉnh sửa</v-btn>
+                            <v-btn color="primary" text @click="diseasesHistoryDialog = false, updatePatientDiseasesHistory(patientDiseasesHistoryId, diseasesHistoryArray)">Chỉnh sửa</v-btn>
                             <v-btn color="red" text @click="diseasesHistoryDialog = false">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
@@ -1100,7 +1100,7 @@ export default {
                     this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                     if(this.diseasesHistoryArray.length > 0){
                         this.patientDiseasesHistoryId = result.data.id
-                        this.createPatientDiseasesHistory(this.patientDiseasesHistoryId, this.diseasesHistoryArray)
+                        this.updatePatientDiseasesHistory(this.patientDiseasesHistoryId, this.diseasesHistoryArray)
                     }
                     if(this.healthIndexesArray.length > 0){
                         this.createPatientHealthIndexesInfo(result.data.id, this.healthIndexesArray)
@@ -1411,7 +1411,7 @@ export default {
                 this.diseasesLoading = false;
             })
         },
-        createPatientDiseasesHistory(id, diseasesIdArray){
+        updatePatientDiseasesHistory(id, diseasesIdArray){
             // console.log(id)
             let diseases = []
             for (let i = 0; i < diseasesIdArray.length; i++){
@@ -1423,10 +1423,10 @@ export default {
                 diseases: diseases
             }
             let url = `${config.apiUrl}/user/${id}/diseases`
-            apiService.postApi(url, body).then(result => {
+            apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
-                        message: 'Tạo hồ sơ bệnh án cho bệnh nhân thành công!',
+                        message: 'Lập hồ sơ bệnh án cho bệnh nhân thành công!',
                         type: 'success',
                         // all other options may go here
                     })
