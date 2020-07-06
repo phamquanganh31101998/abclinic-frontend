@@ -26,7 +26,7 @@
                 <v-list-item-icon>
                     <v-icon>record_voice_over</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Bác sĩ chuyên khoa/Dinh dưỡng</v-list-item-title>
+                <v-list-item-title>Bác sĩ chuyên khoa/dinh dưỡng</v-list-item-title>
             </v-list-item>
             <v-list-item v-show="user != null && user.role == 'COORDINATOR'" @click="goToPage('coordinator')">
                 <v-list-item-icon>
@@ -61,7 +61,6 @@ export default {
     methods: {
         goToPage(page){
             if(page){
-                // console.log(this.$store.state.ac_uid)
                 let url = `/${page}`
                 this.$router.push(url)
             }

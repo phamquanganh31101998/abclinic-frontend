@@ -903,9 +903,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                     
                 }
             }).catch(error => {
@@ -931,7 +929,6 @@ export default {
                     specialty: this.checkString(doctorArray[i].specialty),
                     status: this.checkString(doctorArray[i].status)
                 }
-                // console.log(obj)
                 this.allDoctors.push(obj)
             }
         },
@@ -948,9 +945,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -970,9 +965,7 @@ export default {
                     this.$toast.open({
                         message: 'Hủy kích hoạt tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa tài khoản thành công'})
                     if(isStaff){
                         this.doctorPage = 1;
                         this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
@@ -986,9 +979,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -1000,7 +991,7 @@ export default {
             })
         },
         reactivateUser(id, isStaff){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang tái kích hoạt tài khoản này...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tái kích hoạt lại tài khoản này...')
             let url = `${config.apiUrl}/user`
             let body = {
                 id: id
@@ -1008,11 +999,9 @@ export default {
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
-                        message: 'Tái kích hoạt tài khoản thành công',
+                        message: 'Tái kích hoạt lại tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tái kích hoạt tài khoản thành công'})
                     if(isStaff){
                         this.doctorPage = 1;
                         this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
@@ -1026,9 +1015,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -1048,9 +1035,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1073,9 +1058,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo chuyên môn thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo chuyên môn thành công'})
                     this.createSpec.name = '';
                     this.createSpec.detail = '';
                     this.getSpecialties()
@@ -1084,9 +1067,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1112,25 +1093,20 @@ export default {
                     this.$toast.open({
                         message: 'Sửa chuyên môn thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Sửa chuyên môn thành công'})
                     this.getSpecialties()
                 }
                 else {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-            // this.specDetailDialog = false;
         },
         getAllDisease(page, size, searchObj){
             this.loadingDisease = true;
@@ -1161,9 +1137,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1186,9 +1160,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo căn bệnh thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo căn bệnh thành công'})
                     this.createDisease.name = '';
                     this.createDisease.description = '';
                     this.getAllDisease(this.diseasePage, this.diseasePageSize)
@@ -1197,9 +1169,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1225,25 +1195,20 @@ export default {
                     this.$toast.open({
                         message: 'Sửa căn bệnh thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Sửa căn bệnh thành công'})
                     this.getAllDisease(this.diseasePage, this.diseasePageSize)
                 }
                 else {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-            // this.specDetailDialog = false;
         },
         createHealthIndexes(name, description, fields){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo mẫu thông số sức khỏe...')
@@ -1258,9 +1223,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo mẫu thông số sức khỏe mới thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo chỉ số sức khỏe mới thành công'})
                     this.healthIndexesPages = 1
                     this.getHealthIndexes(this.healthIndexesPage, this.healthIndexesPageSize)
                     this.createHealthIndexesObj = {
@@ -1273,9 +1236,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1300,9 +1261,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1322,9 +1281,7 @@ export default {
                         this.$toast.open({
                             message: 'Thêm trường thành công',
                             type: 'success',
-                            // all other options may go here
                         })
-                        // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Thêm trường thành công'})
                         this.detailHealthIndexes = result.data
                         this.healthIndexesNewField = ''
                     }
@@ -1332,9 +1289,7 @@ export default {
                         this.$toast.open({
                             message: result.data.message,
                             type: 'error',
-                            // all other options may go here
                         })
-                        // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                     }
                 }).catch(error => {
                     console.log(error)
@@ -1357,18 +1312,14 @@ export default {
                     this.$toast.open({
                         message: 'Xóa trường thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa trường thành công'})
                     this.detailHealthIndexes = result.data
                 }
                 else {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1389,18 +1340,46 @@ export default {
                     this.$toast.open({
                         message: 'Cập nhật thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
                     this.detailHealthIndexes = result.data
                 }
                 else {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.$store.dispatch('turnOffLoadingDialog')
+            })
+        },
+        updateDoctorInfo(detailObj){
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
+            let url = `${config.apiUrl}/user/${detailObj.id}`
+            let body = {
+                "description": detailObj.description,
+                "dob": detailObj.dateOfBirth.split("-").reverse().join("/"),
+                "email": detailObj.email,
+                "gender": detailObj.gender,
+                "name": detailObj.name,
+                "phone": detailObj.phoneNumber
+            }
+            apiService.putApi(url, body).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.$toast.open({
+                        message: 'Cập nhật thành công!',
+                        type: 'error',
+                    })
+                    this.doctorPage = 1;
+                    this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                    })
                 }
             }).catch(error => {
                 console.log(error)
@@ -1409,7 +1388,7 @@ export default {
             })
         },
         register(name, email, phone, dob, gender, role, password){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang Tạo tài khoản mới...')
+            this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo tài khoản mới...')
             let body = {
                 name: name,
                 email: email,
@@ -1425,9 +1404,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo tài khoản thành công'})
                     this.doctorPage = 1;
                     this.doctorSearch = {
                         name: undefined,
@@ -1442,9 +1419,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)

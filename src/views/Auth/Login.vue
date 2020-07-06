@@ -1,17 +1,16 @@
 <template>
     <v-container
-        class="fill-height"
+        class="fill-height content"
         fluid>
         <v-row
             align="center"
             justify="center"
             >
             <v-col
-                cols="12"
-                sm="10"
-                md="6"
-                lg="4"
-                xl="4"
+                sm="6"
+                md="4"
+                lg="3"
+                xl="3"
                 >
                 <v-card class="elevation-4">
                     <v-toolbar
@@ -19,29 +18,30 @@
                         dark
                         flat
                         >
-                        <v-toolbar-title>ABCLINIC - Đăng nhập</v-toolbar-title>
+                        <v-toolbar-title>ĐĂNG NHẬP ABCLINIC</v-toolbar-title>
                     </v-toolbar>
-                    <v-card-text>
-                        <v-form>
-                        <v-text-field
-                            label="Email/SDT"
-                            prepend-icon="person"
-                            type="text"
-                            v-model="info"
-                        />
+                    <v-card-text style="background-color: #FFFFFF">
+                        <v-form v-model="valid">
+                            <v-text-field
+                                label="Email hoặc số điện thoại"
+                                prepend-icon="person"
+                                type="text"
+                                v-model="info"
+                                :rules="noEmptyRules"
+                            />
 
-                        <v-text-field
-                            v-model="password"
-                            label="Password"
-                            prepend-icon="lock"
-                            type="password"
-                            @keyup.enter="login()"
-                        />
+                            <v-text-field
+                                v-model="password"
+                                label="Mật khẩu"
+                                prepend-icon="lock"
+                                type="password"
+                                :rules="noEmptyRules"
+                            />
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="primary" @click="login()">Đăng nhập</v-btn>
+                        <!-- <v-spacer /> -->
+                        <v-btn :disabled="!valid || logging" block color="primary" @click="login()">Đăng nhập</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -56,12 +56,15 @@
             return {
                 info: '',
                 password: '',
+                logging: false,
+                valid: false,
+                noEmptyRules: [
+                    v => !!v || 'Không được để trống',
+                ],
             }
         },
         methods: {
-            //check when user not login yet
             checkUserRole(){
-                // let uid = localStorage.getItem('ac_uid')
                 let url = `${config.apiUrl}/user`
                 apiService.getApi(url).then(result => {
                     if(result.status === 200){
@@ -69,9 +72,7 @@
                             this.$toast.open({
                                 message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC',
                                 type: 'error',
-                                // all other options may go here
                             })
-                            // this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
                             localStorage.removeItem('ac_uid')
                         }
                         else {
@@ -89,7 +90,6 @@
                                     this.goToPage('/doctor');
                                     break;
                             }
-                            // this.$router.push('/notification')
                         }
                     }
                     else if (result.status === 401){
@@ -100,7 +100,8 @@
                 })
             },
             login(){
-                this.$store.dispatch('turnOnLoadingDialog', 'Đăng nhập...')
+                this.logging = true;
+                this.$store.dispatch('turnOnLoadingDialog', 'Đang đăng nhập...')
                 let info = this.info
                 let password = this.password
                 let url = `${config.apiUrl}/auth/login`
@@ -117,14 +118,13 @@
                         this.$toast.open({
                             message: result.data.message,
                             type: 'error',
-                            // all other options may go here
                         })
-                        // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                     }
                 }).catch(error => {
                     console.log(error)
                 }).finally(() => {
                     this.$store.dispatch('turnOffLoadingDialog')
+                    this.logging = false;
                 })
             },
             goToPage(link){
@@ -132,10 +132,34 @@
             },
         },
         created(){
-            // this.miscMethod()
         }
     }
 </script>
 <style scoped>
+@media screen and (max-width: 600px) {
+    .content {
+        background-image: url('../../../public/mobile3.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+}
 
+@media screen and (min-width: 601px) {
+    .content {
+        background-image: url('../../../public/tablet1.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+}
+
+@media screen and (min-width: 1265px) {
+    .content {
+        background-image: url('../../../public/desktop2.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+}
 </style>
