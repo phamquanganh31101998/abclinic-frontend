@@ -385,7 +385,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="primary" text @click="diseasesHistoryDialog = false, updatePatientDiseasesHistory(patientDiseasesHistoryId, diseasesHistoryArray)">Chỉnh sửa</v-btn>
-                            <v-btn color="red" text @click="diseasesHistoryDialog = false">Đóng</v-btn>
+                            <v-btn color="red" text @click="diseasesHistoryDialog = false, diseasesHistoryArray = []">Đóng</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -603,9 +603,7 @@
     </v-container>
 </template>
 <script>
-// const { encode } = require('url-encode-decode')
 import {mapGetters} from 'vuex'
-// import eventBus from '../../eventBus'
 import apiService from '../../services/api.service'
 import config from '../../config'
 var convertNumber = require('decimal-to-binary')
@@ -805,8 +803,6 @@ export default {
     },
     methods: {
         setPatientStatusBit(index, value){
-            // console.log(index)
-            // console.log(value)
             if(value == true){
                 switch(index){
                     //new patient
@@ -858,7 +854,6 @@ export default {
                     }
                 }
             }
-            // console.log(this.returnValueFromStatusBit())
         },
         returnValueFromStatusBit(){
             if(this.patientStatusBitAllValue[11] == true){
@@ -876,9 +871,7 @@ export default {
                     bitArr[i] = (this.patientStatusBitAllValue[i] == true) ? 1 : 0
                 }
                 let statusValue = bitArr.reverse().join("")
-                // console.log(statusValue)
                 //has been reverse
-                // console.log(bitArr)
                 if(bitArr[9] == 0 && (bitArr[8] == 1 || bitArr[7] == 1)){
                     return convertNumber.convertToDecimal(statusValue) + 1;
                 }
@@ -958,9 +951,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -971,10 +962,6 @@ export default {
         },
         updatePatients(patArray){
             this.allPatients = patArray;
-        },
-        goToPatientPage(id){
-            let url = `/patient/${id}`
-            this.$router.push(url)
         },
         getPatientDetail(id, func){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết bệnh nhân...')
@@ -990,9 +977,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1022,17 +1007,12 @@ export default {
                 "doctor_id": doctor[0].id,
                 "inquiry_id": inquiry[0].id
             }
-            // console.log(url)
-            // console.log(body)
-            // console.log(fromMainTable)
             apiService.postApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
                         message: 'Gán quyền quản lý bệnh nhân thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Gán quyền quản lý bệnh nhân thành công!'})
                     if(fromMainTable){
                         this.selectedDoctor = []
                         this.selectedInquiryMain = []
@@ -1042,8 +1022,6 @@ export default {
                     else {
                         this.selectedDoctor = []
                         this.selectedInquiry = []
-                        
-                        
                     }
                     this.inquiryPage = 1;
                     this.getInquiries(this.inquiryPage, this.inquiryPageSize)
@@ -1060,9 +1038,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1087,9 +1063,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo tài khoản thành công'})
                     this.patientPage = 1;
                     this.patientSearch = {
                         name: undefined,
@@ -1110,9 +1084,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1131,9 +1103,7 @@ export default {
                     this.$toast.open({
                         message: 'Hủy kích hoạt tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa tài khoản thành công'})
                     if(isStaff){
                         this.doctorPage = 1;
                         this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
@@ -1147,9 +1117,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -1171,9 +1139,7 @@ export default {
                     this.$toast.open({
                         message: 'Tái kích hoạt tài khoản thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tái kích hoạt tài khoản thành công'})
                     if(isStaff){
                         this.doctorPage = 1;
                         this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
@@ -1187,9 +1153,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -1213,9 +1177,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1238,9 +1200,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1267,7 +1227,7 @@ export default {
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     let type = result.data.type
-                    //patient send new inquiry, prac remove patient, prac accept assign, prac reject assign, 
+                    //patient (without practitioner) send new inquiry, prac remove patient, prac accept assign, prac reject assign, 
                     if(type == 0 || type == 6 || type == 4 || type == 5){
                         this.patientPage = 1;
                         this.patientSearch = {
@@ -1285,44 +1245,36 @@ export default {
                 console.log(error)
             })
         },
-        updateDoctorInfo(detailObj){
-            this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
-            let url = `${config.apiUrl}/user/${detailObj.id}`
-            let body = {
-                "description": detailObj.description,
-                "dob": detailObj.dateOfBirth.split("-").reverse().join("/"),
-                "email": detailObj.email,
-                "gender": detailObj.gender,
-                "name": detailObj.name,
-                "phone": detailObj.phoneNumber
+        checkComeFromNotiPage(){
+            let typeNoti = this.handleNotificationObj.typeNoti
+            let payloadId = this.handleNotificationObj.payloadId
+            if(typeNoti != -1){
+                switch(typeNoti){
+                    //patient (without practitioner) send new inquiry
+                    case 0: {
+                        break;
+                    }
+                    //prac accept assign
+                    case 4: {
+                        break;
+                    }
+                    //prac reject assign, 
+                    case 5: {
+                        break;
+                    }
+                    //prac remove patient
+                    case 6: {
+                        this.getPatientDetail(payloadId, 'detail')
+                        break
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                this.$store.dispatch('resetHandleNotification')
             }
-            apiService.putApi(url, body).then(result => {
-                if(result.status.toString()[0] === "2"){
-                    this.$toast.open({
-                        message: 'Cập nhật thành công!',
-                        type: 'error',
-                        // all other options may go here
-                    })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
-                    this.doctorPage = 1;
-                    this.getAllDoctor(this.doctorPage, this.doctorPageSize, this.doctorSearch)
-                }
-                else {
-                    this.$toast.open({
-                        message: result.data.message,
-                        type: 'error',
-                        // all other options may go here
-                    })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
-                }
-            }).catch(error => {
-                console.log(error)
-            }).finally(() => {
-                this.$store.dispatch('turnOffLoadingDialog')
-            })
         },
         updatePatientInfo(detailObj){
-            // console.log(detailObj)
             this.$store.dispatch('turnOnLoadingDialog', 'Đang cập nhật thông tin...')
             let url = `${config.apiUrl}/user/${detailObj.id}`
             let body = {
@@ -1338,9 +1290,7 @@ export default {
                     this.$toast.open({
                         message: 'Cập nhật thành công!',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Cập nhật thành công!'})
                     this.patientPage = 1;
                     this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                 }
@@ -1348,41 +1298,13 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-        },
-        checkComeFromNotiPage(){
-            let typeNoti = this.handleNotificationObj.typeNoti
-            let payloadId = this.handleNotificationObj.payloadId
-            // console.log(payloadId)
-            if(typeNoti != -1){
-                switch(typeNoti){
-                    case 0: {
-                        break;
-                    }
-                    case 4: {
-                        break;
-                    }
-                    case 5: {
-                        break;
-                    }
-                    case 6: {
-                        this.getPatientDetail(payloadId, 'detail')
-                        break
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                this.$store.dispatch('resetHandleNotification')
-            }
         },
         getAllDiseases(name){
             this.allDiseases = []
@@ -1401,9 +1323,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1412,12 +1332,10 @@ export default {
             })
         },
         updatePatientDiseasesHistory(id, diseasesIdArray){
-            // console.log(id)
             let diseases = []
             for (let i = 0; i < diseasesIdArray.length; i++){
                 diseases.push(diseasesIdArray[i].id)
             }
-            // console.log(diseases)
             this.$store.dispatch('turnOnLoadingDialog', 'Đang tạo hồ sơ bệnh án cho bệnh nhân...')
             let body = {
                 diseases: diseases
@@ -1428,7 +1346,6 @@ export default {
                     this.$toast.open({
                         message: 'Lập hồ sơ bệnh án cho bệnh nhân thành công!',
                         type: 'success',
-                        // all other options may go here
                     })
                     this.searchDiseasesName = '';
                     this.getAllDiseases(this.searchDiseasesName)
@@ -1457,16 +1374,13 @@ export default {
             let url = `${config.apiUrl}/health_indexes`
             apiService.getApi(url, params).then(result => {
                 if(result.status.toString()[0] === "2"){
-                    // this.healthIndexesPages = result.data.totalPages
                     this.allHealthIndexes = result.data.content
                 }
                 else {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1500,7 +1414,6 @@ export default {
                     this.$toast.open({
                         message: 'Tạo thông tin sức khỏe cho bệnh nhân thành công!',
                         type: 'success',
-                        // all other options may go here
                     })
                     this.healthIndexesArray = []
                 }

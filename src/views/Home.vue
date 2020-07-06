@@ -13,7 +13,6 @@
 <script>
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-// import {eventBus} from '../eventBus'
 import {mapGetters} from 'vuex'
 import SockJS from 'sockjs-client'
 import Stomp from'stomp-websocket'
@@ -53,9 +52,7 @@ export default {
                   this.$toast.open({
                       message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC',
                       type: 'error',
-                      // all other options may go here
                   })
-                  // this.$store.dispatch('turnOnAlert', {color: 'error', message: 'Trang này chỉ dành cho nhân viên phòng khám ABCLINIC'})
                 }
                 else {
                   this.$store.dispatch('setAuthData', result.data)
@@ -68,14 +65,8 @@ export default {
                 this.$toast.open({
                     message: result.data.message,
                     type: 'error',
-                    // all other options may go here
                 })
-                // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
             }
-            // else {
-            //     this.$store.dispatch('clearAuthData')
-            //     this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
-            // }
         }).catch(error => {
             console.log(error)
         })
@@ -88,11 +79,7 @@ export default {
         client.connect({
           Authorization: localStorage.getItem('ac_uid')
         }, function() {
-          // console.log(frame)
             client.subscribe(`/topic/users/${id}`, function (message) {
-                // console.log(message.body)
-                // eventBus.newNotification(message.body)
-
                 store.dispatch('setNewNotification', JSON.parse(message.body))
             });
         });
@@ -144,7 +131,6 @@ export default {
     },
     checkExpiredUID(){
       let info = jwt.decode(localStorage.getItem('ac_uid'));
-      // console.log(info)
       let expDay = moment(info.exp * 1000);
       let today = moment();
       if(today.isAfter(expDay)){
@@ -152,7 +138,6 @@ export default {
           this.$toast.open({
               message: 'Phiên đăng nhập của bạn đã hết hạn. Hãy đăng nhập lại',
               type: 'error',
-              // all other options may go here
           })
       }
       else {
@@ -165,13 +150,7 @@ export default {
   },
   created() {
     this.checkExpiredUID()
-    // this.checkUID()
-    
-    // eventBus.$on('newNotification', this.handleNewNotification);
   },
-  // destroyed(){
-  //   eventBus.$off('newNotification', this.handleNewNotification);
-  // }
 }
 </script>
 

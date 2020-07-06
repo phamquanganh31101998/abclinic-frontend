@@ -20,7 +20,6 @@ export default {
             color: 'alertColor',
             snackbar: 'alertSnackbar',
             text: 'alertMessage'
-            // ...4
         })
     },
     watch: {

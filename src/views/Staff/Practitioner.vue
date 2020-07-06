@@ -1365,8 +1365,6 @@ export default {
     },
     methods: {
         setPatientStatusBit(index, value){
-            // console.log(index)
-            // console.log(value)
             if(value == true){
                 switch(index){
                     //has spec or diet
@@ -1400,15 +1398,11 @@ export default {
                     }
                 }
             }
-            // console.log(this.returnValueFromStatusBit())
         },
         returnValueFromStatusBit(){
             if(this.patientStatusBitAllValue[6] == true || !this.patientStatusBitAllValue.includes(true)){
                 return -1;
             }
-            // else if(this.patientStatusBitAllValue[5] == true){
-            //     return (this.patientStatusBitAllValue[4] == true) ? 18 : 2
-            // }
             else {
                 let bitArr = []
                 for(let i = 0; i < 5 ; i++){
@@ -1533,32 +1527,6 @@ export default {
                     searchString += `${property}=${searchObj[property]},`
                 }
             }
-            // console.log(this.patientAllStatus)
-            // let status = 0;
-            // if(this.patientAllStatus[0].value == true){
-            //     status = 2 + ((this.patientAllStatus[3].value == true) ? 16 : 0);
-            // }
-            // else {
-            //     for(let i = 1; i < this.patientAllStatus.length; i++){
-            //         if(this.patientAllStatus[i].value == true){
-            //             status += this.patientAllStatus[i].key
-            //         }
-            //     }
-            //     if(status != 0){
-            //         status += 2;
-            //     }
-            // }
-            // console.log(status)
-            // let status = 0;
-            // for(let i = 0; i < this.patientAllStatus.length; i++){
-            //     if(this.patientAllStatus[i].value == true){
-            //         status += this.patientAllStatus[i].key
-            //     }
-            // }
-            // if(status != 0){
-            //     searchString += `status=${status},`
-            // }
-            // console.log(searchString)
             params.search = searchString
             let url = `${config.apiUrl}/patients`
             apiService.getApi(url, params).then(result => {
@@ -1570,9 +1538,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
                 
             }).catch(error => {
@@ -1600,17 +1566,10 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
-                // this.$toast.open({
-                //     message: error,
-                //     type: 'error',
-                //     // all other options may go here
-                // })
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
@@ -1630,17 +1589,10 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
-                // this.$toast.open({
-                //     message: error,
-                //     type: 'error',
-                //     // all other options may go here
-                // })
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
@@ -1696,15 +1648,12 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 this.$toast.open({
                     message: error,
                     type: 'error',
-                    // all other options may go here
                 })
             })
         },
@@ -1727,28 +1676,23 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 this.$toast.open({
                     message: error,
                     type: 'error',
-                    // all other options may go here
                 })
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
         getImages(albumId){
-            // let imageArr = []
             let params = {
                 album_id: albumId
             }
             let url = `${config.apiUrl}/images`
             apiService.getApi(url, params).then(result => {
-                // console.log(result)
                 if(result.status.toString()[0] === "2"){
                     this.images = result.data
                 }
@@ -1756,9 +1700,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1768,8 +1710,6 @@ export default {
             for(let i = 0; i < doctorArr.length; i++){
                 this.assignToDoctor(patientId, inquiryArr[0].id, doctorArr[i])
             }
-            // this.getPatientDetail(patientId, true)
-
         },
         assignToDoctor(patientId, inquiryId, doctor){
             let body = {
@@ -1777,14 +1717,15 @@ export default {
                 "inquiry_id": inquiryId
             }
             let url = `${config.apiUrl}/patients/${patientId}/doctor`
+            this.$toast.open({
+                message: `Đang gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name}...`,
+                type: 'info',
+            })
             apiService.postApi(url, body).then(result => {
-                // console.log(result)
                 if(result.status.toString()[0] === "2"){
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: `Gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name} thành công!`})
                     this.$toast.open({
                         message: `Gán quyền quản lý bệnh nhân cho bác sĩ ${doctor.name} thành công!`,
                         type: 'success',
-                        // all other options may go here
                     })
                     this.getDoctorInCharge(patientId)
                 }
@@ -1792,14 +1733,12 @@ export default {
                     this.$toast.open({
                         message: (result.data.message == 'Bad request: Bác sĩ này đã được gán cho bệnh nhân này') ? `Bác sĩ ${doctor.name} đã quản lý bệnh nhân này` : result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
                 }
             }).catch(error => {
                 this.$toast.open({
                     message: error,
                     type: 'error',
-                    // all other options may go here
                 })
             })
         },
@@ -1815,9 +1754,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1838,15 +1775,12 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 this.$toast.open({
                     message: error,
                     type: 'error',
-                    // all other options may go here
                 })
             })
         },
@@ -1865,15 +1799,12 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 this.$toast.open({
                     message: error,
                     type: 'error',
-                    // all other options may go here
                 })
             })
         },
@@ -1894,9 +1825,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1939,17 +1868,13 @@ export default {
                     this.$toast.open({
                         message: 'Duyệt tư vấn thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Duyệt tư vấn thành công'})
                     if(isMedical == true){
                         this.detailInquiry.medicalRecords.splice(index, 1)
-                        // this.detailInquiry.medicalRecords.push(result.data)
                         this.getNewRecordFromNotification(result.data.id, 0)
                     }
                     else {
                         this.detailInquiry.dietRecords[index].splice(index, 1)
-                        // this.detailInquiry.dietRecords[index].push(result.data)
                         this.getNewRecordFromNotification(result.data.id, 1)
                     }
                 }
@@ -1957,9 +1882,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -1975,9 +1898,7 @@ export default {
                     this.$toast.open({
                         message: 'Xóa khỏi quyền quản lý thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa khỏi quyền quản lý thành công'})
                     if(this.patientDetail.id == id){
                         this.patientDetail = {
                             dateOfBirth: '',
@@ -2004,9 +1925,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2015,7 +1934,6 @@ export default {
             })
         },
         getInquiries(page, size, assigned){
-            // this.detailInquiry = null;
             this.inquiries = [];
             this.loadingInquiries = true;
             let url = `${config.apiUrl}/inquiries`
@@ -2035,9 +1953,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2092,15 +2008,12 @@ export default {
                             this.$toast.open({
                                 message: result.data.message,
                                 type: 'error',
-                                // all other options may go here
                             })
-                            // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                         }
                     }).catch(error => {
                         this.$toast.open({
                             message: error,
                             type: 'error',
-                            // all other options may go here
                         })
                     }).finally(() => {
                         this.$store.dispatch('turnOffLoadingDialog')
@@ -2119,15 +2032,10 @@ export default {
             let dayStr = (day == 0) ? '' : `${day} ngày `
             let hour = Math.floor((sec % 18144000 % 604800 % 86400) / 3600)
             let hourStr = (hour == 0) ? '' : `${hour} giờ `
-            // let minute = Math.floor((sec % 86400 % 3600) / 60)
-            // let minuteStr = (minute == 0) ? '' : `${minute} phút `
-            // let second = (sec % 86400 % 3600 % 60)
-            // let secondStr = (second == 0) ? '' : `${second} giây `
             let result = monthStr + weekStr + dayStr + hourStr
             return result
         },
         getHealthIndexesSchedule(page, size, searchObj){
-            // console.log(searchObj)
             this.healthIndexesSchedules.data = []
             this.healthIndexesSchedules.loading = true;
             let params = {
@@ -2157,9 +2065,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2179,9 +2085,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2218,9 +2122,7 @@ export default {
                     this.$toast.open({
                         message: 'Tạo lịch gửi thành công',
                         type: 'success',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Tạo lịch gửi thành công'})
                     this.healthIndexesSchedules.page = 1;
                     this.healthIndexesSchedules.search = {
                         id: undefined,
@@ -2233,9 +2135,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2254,9 +2154,7 @@ export default {
                     this.$toast.open({
                         message: 'Xóa lịch gửi thành công',
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'success', message: 'Xóa lịch gửi thành công'})
                     this.healthIndexesSchedules.page = 1;
                     this.getHealthIndexesSchedule(this.healthIndexesSchedules.page, this.healthIndexesSchedules.pageSize, this.healthIndexesSchedules.search)
                 }
@@ -2264,9 +2162,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2301,9 +2197,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2323,9 +2217,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2345,9 +2237,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2384,9 +2274,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -2413,15 +2301,17 @@ export default {
                             this.getNewRecordFromNotification(payloadId, 0)
                             break;
                         }
+                        //new reply
                         case 2: {
                             this.getRepliesFromNewNotification(payloadId)
                             break;
                         }
+                        //dietitian advise 
                         case 11: {
                             this.getNewRecordFromNotification(payloadId, 1)
                             break;
                         }
-                        //assigned new patient or a patient has been deactivated
+                        //assigned new patient
                         case 3:  {
                             this.patientPage = 1;
                             this.patientSearch = {
@@ -2433,6 +2323,19 @@ export default {
                             this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)
                             this.inquiryPage = 1;
                             this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
+                            break;
+                        }
+                        //patient send health indexes
+                        case 8: {
+                            this.healthIndexesResult.page = 1;
+                            this.healthIndexesResult.search = {
+                                patient_id: undefined,
+                                patient_name: undefined,
+                                scheduleId: undefined,
+                                index_id: undefined,
+                                index_name: undefined
+                            }
+                            this.getHealthIndexesResult(this.healthIndexesResult.page,  this.healthIndexesResult.pageSize, this.healthIndexesResult.search)
                             break;
                         }
                         //doctor accept, reject assign, remove patient, 
@@ -2490,13 +2393,19 @@ export default {
             let payloadId = this.handleNotificationObj.payloadId
             if(typeNoti != -1){
                 switch(typeNoti){
+                    //0: patient send new inquiry
+                    //2: new reply
+                    //3: assigned a new patient
+                    //4, 5: doctor accept, reject assign
                     case 0:
+                    case 2:
                     case 3:
                     case 4:
                     case 5: {
                         this.getDetailInquiry(payloadId)
                         break;
                     }
+                    //new record
                     case 1: {
                         this.getInquiryFromRecordId(payloadId, 0)
                         break;
@@ -2505,10 +2414,12 @@ export default {
                         this.getInquiryFromRecordId(payloadId, 1)
                         break;
                     }
+                    //doctor remove a patient
                     case 6: {
                         this.getPatientDetail(payloadId)
                         break
                     }
+                    //patient has been deactivated
                     case 10: {
                         break;
                     }

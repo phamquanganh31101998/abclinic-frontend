@@ -41,18 +41,6 @@ const routes = [
         name: 'Coordinator',
         component: Coordinator,
       },
-      // {
-      //   path: '/patient/:idPatient',
-      //   name: 'Patient',
-      //   component: Patient,
-      //   props(route) {
-      //     const props = {
-      //         ...route.params
-      //     }
-      //     props.idPatient
-      //     return props
-      //   },
-      // },
       {
         path: '/practitioner',
         name: 'Practitioner',

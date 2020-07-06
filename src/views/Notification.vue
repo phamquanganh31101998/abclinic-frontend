@@ -118,7 +118,6 @@
 
 <script>
 import {mapGetters} from 'vuex'
-// import {eventBus} from '../eventBus'
 import config from '../config'
 import apiService from '../services/api.service'
 import moment from 'moment'
@@ -146,7 +145,6 @@ export default {
     computed: {
         ...mapGetters({
             newNotification: 'newNotification',
-            // handleNotificationObj: 'handleNotificationObj',
             user: 'user'
         })
     },
@@ -179,10 +177,6 @@ export default {
                 return "_"
             }
         },
-        checkLocalStorage(){
-            console.log(this.$store.state.ac_uid)
-            console.log(this.$store.state.user)
-        },
         getNoti(page, size){
             this.noti = [];
             this.loadingNoti = true;
@@ -203,9 +197,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -226,9 +218,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -265,7 +255,6 @@ export default {
         },
         goToPage(page){
             if(page){
-                // console.log(this.$store.state.ac_uid)
                 let url = `/${page}`
                 this.$router.push(url)
             }
@@ -278,15 +267,15 @@ export default {
                 case 0: 
                     return 'YÊU CẦU TƯ VẤN'
                 case 1: 
-                    return 'TƯ VẤN CHUYÊN KHOA'
+                    return 'TƯ VẤN KHÁM BỆNH'
                 case 2: 
-                    return 'TRẢ LỜI TƯ VẤN'
+                    return 'TRẢ LỜI'
                 case 3: 
                     return 'GÁN QUYỀN QUẢN LÝ'
                 case 4: 
                     return 'CHẤP NHẬN QUẢN LÝ'
                 case 5: 
-                    return 'TỪ CHỐI TƯ VẤN'
+                    return 'TỪ CHỐI QUẢN LÝ'
                 case 6: 
                     return 'HỦY QUYỀN QUẢN LÝ'
                 case 7: 
@@ -303,13 +292,9 @@ export default {
         }
     },
     created(){
-        // eventBus.$on('newNotification', this.handleNewNotification);
         this.getNoti(this.notiPage, this.notiPageSize)
-        // this.checkUID()
-        // this.test()
     },
     destroyed(){
-        // eventBus.$off('newNotification', this.handleNewNotification);
     }
 }
 </script>

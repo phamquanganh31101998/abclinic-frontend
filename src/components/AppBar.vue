@@ -11,16 +11,9 @@
             <v-toolbar-title>ABCLINIC</v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
-        <!-- <v-btn
-            text
-            >
-            <span class="mr-2" @click="logout()">Đăng xuất</span>
-            <v-icon>mdi-open-in-new</v-icon>
-        </v-btn> -->
         <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="120" left offset-y>
             <template v-slot:activator="{ on }">
                 <v-btn fab dark small color="primary" v-on="on">
-                    <!-- <v-img width="40px" height="40px" :src="user.avatar" v-if="user != null && user.avatar != null"></v-img> -->
                     <v-icon x-large>account_circle</v-icon>
                 </v-btn>
             </template>
@@ -53,6 +46,7 @@
                     </v-list-item>
 
                     <v-divider></v-divider>
+
                     <v-list-item v-if="user != null">
                         <v-list-item-icon>
                         <v-icon color="indigo">mdi-phone</v-icon>
@@ -64,14 +58,7 @@
                     </v-list-item>
                     <v-divider></v-divider>
 
-                    
-
                     <v-list-item>
-                        <!-- <v-row>
-                            <v-col>
-                                <a @click="logout()">Đăng xuất</a>
-                            </v-col>
-                        </v-row> -->
                         <v-btn
                             text
                             color="primary"
@@ -142,9 +129,7 @@ export default {
                     this.$toast.open({
                         message: result.data.message,
                         type: 'error',
-                        // all other options may go here
                     })
-                    // this.$store.dispatch('turnOnAlert', {color: 'error', message: result.data.message})
                 }
             }).catch(error => {
                 console.log(error)
@@ -156,7 +141,4 @@ export default {
 }
 </script>
 <style scoped>
-    .disable-events {
-        pointer-events: none
-    }
 </style>
