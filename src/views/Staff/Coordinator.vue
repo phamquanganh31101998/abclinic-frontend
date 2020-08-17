@@ -481,7 +481,7 @@
                                 </v-row>
                             </v-form>
                             <br>
-                            <v-divider></v-divider>
+                            <!-- <v-divider></v-divider>
                             <br>
                             <h2>Hồ sơ bệnh án</h2>
                             <div v-for="(field) in diseasesHistoryArray" :key="field.id" style="padding-left: 20px;">
@@ -547,7 +547,7 @@
                                 <template v-slot:item.fields="{ item }">
                                     <span v-for="field in item.fields" :key="field.id">{{field.name}}, </span>
                                 </template>
-                            </v-data-table>
+                            </v-data-table> -->
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>

@@ -11,6 +11,64 @@
             <v-toolbar-title>ABCLINIC</v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
+        <v-menu v-model="notiMenu" :close-on-content-click="false" :nudge-width="300" left offset-y>
+            <template v-slot:activator="{ on }">
+                <v-icon x-large style="margin-right: 15px;" v-on="on" @click="openNotiMenu()">notification_important</v-icon>
+            </template>
+            <v-card
+                max-width="375"
+                class="mx-auto"
+                >
+                <v-list v-if="loadingNoti">
+                    <v-list-item>
+                        <v-list-item-content>
+                            <div class="text-center">
+                                <v-progress-circular
+                                    :size="50"
+                                    color="primary"
+                                    indeterminate>
+                                </v-progress-circular>
+                            </div>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-divider></v-divider>
+                    <v-list-item>
+                        <v-btn
+                            block
+                            text
+                            color="primary"
+                            @click="notiMenu = false, $router.push('notification')"
+                            >
+                            <span class="mr-2" >Xem tất cả thông báo</span>
+                            <v-icon>mdi-open-in-new</v-icon>
+                        </v-btn>
+                    </v-list-item>
+                </v-list>
+                <v-list v-else>
+                    <template>
+                        <v-list-item v-for="item in noti" :key="item.id" @click="notiMenu = false, goToServicePage(item.type, item.payloadId)">
+                            <v-list-item-content>
+                                <v-list-item-title>{{checkString(item.message)}}</v-list-item-title>
+                                <v-list-item-subtitle>{{returnTimeFromTimeArray(item.createdAt)}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-divider></v-divider>
+                    </template>
+                    <v-divider></v-divider>
+                    <v-list-item>
+                        <v-btn
+                            block
+                            text
+                            color="primary"
+                            @click="notiMenu = false, $router.push('notification')"
+                            >
+                            <span class="mr-2" >Xem tất cả thông báo</span>
+                            <v-icon>mdi-open-in-new</v-icon>
+                        </v-btn>
+                    </v-list-item>
+                </v-list>
+            </v-card>
+        </v-menu>
         <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="120" left offset-y>
             <template v-slot:activator="{ on }">
                 <v-btn fab dark small color="primary" v-on="on">
@@ -74,13 +132,17 @@
     </v-app-bar>
 </template>
 <script>
+import moment from 'moment'
 import {mapGetters} from 'vuex'
 import config from '../config'
 import apiService from '../services/api.service'
 export default {
     data() {
         return {
-            menu: false
+            menu: false,
+            notiMenu: false,
+            noti: [],
+            loadingNoti: false,
         }
     },
     computed: {
@@ -89,6 +151,82 @@ export default {
         })
     },
     methods: {
+        goToServicePage(type, id){
+            let obj = {
+                typeNoti: type,
+                payloadId: id
+            }
+            this.$store.dispatch('setHandleNotification', obj)
+            let role = this.user.role.toLowerCase()
+            switch(role){
+                case "coordinator": 
+                case "practitioner": {
+                    this.goToPage(role)
+                    break;
+                }
+                case "specialist":
+                case "dietitian": {
+                    this.goToPage('doctor')
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        },
+        returnTimeFromTimeArray(arr){
+            try {
+                let i = 0;
+                let dayArr = []
+                let timeArr = []
+                while(i < arr.length){
+                    if(i < 3){
+                        dayArr.push(arr[i])
+                    }
+                    else {
+                        timeArr.push(arr[i])
+                    }
+                    i++
+                }
+                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
+                //CreatedAt is in server time so it needs to be converted to local time
+                // return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
+                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
+            }
+            catch(error){
+                console.log(error)
+                return "_"
+            }
+        },
+        openNotiMenu(){
+            if(!this.notiMenu){
+                this.getNoti()
+            }
+        },
+        getNoti(){
+            this.loadingNoti = true;
+            let url = `${config.apiUrl}/notifications`
+            let params = {
+                page: 1,
+                size: 5,
+            }
+            apiService.getApi(url, params).then(result => {
+                if(result.status.toString()[0] === "2"){
+                    this.noti = result.data.content
+                    console.log(this.noti)
+                }
+                else {
+                    this.$toast.open({
+                        message: result.data.message,
+                        type: 'error',
+                    })
+                }
+            }).catch(error => {
+                console.log(error)
+            }).finally(() => {
+                this.loadingNoti = false;
+            })
+        },
         checkString(str){
             return (str != null & str != undefined) ? str : '_'
         },
@@ -118,6 +256,7 @@ export default {
             this.$store.dispatch('toggleNavDrawer')
         },
         logout(){
+            this.menu = false
             this.$store.dispatch('turnOnLoadingDialog', 'Đăng xuất...')
             let url = `${config.apiUrl}/auth/sign_out`
             apiService.postApi(url).then(result => {
