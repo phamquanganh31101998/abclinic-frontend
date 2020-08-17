@@ -15,7 +15,11 @@ export default new Vuex.Store({
     loadingMsg: '',
     newNotification: null,
     typeNoti: -1,
-    payloadId: -1
+    payloadId: -1,
+    newScheduleObj: {
+      patientId: 0,
+      dialog: false
+    }
   },
   mutations: {
     toggleNavDrawer(state){
@@ -59,6 +63,14 @@ export default new Vuex.Store({
     resetHandleNotification(state){
       state.typeNoti = -1;
       state.payloadId = -1;
+    },
+    setNewScheduleObj(state, payload){
+      state.newScheduleObj.patientId = payload
+      state.newScheduleObj.dialog = true;
+    },
+    resetNewScheduleObj(state){
+      state.newScheduleObj.patientId = 0;
+      state.newScheduleObj.dialog = false;
     }
   },
   actions: {
@@ -91,6 +103,12 @@ export default new Vuex.Store({
     },
     resetHandleNotification({commit}){
       commit('resetHandleNotification')
+    },
+    setNewScheduleObj({commit}, data){
+      commit('setNewScheduleObj', data)
+    },
+    resetNewScheduleObj({commit}){
+      commit('resetNewScheduleObj')
     }
   },
   modules: {
@@ -126,6 +144,15 @@ export default new Vuex.Store({
         typeNoti: state.typeNoti
       }
       return obj
+    },
+    newScheduleObj: state => {
+      return state.newScheduleObj
+    },
+    newScheduleDialog: state => {
+      return state.newScheduleObj.dialog
+    },
+    newSchedulePatientId: state => {
+      return state.newScheduleObj.patientId
     }
   }
 })

@@ -170,7 +170,8 @@ export default {
                 }
                 let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
                 //CreatedAt is in server time so it needs to be converted to local time
-                return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
+                // return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
+                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
             }
             catch(error){
                 console.log(error)

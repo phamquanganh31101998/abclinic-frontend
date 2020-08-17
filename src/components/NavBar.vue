@@ -10,12 +10,6 @@
             nav
             dense
             >
-            <v-list-item @click="goToPage('notification')">
-                <v-list-item-icon>
-                    <v-icon>mdi-home</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Thông báo</v-list-item-title>
-            </v-list-item>
             <v-list-item v-show="user != null && user.role == 'PRACTITIONER'" @click="goToPage('practitioner')">
                 <v-list-item-icon>
                     <v-icon>people</v-icon>
@@ -33,6 +27,12 @@
                     <v-icon>directions_run</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title>Điều phối viên</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="goToPage('notification')">
+                <v-list-item-icon>
+                    <v-icon>notification_important</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Thông báo</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('staff')">
                 <v-list-item-icon>
