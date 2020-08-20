@@ -1,45 +1,43 @@
 import axios from 'axios'
-// import qs from 'qs'
 
 export default {
-    getApi, postApi, login, postApiParams, deleteApi, putApi
+    getApi, postApi,  putApi, deleteApi, login,
 }
 
-async function getApi(url, params){
-    try {
-        let config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': localStorage.getItem('ac_uid'),
-            },
+function getApi(url, params){
+    return callApi(url, 'GET', params)
+}
+
+function postApi(url, body){
+    return callApi(url, 'POST', body)
+}
+
+function putApi(url, body){
+    return callApi(url, 'PUT', body)
+}
+
+function deleteApi(url, body){
+    return callApi(url, 'DELETE', body)
+}
+
+
+async function callApi(url, method, payload){
+    let config = {
+        method: method,
+        url: url,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('ac_uid'),
+        },
+    }
+    if(payload != null && payload != undefined){
+        if(method == 'GET'){
+            config.params = payload;
         }
-        if (params != null && params != undefined){
-            config.params = params
+        else {
+            config.data = payload;
         }
-        const result = await axios.get(url, config)
-        return result
-    }
-    catch (error) {
-        return error.response;
-    }
-}
-
-async function putApi(url, body, params){
-    let config = {
-        method: 'put',
-        url: url,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('ac_uid'),
-        },
-    }
-    if (body){
-        config.data = body
-    }
-    if (params != null && params != undefined){
-        config.params = params
     }
     try {
         const result = await axios(config)
@@ -49,97 +47,10 @@ async function putApi(url, body, params){
         return error.response;
     }
 }
-
-async function postApi(url, body){
-    let config = {
-        method: 'post',
-        url: url,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('ac_uid'),
-        },
-    }
-    if(body){
-        config.data = body
-    }
-    try {
-        const result = await axios(config)
-        return result
-    }
-    catch (error) {
-        return error.response;
-    }
-}
-
-async function postApiParams(url, params){
-    let config = {
-        method: 'post',
-        url: url,
-        params: params,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('ac_uid'),
-        },
-    }
-    try {
-        const result = await axios(config)
-        return result
-    }
-    catch (error) {
-        return error.response;
-    }
-}
-
-async function deleteApi(url, body){
-    let config = {
-        method: 'delete',
-        url: url,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('ac_uid'),
-        },
-    }
-    if(body){
-        config.data = body
-    }
-    try {
-        const result = await axios(config)
-        return result
-    }
-    catch (error) {
-        return error.response;
-    }
-}
-
-
-// async function callApi(url, method, payload){
-//     let config = {
-//         method: method,
-//         url: url,
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Accept': 'application/json',
-//             'Authorization': localStorage.getItem('ac_uid'),
-//         },
-//     }
-//     if(payload != null && payload != undefined){
-        
-//     }
-//     try {
-//         const result = await axios(config)
-//         return result
-//     }
-//     catch (error) {
-//         return error.response;
-//     }
-// }
 
 async function login(url, body){
     let config = {
-        method: 'post',
+        method: 'POST',
         url: url,
         data: body,
         headers: {

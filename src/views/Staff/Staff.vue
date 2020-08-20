@@ -813,7 +813,7 @@ export default {
     },
     methods: {
         returnRole(role){
-            return this.returnRole(role)
+            return func.returnRole(role)
         },
         returnGender(number){
             return func.returnGender(number)
