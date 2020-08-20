@@ -446,9 +446,9 @@
 </template>
 <script>
 import {mapGetters} from 'vuex'
-import moment from 'moment';
 import config from '../config'
 import apiService from '../services/api.service'
+import func from '../helpers/common_function'
 export default {
     props: {
 
@@ -571,93 +571,16 @@ export default {
     },
     methods: {
         returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'ĐIỀU PHỐI VIÊN';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
+            return func.returnRole(role)
         },
         returnLocalTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
+            return func.returnLocalTimeFromTimeArray(arr)
         },
         returnTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
-        },
-        findObjIndexById(arr, id){
-            let result = -1;
-            for(let i = 0; i < arr.length; i++){
-                if(arr[i].id == id){
-                    result = i
-                }
-            }
-            return result
+            return func.returnTimeFromTimeArray(arr)
         },
         convertSecond(sec){
-            let month = Math.floor(sec/ 18144000)
-            let monthStr = (month == 0) ? '' : `${month} tháng `
-            let week = Math.floor((sec % 18144000)/ 604800)
-            let weekStr = (week == 0) ? '' : `${week} tuần `
-            let day = Math.floor((sec % 18144000 % 604800) / 86400)
-            let dayStr = (day == 0) ? '' : `${day} ngày `
-            let hour = Math.floor((sec % 18144000 % 604800 % 86400) / 3600)
-            let hourStr = (hour == 0) ? '' : `${hour} giờ `
-            let result = monthStr + weekStr + dayStr + hourStr
-            return result
+            return func.convertSecond(sec)
         },
         getHealthIndexes(page, size){
             this.healthIndexes = []
@@ -858,13 +781,14 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
-        getDetailHealthIndexesResultSchedule(scheduleId, tagId){
+        getDetailHealthIndexesResultSchedule(scheduleId){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin chi tiết kết quả...')
             let url = `${config.apiUrl}/health_indexes/schedule/${scheduleId}`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.healthIndexesResult.detailResult.schedule = result.data
-                    this.getDetailHealthIndexesResult(tagId)
+                    this.healthIndexesResult.detailResultDialog = true
+                    // this.getDetailHealthIndexesResult(tagId)
                 }
                 else {
                     this.$toast.open({
@@ -879,12 +803,14 @@ export default {
             })
             
         },
+        //get the result
         getDetailHealthIndexesResult(tagId){
             let url = `${config.apiUrl}/health_indexes/result/${tagId}`
             apiService.getApi(url).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.healthIndexesResult.detailResult.result = result.data
-                    this.healthIndexesResult.detailResultDialog = true
+                    //get the schedule
+                    this.getDetailHealthIndexesResultSchedule(this.healthIndexesResult.detailResult.result[0].schedule.id)
                 }
                 else {
                     this.$toast.open({
@@ -928,8 +854,29 @@ export default {
                 console.log(error)
             })
         },
+        checkComeFromNotiPage(){
+            console.log(this.handleNotificationObj)
+            let typeNoti = this.handleNotificationObj.typeNoti
+            let payloadId = this.handleNotificationObj.payloadId
+            if(typeNoti != -1){
+                switch(typeNoti){
+                    //handle case 8: patient send health indexes
+                    case 8: {
+                        this.getDetailHealthIndexesResult(payloadId)
+                        this.$store.dispatch('resetHandleNotification')
+                        break;
+                    }
+                    //do nothing, no reset because doctor.vue and practitioner.vue do the resetting
+                    default: {
+                        break;
+                    }
+                }
+                
+            }
+        }
     },
     created(){
+        this.checkComeFromNotiPage()
         this.newSchedule.startDate = new Date().toISOString().substr(0, 10)
         this.getHealthIndexesSchedule(this.healthIndexesSchedules.page, this.healthIndexesSchedules.pageSize, this.healthIndexesSchedules.search)
         this.getHealthIndexesResult(this.healthIndexesResult.page, this.healthIndexesResult.pageSize, this.healthIndexesResult.search)

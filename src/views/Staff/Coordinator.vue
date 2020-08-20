@@ -883,43 +883,6 @@ export default {
         returnInquiryType(type){
             return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
         },
-        returnGender(number){
-            switch(number){
-                case 0: 
-                    return 'Nam'
-                case 1:
-                    return 'Nữ'
-                case 2:
-                    return 'Khác'
-            }
-        },
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
-        },
-        returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'ĐIỀU PHỐI VIÊN';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
-        },
         getAllPatients(page, size, searchObj){
             this.loadingPatient = true;
             this.allPatients = [];
@@ -1212,15 +1175,6 @@ export default {
             this.selectInquiryMain.push(item)
             this.selectedInquiryMain.push(item)
             this.assignToPracDialogMain = true
-        },
-        findObjIndexById(arr, id){
-            let result = -1;
-            for(let i = 0; i < arr.length; i++){
-                if(arr[i].id == id){
-                    result = i
-                }
-            }
-            return result
         },
         handleNewNotification(e){
             let url = `${config.apiUrl}/notifications/${e.notificationId}`

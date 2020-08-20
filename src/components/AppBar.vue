@@ -132,10 +132,10 @@
     </v-app-bar>
 </template>
 <script>
-import moment from 'moment'
 import {mapGetters} from 'vuex'
 import config from '../config'
 import apiService from '../services/api.service'
+import func from '../helpers/common_function'
 export default {
     data() {
         return {
@@ -151,6 +151,15 @@ export default {
         })
     },
     methods: {
+        returnTimeFromTimeArray(arr){
+            return func.returnTimeFromTimeArray(arr)
+        },
+        checkString(str){
+            return func.checkString(str)
+        },
+        returnRole(role){
+            return func.returnRole(role)
+        },
         goToServicePage(type, id){
             let obj = {
                 typeNoti: type,
@@ -172,30 +181,6 @@ export default {
                 default: {
                     break;
                 }
-            }
-        },
-        returnTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                //CreatedAt is in server time so it needs to be converted to local time
-                // return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
-                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
             }
         },
         openNotiMenu(){
@@ -226,28 +211,6 @@ export default {
             }).finally(() => {
                 this.loadingNoti = false;
             })
-        },
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
-        },
-        returnRole(role){
-            switch(role){
-                case "COORDINATOR": {
-                    return "Điều phối viên"
-                }
-                case "PRACTITIONER": {
-                    return "Bác sĩ đa khoa"
-                }
-                case "SPECIALIST": {
-                    return "Bác sĩ chuyên khoa"
-                }
-                case "DIETITIAN": {
-                    return "Bác sĩ dinh dưỡng"
-                }
-                default: {
-                    return "_"
-                }
-            }
         },
         goToPage(link){
             this.$router.replace(link)

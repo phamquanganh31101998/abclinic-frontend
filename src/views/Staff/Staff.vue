@@ -615,6 +615,7 @@
 import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
+import func from '../../helpers/common_function'
 export default {
     data(){
         return {
@@ -818,60 +819,16 @@ export default {
     },
     methods: {
         returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'ĐIỀU PHỐI VIÊN';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
+            return this.returnRole(role)
         },
         returnGender(number){
-            switch(number){
-                case 0: 
-                    return 'Nam'
-                case 1:
-                    return 'Nữ'
-                case 2:
-                    return 'Khác'
-            }
-        },
-        checkGender(number){
-            switch(number){
-                case 0: 
-                    return 'Nam'
-                case 1:
-                    return 'Nữ'
-                case 2:
-                    return 'Khác'
-            }
+            return func.returnGender(number)
         },
         checkString(str){
-            return (str != null & str != undefined) ? str : '_'
+            return func.checkString(str)
         },
         findObjIndexById(arr, id){
-            let result = -1;
-            for(let i = 0; i < arr.length; i++){
-                if(arr[i].id == id){
-                    result = i
-                }
-            }
-            return result
+            return func.findObjIndexById(arr, id)
         },
         getAllDoctor(page, size, searchObj){
             this.loadingDoctor = true;

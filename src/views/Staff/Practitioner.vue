@@ -635,12 +635,11 @@
     </v-container>
 </template>
 <script>
-// import $ from 'jquery'
-import moment from 'moment'
 import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
 import healthIndexesComponent from '../../components/HealthIndexes'
+import func from '../../helpers/common_function'
 var convertNumber = require('decimal-to-binary')
 export default {
     components: {
@@ -823,6 +822,21 @@ export default {
         },
     },
     methods: {
+        returnTimeFromTimeArray(arr){
+            return func.returnTimeFromTimeArray(arr)
+        },
+        returnInquiryType(type){
+            return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
+        },
+        returnGender(number){
+            return func.returnGender(number)
+        },
+        returnRole(role){
+            return func.returnRole(role)
+        },
+        scrollBottom() {
+			window.scrollTo(0,document.body.scrollHeight)
+        },
         setPatientStatusBit(index, value){
             if(value == true){
                 switch(index){
@@ -873,103 +887,6 @@ export default {
                 // console.log(bitArr)
                 return convertNumber.convertToDecimal(statusValue) + 2;
             }
-        },
-        returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'ĐIỀU PHỐI VIÊN';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
-        },
-        scrollBottom() {
-			window.scrollTo(0,document.body.scrollHeight)
-        },
-        returnLocalTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
-        },
-        returnTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
-        },
-        clearSpecAndDietCheck(){
-            if(this.patientAllStatus[0].value == true){
-                this.patientAllStatus[1].value = false;
-                this.patientAllStatus[2].value = false;
-                return;
-            }
-            else {
-                return;
-            }
-        },
-        returnInquiryType(type){
-            return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
-        },
-        checkGender(number){
-            switch(number){
-                case 0: 
-                    return 'Nam'
-                case 1:
-                    return 'Nữ'
-                case 2:
-                    return 'Khác'
-            }
-        },
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
         },
         getAllPatients(page, size, searchObj){
             this.loadingPatient = true;
@@ -1060,7 +977,7 @@ export default {
             this.patientDetail.dateOfBirth = data.dateOfBirth
             this.patientDetail.createdDate = data.createdDate
             this.patientDetail.email = data.email
-            this.patientDetail.gender = this.checkGender(data.gender)
+            this.patientDetail.gender = this.returnGender(data.gender)
             this.patientDetail.id = data.id
             this.patientDetail.name = data.name
             this.patientDetail.phoneNumber = data.phoneNumber
@@ -1292,15 +1209,6 @@ export default {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
         },
-        findObjIndexById(arr, id){
-            let result = -1;
-            for(let i = 0; i < arr.length; i++){
-                if(arr[i].id == id){
-                    result = i
-                }
-            }
-            return result
-        },
         openEditRecordDialog(recordId, index, isMedical){
             this.editRecord.obj = (isMedical == true) ? (Object.assign({}, this.detailInquiry.medicalRecords[index])) : (Object.assign({}, this.detailInquiry.dietRecords[index]));
             this.editRecord.recordId = recordId
@@ -1424,9 +1332,6 @@ export default {
             this.selectInquiryMain.push(item)
             this.selectedInquiryMain.push(item)
             this.assignToDoctorDialogMain = true
-        },
-        logging(){
-            console.log(this.patientDetail)
         },
         getNewRecordFromNotification(recordId, typeRecord){
             let url = `${config.apiUrl}/records/${recordId}`
@@ -1626,6 +1531,7 @@ export default {
             let payloadId = this.handleNotificationObj.payloadId
             if(typeNoti != -1){
                 switch(typeNoti){
+                    //handle and reset
                     //0: patient send new inquiry
                     //2: new reply
                     //3: assigned a new patient
@@ -1636,36 +1542,46 @@ export default {
                     case 4:
                     case 5: {
                         this.getDetailInquiry(payloadId)
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
                     //new record
                     case 1: {
                         this.getInquiryFromRecordId(payloadId, 0)
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
                     case 11: {
                         this.getInquiryFromRecordId(payloadId, 1)
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
                     //doctor remove a patient
                     case 6: {
                         this.getPatientDetail(payloadId)
+                        this.$store.dispatch('resetHandleNotification')
                         break
                     }
                     //patient has been deactivated
+                    //do nothing, just reset
                     case 10: {
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
-                    default: {
+                    //do nothing, let healthindexes.vue do the handling
+                    case 8: {
+                        // this.getDetailHealthIndexesResult(payloadId)
                         break;
                     }
+                    // default: {
+                    //     break;
+                    // }
                 }
-                this.$store.dispatch('resetHandleNotification')
+                
             }
         }
     },
     created(){
-        // this.getAllRecordsOfInquiry(3);
         this.checkComeFromNotiPage()
         this.getInquiries(this.inquiryPage, this.inquiryPageSize, this.inquiryAssign)
         this.getAllPatients(this.patientPage, this.patientPageSize, this.patientSearch)

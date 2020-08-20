@@ -107,6 +107,7 @@
 const axios = require('axios');
 import apiService from '../services/api.service'
 import config from '../config'
+import func from '../helpers/common_function'
 export default {
     data(){
         return{
@@ -129,9 +130,6 @@ export default {
         }
     },
     methods: {
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
-        },
         getInfo(){
             this.$store.dispatch('turnOnLoadingDialog', 'Đang lấy thông tin người dùng...')
             let url = `${config.apiUrl}/user`
@@ -153,28 +151,7 @@ export default {
             })
         },
         returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'Điều phối viên';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
+            return func.returnRole(role)
         },
         updateInfo(email, phone, description){
             this.$store.dispatch('turnOnLoadingDialog', 'Cập nhật thông tin cá nhân...')

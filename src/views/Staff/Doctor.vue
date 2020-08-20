@@ -460,11 +460,11 @@
     </v-container>
 </template>
 <script>
-import moment from 'moment'
 import {mapGetters} from 'vuex'
 import apiService from '../../services/api.service'
 import config from '../../config'
 import healthIndexesComponent from '../../components/HealthIndexes'
+import func from '../../helpers/common_function'
 export default {
     components: {
         healthIndexesComponent
@@ -634,101 +634,19 @@ export default {
     },
     methods: {
         returnRole(role){
-            let result = '';
-            switch(role){
-                case 'PATIENT':
-                    result = 'Bệnh nhân';
-                    break;
-                case 'PRACTITIONER':
-                    result = 'Bác sĩ đa khoa';
-                    break;
-                case 'SPECIALIST':
-                    result = 'Bác sĩ chuyên khoa';
-                    break;
-                case 'DIETITIAN':
-                    result = 'Bác sĩ dinh dưỡng';
-                    break;
-                case 'COORDINATOR':
-                    result = 'ĐIỀU PHỐI VIÊN';
-                    break;
-                default:
-                    result = '';
-                    break;
-            }
-            return result
+            return func.returnRole(role)
+        },
+        returnTimeFromTimeArray(arr){
+            return func.returnTimeFromTimeArray(arr)
+        },
+        returnGender(number){
+            return func.returnGender(number)
         },
         scrollBottom() {
 			window.scrollTo(0,document.body.scrollHeight)
         },
-        returnLocalTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment.utc(timeString).local().format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
-        },
-        returnTimeFromTimeArray(arr){
-            try {
-                let i = 0;
-                let dayArr = []
-                let timeArr = []
-                while(i < arr.length){
-                    if(i < 3){
-                        dayArr.push(arr[i])
-                    }
-                    else {
-                        timeArr.push(arr[i])
-                    }
-                    i++
-                }
-                let timeString = `${dayArr.join('-')} ${timeArr.join(':')}`
-                return moment(timeString).format('HH:mm:ss DD/MM/YYYY')
-            }
-            catch(error){
-                console.log(error)
-                return "_"
-            }
-        },
-        clearSpecAndDietCheck(){
-            if(this.patientAllStatus[0].value == true){
-                this.patientAllStatus[1].value = false;
-                this.patientAllStatus[2].value = false;
-                return;
-            }
-            else {
-                return;
-            }
-        },
         returnInquiryType(type){
             return (type == 0) ? 'Khám bệnh' : 'Dinh dưỡng'
-        },
-        checkGender(number){
-            switch(number){
-                case 0: 
-                    return 'Nam'
-                case 1:
-                    return 'Nữ'
-                case 2:
-                    return 'Khác'
-            }
-        },
-        checkString(str){
-            return (str != null & str != undefined) ? str : '_'
         },
         getAllPatients(page, size, searchObj){
             this.loadingPatient = true;
@@ -827,7 +745,7 @@ export default {
             this.patientDetail.dateOfBirth = data.dateOfBirth
             this.patientDetail.createdDate = data.createdDate
             this.patientDetail.email = data.email
-            this.patientDetail.gender = this.checkGender(data.gender)
+            this.patientDetail.gender = this.returnGender(data.gender)
             this.patientDetail.id = data.id
             this.patientDetail.name = data.name
             this.patientDetail.phoneNumber = data.phoneNumber
@@ -952,15 +870,6 @@ export default {
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-        },
-        findObjIndexById(arr, id){
-            let result = -1;
-            for(let i = 0; i < arr.length; i++){
-                if(arr[i].id == id){
-                    result = i
-                }
-            }
-            return result
         },
         openEditRecordDialog(recordId, index, isMedical){
             this.editRecord.obj = (isMedical == true) ? (Object.assign({}, this.detailInquiry.medicalRecords[index])) : (Object.assign({}, this.detailInquiry.dietRecords[index]));
@@ -1132,9 +1041,6 @@ export default {
                 this.loadingInquiries = false;
             })
         },
-        logging(){
-            console.log(this.patientDetail)
-        },
         getRepliesFromNewNotification(inquiryId){
             let url = `${config.apiUrl}/inquiries/${inquiryId}`
             apiService.getApi(url).then(result => {
@@ -1242,28 +1148,34 @@ export default {
             let payloadId = this.handleNotificationObj.payloadId
             if(typeNoti != -1){
                 switch(typeNoti){
+                    //handle these cases and reset
                     //0: new inquiry
-                    //2:new reply
+                    //2: new reply
                     //3: assigned new patient
-                    //8: patient send health indexes result
                     case 0: 
                     case 2:
                     case 3: {
                         this.getDetailInquiry(payloadId)
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
-                    // case 8: {
-                    //     this.getDetailHealthIndexesResult(payloadId)
-                    //     break
-                    // }
+                    //8: patient send health indexes result
+                    //do nothing, let healthindexes.vue do the handling
+                    case 8: {
+                        // this.getDetailHealthIndexesResult(payloadId)
+                        break;
+                    }
+                    //do nothing, just reset
                     case 10: {
-                        break
-                    }
-                    default: {
+                        this.$store.dispatch('resetHandleNotification')
                         break;
                     }
+                    // default: {
+                    //     this.$store.dispatch('resetHandleNotification')
+                    //     break;
+                    // }
                 }
-                this.$store.dispatch('resetHandleNotification')
+                // this.$store.dispatch('resetHandleNotification')
             }
         }
     },
