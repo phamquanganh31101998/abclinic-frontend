@@ -1217,19 +1217,17 @@ export default {
         },
         updateRecord(recordId, index, isMedical, pres, note, diag){
             let url = `${config.apiUrl}/records`
-            let params = { 
-                type: 0
-            }
             let body = {
                 id: recordId,
                 prescription: pres,
-                note: note
+                note: note,
+                type: 0
             }
             if(diag){
                 body.diagnose = diag;
             }
             this.$store.dispatch('turnOnLoadingDialog', 'Đang duyệt tư vấn...')
-            apiService.putApi(url, body, params).then(result => {
+            apiService.putApi(url, body).then(result => {
                 if(result.status.toString()[0] === "2"){
                     this.$toast.open({
                         message: 'Duyệt tư vấn thành công',
