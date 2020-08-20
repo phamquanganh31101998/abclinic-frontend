@@ -771,7 +771,6 @@ export default {
                 },
             ],
             inquiryAssign: true,
-            
         }
     },
     computed: {

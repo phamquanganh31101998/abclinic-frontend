@@ -616,7 +616,6 @@ export default {
                 { text: 'EMAIL', value: 'email', align: 'start' },
                 { text: 'SỐ ĐT', value: 'phoneNumber', align: 'start' },
             ],
-            loadingDoctor: false,
             deleteUserDialog: false,
             deleteUserId: 0,
             deleteUserTypeIsStaff: null,
@@ -735,16 +734,6 @@ export default {
             selectInquiryMain: [],
             selectedInquiryMain: [],
             assignToPracDialogMain: false,
-            inquiryAssignValue: [
-                {
-                    text: 'Tất cả các yêu cầu',
-                    value: true
-                },
-                {
-                    text: 'Yêu cầu chưa được gán cho bác sĩ cấp dưới',
-                    value: false
-                },
-            ],
             inquiryAssign: true,
             allDiseases: [
                 {

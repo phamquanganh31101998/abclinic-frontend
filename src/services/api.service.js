@@ -114,6 +114,29 @@ async function deleteApi(url, body){
     }
 }
 
+
+// async function callApi(url, method, payload){
+//     let config = {
+//         method: method,
+//         url: url,
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json',
+//             'Authorization': localStorage.getItem('ac_uid'),
+//         },
+//     }
+//     if(payload != null && payload != undefined){
+        
+//     }
+//     try {
+//         const result = await axios(config)
+//         return result
+//     }
+//     catch (error) {
+//         return error.response;
+//     }
+// }
+
 async function login(url, body){
     let config = {
         method: 'post',
@@ -133,3 +156,4 @@ async function login(url, body){
         return error.response;
     }
 }
+

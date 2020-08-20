@@ -450,9 +450,6 @@ import config from '../config'
 import apiService from '../services/api.service'
 import func from '../helpers/common_function'
 export default {
-    props: {
-
-    },
     computed: {
         ...mapGetters({
             newNotification: 'newNotification',
