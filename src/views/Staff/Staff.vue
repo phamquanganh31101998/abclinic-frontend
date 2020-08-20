@@ -674,8 +674,6 @@ export default {
                 },
             ],
             doctorSearchMenu: false,
-            responseText: 'Try something',
-            showDoctor: true,
             doctorDetailDialog: false,
             doctorDetail: {
                 number: 0,
@@ -716,7 +714,6 @@ export default {
                 name: '',
                 detail: ''
             },
-            showSpec: true,
             loadingSpec: false,
             deleteUserDialog: false,
             deleteUserId: 0,
@@ -813,9 +810,6 @@ export default {
         })
     },
     watch: {
-        user(){
-            
-        }
     },
     methods: {
         returnRole(role){

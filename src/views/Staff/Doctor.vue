@@ -551,13 +551,6 @@ export default {
             // patientChosenStatusArr: [],
             detailInquiry: null,
             replyText: '',
-            doctorHeaders: [
-                { text: 'ID', value: 'id' , align: 'start'},
-                { text: 'TÊN', value: 'name', align: 'start' },
-                { text: 'EMAIL', value: 'email', align: 'start' },
-                { text: 'GIỚI TÍNH', value: 'gender', align: 'start' },
-                { text: 'HÀNH ĐỘNG', value: 'more', align: 'right' },
-            ],
             editRecord: {
                 obj: null,
                 recordId: 0,
