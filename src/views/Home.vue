@@ -123,9 +123,9 @@ export default {
       setTimeout(() => {
           audioFile.pause()
       }, 2000)
-      let time = moment().format('HH:mm:ss')
+      // let time = moment().format('HH:mm:ss')
       this.$toast.open({
-        message: `THÔNG BÁO MỚI: ${e.notification}! (${time})`,
+        message: `THÔNG BÁO MỚI: ${e.notification}!`,
         type: 'info',
       })
     },

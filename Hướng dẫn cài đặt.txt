@@ -3,7 +3,7 @@
   - local: 
 	mở command prompt, chạy npm install, rồi npm run serve, rồi truy cập tại localhost:8080
 Các tài khoản sử dụng để test:
-  - điều phối viên: qa.coo@gmail.com - 123456
-  - bác sĩ đa khoa: tung.prac@gmail.com - 123456
-  - bác sĩ chuyên khoa: theanh28.spec@gmail.com - 123456
-  - Bác sĩ dinh dưỡng: hieu.diet@gmail.com - 123456
+  - điều phối viên: coo01@mail.com - 123456
+  - bác sĩ đa khoa: prac01@mail.com - 123456
+  - bác sĩ chuyên khoa: spec01@mail.com - 123456
+  - Bác sĩ dinh dưỡng: diet01@mail.com - 123456

@@ -219,15 +219,15 @@ export default {
                 payloadId: id
             }
             this.$store.dispatch('setHandleNotification', obj)
-            let role = this.user.role.toLowerCase()
+            let role = this.user.role
             switch(role){
-                case "coordinator": 
-                case "practitioner": {
-                    this.goToPage(role)
+                case "COORDINATOR": {
+                    this.goToPage('coordinator')
                     break;
                 }
-                case "specialist":
-                case "dietitian": {
+                case "PRACTITIONER":
+                case "SPECIALIST":
+                case "DIETITIAN": {
                     this.goToPage('doctor')
                     break;
                 }
@@ -236,14 +236,8 @@ export default {
                 }
             }
         },
-        goToPage(page){
-            if(page){
-                let url = `/${page}`
-                this.$router.push(url)
-            }
-            else{
-                this.$router.push('/')
-            }
+        goToPage(link){
+            this.$router.replace(link)
         },
         
     },

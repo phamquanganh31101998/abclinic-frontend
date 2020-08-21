@@ -10,29 +10,23 @@
             nav
             dense
             >
-            <v-list-item v-show="user != null && user.role == 'PRACTITIONER'" @click="goToPage('practitioner')">
+            <v-list-item v-show="user != null && user.role != 'COORDINATOR'" @click="goToPage('doctor')">
                 <v-list-item-icon>
                     <v-icon>people</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Bác sĩ đa khoa</v-list-item-title>
-            </v-list-item>
-            <v-list-item v-show="user != null && (user.role == 'SPECIALIST' || user.role == 'DIETITIAN')" @click="goToPage('doctor')">
-                <v-list-item-icon>
-                    <v-icon>record_voice_over</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Bác sĩ chuyên khoa/dinh dưỡng</v-list-item-title>
+                <v-list-item-title>Chức năng Bác sĩ</v-list-item-title>
             </v-list-item>
             <v-list-item v-show="user != null && user.role == 'COORDINATOR'" @click="goToPage('coordinator')">
                 <v-list-item-icon>
                     <v-icon>directions_run</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Điều phối viên</v-list-item-title>
+                <v-list-item-title>Chức năng Điều phối viên</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('notification')">
                 <v-list-item-icon>
                     <v-icon>notification_important</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Thông báo</v-list-item-title>
+                <v-list-item-title>Các thông báo</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToPage('staff')">
                 <v-list-item-icon>
@@ -44,7 +38,7 @@
                 <v-list-item-icon>
                     <v-icon>info</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title>Thông tin người dùng</v-list-item-title>
+                <v-list-item-title>Cài đặt tài khoản</v-list-item-title>
             </v-list-item>
         </v-list>
     </v-navigation-drawer>
@@ -59,14 +53,8 @@ export default {
         }), 
     },
     methods: {
-        goToPage(page){
-            if(page){
-                let url = `/${page}`
-                this.$router.push(url)
-            }
-            else{
-                this.$router.push('/')
-            }
+        goToPage(link){
+            this.$router.replace(link)
         }
     }
 }

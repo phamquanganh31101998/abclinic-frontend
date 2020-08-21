@@ -772,7 +772,8 @@ export default {
     computed: {
         ...mapGetters({
             newNotification: 'newNotification',
-            handleNotificationObj: 'handleNotificationObj'
+            handleNotificationObj: 'handleNotificationObj',
+            user: 'user'
         })
     },
     watch: {
@@ -1371,7 +1372,10 @@ export default {
             }).finally(() => {
                 this.$store.dispatch('turnOffLoadingDialog')
             })
-        }
+        },
+        goToPage(link){
+            this.$router.replace(link)
+        },
     },
     created(){
         this.checkComeFromNotiPage()

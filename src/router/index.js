@@ -6,7 +6,6 @@ import Login from '../views/Auth/Login.vue'
 import Info from '../views/UserInfo.vue'
 import Staff from '../views/Staff/Staff.vue'
 import Coordinator from '../views/Staff/Coordinator'
-import Practitioner from '../views/Staff/Practitioner'
 import Doctor from '../views/Staff/Doctor'
 Vue.use(VueRouter)
 
@@ -40,11 +39,6 @@ const routes = [
         path: '/coordinator',
         name: 'Coordinator',
         component: Coordinator,
-      },
-      {
-        path: '/practitioner',
-        name: 'Practitioner',
-        component: Practitioner,
       },
       {
         path: '/doctor',

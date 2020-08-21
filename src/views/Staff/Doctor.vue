@@ -5,11 +5,11 @@
     </v-container>
 </template>
 <script>
-import healthIndexesComponent from '../../components/HealthIndexes'
 import patientComponent from '../../components/Patient'
+import healthIndexesComponent from '../../components/HealthIndexes'
 export default {
     components: {
-        healthIndexesComponent, patientComponent
+        patientComponent, healthIndexesComponent
     },
     data(){
         return {
@@ -20,8 +20,18 @@ export default {
     watch: {
     },
     methods: {
+        goToPage(link){
+            this.$router.replace(link)
+        },
     },
     created(){
+        if(this.user != null && this.user.role == 'COORDINATOR'){
+            this.$toast.open({
+                message: 'Trang này chỉ dành cho bác sĩ',
+                type: 'error',
+            })
+            this.goToPage('/')
+        }
     }
 }
 </script>

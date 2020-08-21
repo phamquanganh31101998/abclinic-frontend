@@ -83,8 +83,6 @@
                                     this.goToPage('/coordinator');
                                     break;
                                 case 'PRACTITIONER':
-                                    this.goToPage('/practitioner');
-                                    break;
                                 case 'DIETITIAN':
                                 case 'SPECIALIST':
                                     this.goToPage('/doctor');
