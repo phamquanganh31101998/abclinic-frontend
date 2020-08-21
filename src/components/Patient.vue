@@ -1586,9 +1586,11 @@ export default {
                     //     break;
                     // }
                 }
-                
             }
-        }
+        },
+        goToPage(link){
+            this.$router.replace(link)
+        },
     },
     created(){
         this.checkComeFromNotiPage()

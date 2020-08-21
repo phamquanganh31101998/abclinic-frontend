@@ -168,13 +168,13 @@ export default {
             this.$store.dispatch('setHandleNotification', obj)
             let role = this.user.role.toLowerCase()
             switch(role){
-                case "coordinator": 
-                case "practitioner": {
-                    this.goToPage(role)
+                case "COORDINATOR": {
+                    this.goToPage('coordinator')
                     break;
                 }
-                case "specialist":
-                case "dietitian": {
+                case "PRACTITIONER":
+                case "SPECIALIST":
+                case "DIETITIAN": {
                     this.goToPage('doctor')
                     break;
                 }
